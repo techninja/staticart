@@ -1,0 +1,100 @@
+[
+  {
+    "sku": "tee-classic-black",
+    "name": "Classic Black Tee",
+    "description": "A timeless black t-shirt made from 100% organic cotton. Soft, breathable, and built to last.",
+    "price": 2499,
+    "currency": "USD",
+    "images": ["/assets/products/tee-classic-black.jpg"],
+    "category": "shirts",
+    "stock": 42,
+    "active": true,
+    "variants": [
+      { "id": "sm", "label": "Small", "sku": "tee-classic-black-sm", "price": 0, "stock": 15 },
+      { "id": "md", "label": "Medium", "sku": "tee-classic-black-md", "price": 0, "stock": 18 },
+      { "id": "lg", "label": "Large", "sku": "tee-classic-black-lg", "price": 0, "stock": 9 }
+    ],
+    "metadata": { "material": "Organic Cotton", "weight": "180gsm" },
+    "createdAt": "2025-01-15T10:00:00Z",
+    "updatedAt": "2025-01-15T10:00:00Z"
+  },
+  {
+    "sku": "hoodie-zip-grey",
+    "name": "Zip-Up Hoodie Grey",
+    "description": "Heavyweight zip-up hoodie with a brushed fleece interior. Perfect for layering.",
+    "price": 5999,
+    "currency": "USD",
+    "images": ["/assets/products/hoodie-zip-grey.jpg"],
+    "category": "outerwear",
+    "stock": 8,
+    "active": true,
+    "variants": [
+      { "id": "md", "label": "Medium", "sku": "hoodie-zip-grey-md", "price": 0, "stock": 3 },
+      { "id": "lg", "label": "Large", "sku": "hoodie-zip-grey-lg", "price": 0, "stock": 3 },
+      { "id": "xl", "label": "X-Large", "sku": "hoodie-zip-grey-xl", "price": 200, "stock": 2 }
+    ],
+    "metadata": { "material": "Cotton/Poly Blend", "weight": "320gsm" },
+    "createdAt": "2025-01-16T12:00:00Z",
+    "updatedAt": "2025-01-16T12:00:00Z"
+  },
+  {
+    "sku": "mug-staticart",
+    "name": "StatiCart Logo Mug",
+    "description": "Ceramic mug featuring the StatiCart logo. Dishwasher and microwave safe. 12oz capacity.",
+    "price": 1499,
+    "currency": "USD",
+    "images": ["/assets/products/mug-staticart.jpg"],
+    "category": "accessories",
+    "stock": 120,
+    "active": true,
+    "variants": [],
+    "metadata": { "material": "Ceramic", "capacity": "12oz" },
+    "createdAt": "2025-01-17T09:00:00Z",
+    "updatedAt": "2025-01-17T09:00:00Z"
+  },
+  {
+    "sku": "sticker-pack-dev",
+    "name": "Developer Sticker Pack",
+    "description": "Set of 6 vinyl die-cut stickers. Waterproof, UV-resistant, laptop-ready.",
+    "price": 799,
+    "currency": "USD",
+    "images": ["/assets/products/sticker-pack-dev.jpg"],
+    "category": "accessories",
+    "stock": 250,
+    "active": true,
+    "variants": [],
+    "metadata": { "count": "6 stickers", "material": "Vinyl" },
+    "createdAt": "2025-01-18T14:00:00Z",
+    "updatedAt": "2025-01-18T14:00:00Z"
+  },
+  {
+    "sku": "cap-snapback-navy",
+    "name": "Snapback Cap Navy",
+    "description": "Structured snapback cap with embroidered logo. One size fits most.",
+    "price": 2999,
+    "currency": "USD",
+    "images": ["/assets/products/cap-snapback-navy.jpg"],
+    "category": "accessories",
+    "stock": 3,
+    "active": true,
+    "variants": [],
+    "metadata": { "material": "Cotton Twill", "closure": "Snapback" },
+    "createdAt": "2025-02-01T08:00:00Z",
+    "updatedAt": "2025-02-01T08:00:00Z"
+  },
+  {
+    "sku": "poster-arch-diagram",
+    "name": "Architecture Diagram Poster",
+    "description": "High-quality print of the StatiCart architecture diagram. 18x24 inches on matte cardstock.",
+    "price": 1999,
+    "currency": "USD",
+    "images": ["/assets/products/poster-arch-diagram.jpg"],
+    "category": "prints",
+    "stock": 0,
+    "active": true,
+    "variants": [],
+    "metadata": { "size": "18x24in", "paper": "Matte Cardstock" },
+    "createdAt": "2025-02-10T11:00:00Z",
+    "updatedAt": "2025-02-10T11:00:00Z"
+  }
+]

@@ -298,7 +298,7 @@ multiple keys.
 
 - **One script per domain.** `test`, `spec`, `lint` — not `test:node`,
   `test:browser`, `lint:fix`, `spec:code`, `spec:docs`.
-- **Arguments over aliases.** `pnpm spec check code` instead of
+- **Arguments over aliases.** `pnpm spec code` instead of
   `pnpm spec:code`. The CLI handles routing.
 - **Interactive by default.** Running `pnpm spec` with no arguments shows
   a menu of available actions. Users discover commands by using the tool.

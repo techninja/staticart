@@ -3,3 +3,5 @@ src/vendor/
 src/icons.json
 data/db.json
 .env.local
+src/public/vendor/
+src/public/icons.json

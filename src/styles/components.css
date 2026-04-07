@@ -7,3 +7,11 @@
 @import '../components/atoms/app-badge/app-badge.css';
 @import '../components/atoms/app-icon/app-icon.css';
 @import '../components/atoms/theme-toggle/theme-toggle.css';
+@import '../components/atoms/cart-count/cart-count.css';
+
+/* Molecules */
+@import '../components/molecules/product-card/product-card.css';
+
+/* Organisms */
+@import '../components/organisms/product-grid/product-grid.css';
+@import '../components/organisms/app-header/app-header.css';

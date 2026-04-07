@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="src/assets/staticart_logo.svg" alt="StatiCart logo" width="240" />
+</p>
+
 # staticart
 
 > StatiCart — a full-featured e-commerce platform built 99% on static hosting

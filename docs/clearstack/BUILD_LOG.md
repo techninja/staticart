@@ -168,6 +168,42 @@ These are the significant corrections:
 - **Actual:** Coordinates calculated from SVG rect, not accounting for pan
 - **Fix:** Shared `canvasPos()` utility subtracts pan offset from all tools
 
+### Enumerable models (`id: true`) break tsc
+
+- **Expected:** `@type {import('hybrids').Model<Product>}` works with `id: true`
+- **Actual:** tsc rejects `id: true` — it's not in the Model type definition
+- **Fix:** Type the model as `@type {any}` with a comment explaining the cast
+- **Documented in:** JSDOC_TYPING.md → Enumerable Models Need `@type {any}`
+
+### Empty arrays in store models throw at runtime
+
+- **Expected:** `items: []` on a singleton model works as an empty default
+- **Actual:** Hybrids throws `The first item of the 'items' array must be defined`
+- **Why:** Hybrids infers array item type from the first element at model setup
+- **Fix:** Provide a prototype item: `items: [{ sku: '', quantity: 0 }]`
+- **Documented in:** STATE_AND_ROUTING.md → Store Array Properties
+
+### List store descriptors don't match array types in tsc
+
+- **Expected:** `store([Model])` assignable to an array-typed host property
+- **Actual:** tsc sees `EnumerableInstance`, not `any[]` — three separate casts needed
+- **Fix:** Cast the descriptor, `store.ready()` call, and the array before `.map()`
+- **Documented in:** JSDOC_TYPING.md → List Store Properties Need Casts
+
+### Organisms importing pages creates circular dependencies
+
+- **Expected:** `router.url(PageView)` works from an organism for link generation
+- **Actual:** Page imports organism, organism imports page → circular
+- **Fix:** Use string URLs (`/product/${sku}`) in organisms instead of `router.url()`
+- **Documented in:** FRONTEND_IMPLEMENTATION_RULES.md → Organisms Must Not Import Pages
+
+### `list` connector params need cast for custom filter properties
+
+- **Expected:** `list: async ({ category }) => ...` destructures cleanly
+- **Actual:** Param is `ModelIdentifier`, tsc rejects `.category` access
+- **Fix:** Cast params to `any` before accessing custom properties
+- **Documented in:** JSDOC_TYPING.md → `list` Connector Params
+
 ---
 
 ## Metrics
