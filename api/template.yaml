@@ -1,0 +1,103 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: StatiCart thin API — checkout, webhook, stock check
+
+Globals:
+  Function:
+    Runtime: nodejs20.x
+    Timeout: 15
+    MemorySize: 256
+    Environment:
+      Variables:
+        DYNAMODB_TABLE: !Ref StatiCartTable
+        STRIPE_SECRET_KEY: !Ref StripeSecretKey
+        STRIPE_WEBHOOK_SECRET: !Ref StripeWebhookSecret
+        BUILD_HOOK_URL: !Ref BuildHookUrl
+        SITE_ORIGIN: !Ref SiteOrigin
+
+Parameters:
+  StripeSecretKey:
+    Type: String
+    NoEcho: true
+  StripeWebhookSecret:
+    Type: String
+    NoEcho: true
+  BuildHookUrl:
+    Type: String
+    Default: ''
+  SiteOrigin:
+    Type: String
+    Default: '*'
+
+Resources:
+  StatiCartApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowOrigins:
+          - !Ref SiteOrigin
+        AllowHeaders:
+          - Content-Type
+        AllowMethods:
+          - POST
+          - GET
+          - OPTIONS
+
+  CheckoutFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: checkout.handler
+      CodeUri: api/
+      Events:
+        Post:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref StatiCartApi
+            Path: /api/checkout
+            Method: POST
+
+  WebhookFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: webhook.handler
+      CodeUri: api/
+      Events:
+        Post:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref StatiCartApi
+            Path: /api/webhook
+            Method: POST
+
+  StockFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: stock.handler
+      CodeUri: api/
+      Events:
+        Get:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref StatiCartApi
+            Path: /api/stock/{sku}
+            Method: GET
+
+  StatiCartTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: staticart
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: PK
+          AttributeType: S
+        - AttributeName: SK
+          AttributeType: S
+      KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK
+          KeyType: RANGE
+
+Outputs:
+  ApiUrl:
+    Value: !Sub 'https://${StatiCartApi}.execute-api.${AWS::Region}.amazonaws.com'
