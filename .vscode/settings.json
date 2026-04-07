@@ -1,0 +1,67 @@
+{
+  "workbench.colorCustomizations": {
+    "titleBar.activeBackground": "#6D28D9",
+    "titleBar.activeForeground": "#FAFAF9",
+    "titleBar.inactiveBackground": "#5B21B6",
+    "titleBar.inactiveForeground": "#D6D3D1",
+
+    "activityBar.background": "#6D28D9",
+    "activityBar.foreground": "#FBBF24",
+    "activityBar.inactiveForeground": "#C4B5FD",
+    "activityBar.activeBorder": "#F59E0B",
+    "activityBar.activeBackground": "#5B21B6",
+    "activityBarBadge.background": "#F59E0B",
+    "activityBarBadge.foreground": "#1C1917",
+
+    "sideBar.background": "#292524",
+    "sideBar.foreground": "#E7E5E4",
+    "sideBarTitle.foreground": "#8B5CF6",
+    "sideBarSectionHeader.background": "#1C1917",
+    "sideBarSectionHeader.foreground": "#FBBF24",
+
+    "statusBar.background": "#6D28D9",
+    "statusBar.foreground": "#FAFAF9",
+    "statusBar.debuggingBackground": "#F59E0B",
+    "statusBar.debuggingForeground": "#1C1917",
+    "statusBar.noFolderBackground": "#44403C",
+
+    "editor.background": "#1C1917",
+    "editor.foreground": "#E7E5E4",
+    "editor.selectionBackground": "#6D28D940",
+    "editor.lineHighlightBackground": "#29252480",
+    "editorCursor.foreground": "#F59E0B",
+    "editorWhitespace.foreground": "#44403C",
+    "editorIndentGuide.background1": "#44403C",
+    "editorLineNumber.foreground": "#78716C",
+    "editorLineNumber.activeForeground": "#F59E0B",
+
+    "tab.activeBackground": "#292524",
+    "tab.activeForeground": "#FBBF24",
+    "tab.inactiveBackground": "#1C1917",
+    "tab.inactiveForeground": "#A8A29E",
+    "tab.activeBorderTop": "#8B5CF6",
+    "editorGroupHeader.tabsBackground": "#1C1917",
+
+    "terminal.background": "#1C1917",
+    "terminal.foreground": "#E7E5E4",
+    "terminal.ansiYellow": "#FBBF24",
+    "terminal.ansiMagenta": "#8B5CF6",
+    "terminal.ansiGreen": "#34D399",
+    "terminal.ansiRed": "#FB7185",
+
+    "badge.background": "#F59E0B",
+    "badge.foreground": "#1C1917",
+
+    "button.background": "#6D28D9",
+    "button.foreground": "#FAFAF9",
+    "button.hoverBackground": "#5B21B6",
+
+    "focusBorder": "#8B5CF6",
+    "selection.background": "#6D28D950",
+
+    "panel.background": "#1C1917",
+    "panel.border": "#44403C",
+    "panelTitle.activeForeground": "#FBBF24",
+    "panelTitle.activeBorder": "#8B5CF6"
+  }
+}
