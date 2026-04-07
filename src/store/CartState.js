@@ -87,3 +87,8 @@ export function updateQuantity(state, sku, variantId, quantity) {
 export function cartCount(state) {
   return state.items.reduce((sum, i) => sum + i.quantity, 0);
 }
+
+/** @param {any} state */
+export function clearCart(state) {
+  return store.set(state, { items: [] });
+}

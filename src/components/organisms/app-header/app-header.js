@@ -20,7 +20,9 @@ export default define({
           <a href="${router.url(CatalogView)}" class="app-header__link">Shop</a>
         </nav>
         <div class="app-header__actions">
-          <cart-count></cart-count>
+          <a href="/cart" class="app-header__cart-link">
+            <cart-count></cart-count>
+          </a>
           <theme-toggle></theme-toggle>
         </div>
       </header>

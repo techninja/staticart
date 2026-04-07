@@ -11,6 +11,7 @@
 
 /* Molecules */
 @import '../components/molecules/product-card/product-card.css';
+@import '../components/molecules/cart-item/cart-item.css';
 
 /* Organisms */
 @import '../components/organisms/product-grid/product-grid.css';

@@ -6,6 +6,9 @@
 import { html, define, router } from 'hybrids';
 import '#organisms/product-grid/product-grid.js';
 import ProductDetailView from '#pages/product-detail/product-detail-view.js';
+import CartView from '#pages/cart/cart-view.js';
+import OrderSuccessView from '#pages/order-success/order-success-view.js';
+import OrderCancelledView from '#pages/order-cancelled/order-cancelled-view.js';
 
 const CATEGORIES = ['all', 'shirts', 'outerwear', 'accessories', 'prints'];
 
@@ -23,7 +26,10 @@ function handleFilter(host, e) {
 export default define({
   tag: 'catalog-view',
   activeCategory: '',
-  [router.connect]: { url: '/', stack: [ProductDetailView] },
+  [router.connect]: {
+    url: '/',
+    stack: [ProductDetailView, CartView, OrderSuccessView, OrderCancelledView],
+  },
   render: {
     value: ({ activeCategory }) => html`
       <div class="catalog-view">

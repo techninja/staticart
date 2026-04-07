@@ -43,4 +43,9 @@ app-header {
     align-items: center;
     gap: var(--space-sm);
   }
+
+  & .app-header__cart-link {
+    text-decoration: none;
+    color: inherit;
+  }
 }
