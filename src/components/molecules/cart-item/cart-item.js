@@ -6,6 +6,7 @@
 import { html, define, store } from 'hybrids';
 import CartState, { updateQuantity, removeFromCart } from '#store/CartState.js';
 import { formatPrice } from '#utils/formatPrice.js';
+import '#atoms/app-icon/app-icon.js';
 
 /**
  * @typedef {Object} CartItemHost
@@ -61,12 +62,18 @@ export default define({
           ${variantLabel && html`<span class="cart-item__variant">${variantLabel}</span>`}
         </div>
         <div class="cart-item__qty">
-          <button class="btn btn-secondary btn-sm" onclick="${handleDecrement}">−</button>
+          <button class="btn btn-secondary btn-sm" onclick="${handleDecrement}">
+            <app-icon name="minus" size="sm"></app-icon>
+          </button>
           <span>${quantity}</span>
-          <button class="btn btn-secondary btn-sm" onclick="${handleIncrement}">+</button>
+          <button class="btn btn-secondary btn-sm" onclick="${handleIncrement}">
+            <app-icon name="plus" size="sm"></app-icon>
+          </button>
         </div>
         <span class="cart-item__total">${formatPrice(price * quantity, currency)}</span>
-        <button class="btn btn-secondary btn-sm" onclick="${handleRemove}">✕</button>
+        <button class="btn btn-secondary btn-sm" onclick="${handleRemove}">
+          <app-icon name="trash" size="sm"></app-icon>
+        </button>
       </div>
     `,
     shadow: false,

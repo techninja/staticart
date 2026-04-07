@@ -10,21 +10,30 @@ import '#molecules/product-card/product-card.js';
 /**
  * @typedef {Object} ProductGridHost
  * @property {string} category
+ * @property {string} search
  * @property {any} products
  */
+
+/** @param {any} p @param {string} q */
+function matchesSearch(p, q) {
+  if (!q) return true;
+  const lower = q.toLowerCase();
+  return p.name.toLowerCase().includes(lower) || p.description.toLowerCase().includes(lower);
+}
 
 /** @type {import('hybrids').Component<ProductGridHost>} */
 export default define({
   tag: 'product-grid',
   category: '',
+  search: '',
   products: /** @type {any} */ (store([Product], { id: () => ({}) })),
   render: {
-    value: ({ products, category }) => html`
+    value: ({ products, category, search }) => html`
       <div class="product-grid">
         ${
           /** @type {any} */ (store).ready(products)
             ? /** @type {any[]} */ (products)
-                .filter((p) => !category || p.category === category)
+                .filter((p) => (!category || p.category === category) && matchesSearch(p, search))
                 .map((p) =>
                   html`
                     <product-card

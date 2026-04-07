@@ -1,5 +1,5 @@
 /**
- * Product detail page — full product view with variants and add to cart.
+ * Product detail page — full product view with gallery, variants, add to cart.
  * @module pages/product-detail
  */
 
@@ -7,7 +7,10 @@ import { html, define, store, router } from 'hybrids';
 import Product from '#store/Product.js';
 import CartState, { addToCart } from '#store/CartState.js';
 import { formatPrice } from '#utils/formatPrice.js';
+import { setPageMeta } from '#utils/setPageMeta.js';
+import { effectivePrice, effectiveStock } from '#utils/productVariants.js';
 import '#atoms/app-badge/app-badge.js';
+import '#atoms/app-icon/app-icon.js';
 import CatalogView from '#pages/catalog/catalog-view.js';
 
 /**
@@ -15,6 +18,7 @@ import CatalogView from '#pages/catalog/catalog-view.js';
  * @property {string} sku
  * @property {string} selectedVariant
  * @property {number} qty
+ * @property {number} activeImage
  * @property {any} product
  * @property {any} cart
  */
@@ -41,17 +45,9 @@ function handleQtyChange(host, e) {
   host.qty = Math.max(1, parseInt(e.target.value, 10) || 1);
 }
 
-/** @param {any} p @param {string} vid */
-function effectivePrice(p, vid) {
-  if (!vid) return p.price;
-  const v = /** @type {any[]} */ (p.variants).find((v) => v.id === vid);
-  return v && v.price > 0 ? v.price : p.price;
-}
-
-/** @param {any} p @param {string} vid */
-function effectiveStock(p, vid) {
-  if (!vid) return p.stock;
-  return /** @type {any[]} */ (p.variants).find((v) => v.id === vid)?.stock ?? 0;
+/** @param {ProductDetailHost & HTMLElement} host */
+function handleThumbClick(host, e) {
+  host.activeImage = parseInt(e.target.dataset.index, 10) || 0;
 }
 
 /** @type {import('hybrids').Component<ProductDetailHost>} */
@@ -60,22 +56,47 @@ export default define({
   sku: '',
   selectedVariant: '',
   qty: 1,
+  activeImage: 0,
   product: store(Product, { id: 'sku' }),
   cart: store(CartState),
   [router.connect]: { url: '/product/:sku', stack: [] },
   render: {
-    value: ({ product, cart: _cart, selectedVariant, qty }) => {
+    value: ({ product, cart: _cart, selectedVariant, qty, activeImage }) => {
       if (!store.ready(product)) return html`<p>Loading…</p>`;
       const p = /** @type {any} */ (product);
       const price = effectivePrice(p, selectedVariant);
       const stock = effectiveStock(p, selectedVariant);
       const variants = /** @type {any[]} */ (p.variants);
+      const images = /** @type {string[]} */ (p.images);
+      setPageMeta(p.name, p.description);
       return html`
         <div class="product-detail">
-          <a href="${router.url(CatalogView)}" class="product-detail__back">← Back</a>
+          <a href="${router.url(CatalogView)}" class="product-detail__back">
+            <app-icon name="arrow-left" size="sm"></app-icon> Back
+          </a>
           <div class="product-detail__layout">
-            <div class="product-detail__image">
-              <img src="${p.images[0] || ''}" alt="${p.name}" />
+            <div class="product-detail__gallery">
+              <img
+                class="product-detail__main-img"
+                src="${images[activeImage] || ''}"
+                alt="${p.name}"
+              />
+              ${images.length > 1 &&
+              html`
+                <div class="product-detail__thumbs">
+                  ${images.map(
+                    (src, i) => html`
+                      <img
+                        class="product-detail__thumb ${i === activeImage ? 'active' : ''}"
+                        src="${src}"
+                        alt="${p.name} ${i + 1}"
+                        data-index="${i}"
+                        onclick="${handleThumbClick}"
+                      />
+                    `,
+                  )}
+                </div>
+              `}
             </div>
             <div class="product-detail__info">
               <h1>${p.name}</h1>
@@ -110,7 +131,7 @@ export default define({
                 onclick="${handleAdd}"
                 disabled="${stock <= 0 || (variants.length > 0 && !selectedVariant)}"
               >
-                Add to Cart
+                <app-icon name="cart" size="sm"></app-icon> Add to Cart
               </button>
             </div>
           </div>

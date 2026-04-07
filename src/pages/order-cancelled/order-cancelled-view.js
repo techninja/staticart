@@ -4,6 +4,7 @@
  */
 
 import { html, define, router } from 'hybrids';
+import '#atoms/app-icon/app-icon.js';
 import CartView from '#pages/cart/cart-view.js';
 
 export default define({
@@ -12,6 +13,7 @@ export default define({
   render: {
     value: () => html`
       <div class="order-result">
+        <app-icon name="circle-x" size="lg"></app-icon>
         <h1>Checkout Cancelled</h1>
         <p>Your cart is still saved. You can return to it anytime.</p>
         <a href="${router.url(CartView)}" class="btn btn-primary">Back to Cart</a>

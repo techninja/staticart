@@ -5,9 +5,10 @@ const MOCK_PRODUCTS = [
   {
     sku: 'tee-1',
     name: 'Test Tee',
+    description: 'A cotton t-shirt',
     price: 2499,
     currency: 'USD',
-    images: ['https://placecats.com/300/300'],
+    images: ['https://picsum.photos/seed/tee/300/300'],
     category: 'shirts',
     stock: 10,
     active: true,
@@ -19,9 +20,10 @@ const MOCK_PRODUCTS = [
   {
     sku: 'mug-1',
     name: 'Test Mug',
+    description: 'A ceramic mug',
     price: 1499,
     currency: 'USD',
-    images: ['https://placecats.com/301/300'],
+    images: ['https://picsum.photos/seed/mug/300/300'],
     category: 'accessories',
     stock: 5,
     active: true,
@@ -32,7 +34,6 @@ const MOCK_PRODUCTS = [
   },
 ];
 
-/** Wait for store fetch + render */
 const tick = () => new Promise((r) => setTimeout(r, 300));
 
 describe('product-grid', () => {
@@ -68,5 +69,30 @@ describe('product-grid', () => {
     expect(cards.length).to.equal(1);
     const name = cards[0].querySelector('.product-card__name');
     expect(name.textContent).to.contain('Test Tee');
+  });
+
+  it('filters by search query on name', async () => {
+    const el = await fixture(`<product-grid search="mug"></product-grid>`);
+    await tick();
+    const cards = el.querySelectorAll('product-card');
+    expect(cards.length).to.equal(1);
+    const name = cards[0].querySelector('.product-card__name');
+    expect(name.textContent).to.contain('Test Mug');
+  });
+
+  it('filters by search query on description', async () => {
+    const el = await fixture(`<product-grid search="cotton"></product-grid>`);
+    await tick();
+    const cards = el.querySelectorAll('product-card');
+    expect(cards.length).to.equal(1);
+    const name = cards[0].querySelector('.product-card__name');
+    expect(name.textContent).to.contain('Test Tee');
+  });
+
+  it('shows no results for non-matching search', async () => {
+    const el = await fixture(`<product-grid search="zzzzz"></product-grid>`);
+    await tick();
+    const cards = el.querySelectorAll('product-card');
+    expect(cards.length).to.equal(0);
   });
 });

@@ -6,6 +6,7 @@
 import { html, define, router } from 'hybrids';
 import '#atoms/cart-count/cart-count.js';
 import '#atoms/theme-toggle/theme-toggle.js';
+import '#atoms/app-icon/app-icon.js';
 import CatalogView from '#pages/catalog/catalog-view.js';
 
 export default define({
@@ -21,6 +22,7 @@ export default define({
         </nav>
         <div class="app-header__actions">
           <a href="/cart" class="app-header__cart-link">
+            <app-icon name="cart" size="md"></app-icon>
             <cart-count></cart-count>
           </a>
           <theme-toggle></theme-toggle>
