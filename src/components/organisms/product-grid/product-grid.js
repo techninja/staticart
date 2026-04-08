@@ -5,6 +5,7 @@
 
 import { html, define, store } from 'hybrids';
 import Product from '#store/Product.js';
+import { t } from '#utils/i18n.js';
 import '#molecules/product-card/product-card.js';
 
 /**
@@ -48,7 +49,7 @@ export default define({
                     ></product-card>
                   `.key(p.sku),
                 )
-            : html`<p>Loading products…</p>`
+            : html`<p>${t('general.loading')}</p>`
         }
       </div>
     `,

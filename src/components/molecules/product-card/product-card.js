@@ -7,6 +7,7 @@ import { html, define, store } from 'hybrids';
 import CartState, { addToCart } from '#store/CartState.js';
 import { formatPrice } from '#utils/formatPrice.js';
 import { stockLabel, stockColor, parseVariants } from '#utils/productVariants.js';
+import { t } from '#utils/i18n.js';
 import '#atoms/app-badge/app-badge.js';
 
 /**
@@ -27,7 +28,7 @@ import '#atoms/app-badge/app-badge.js';
 /** @param {string} json */
 /** @param {ProductCardHost & HTMLElement} host @param {string} [label] */
 function showAdded(host, label) {
-  host.addedLabel = label ? `✓ Added ${label}!` : '✓ Added!';
+  host.addedLabel = label ? t('cart.addedVariant', { variant: label }) : t('cart.added');
   setTimeout(() => {
     host.addedLabel = '';
   }, 1500);
@@ -132,7 +133,7 @@ export default define({
                       onclick="${handleAdd}"
                       disabled="${stock <= 0}"
                     >
-                      Add to Cart
+                      ${t('cart.add')}
                     </button>
                   `}
           </div>

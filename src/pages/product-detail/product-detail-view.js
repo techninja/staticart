@@ -9,6 +9,7 @@ import CartState, { addToCart } from '#store/CartState.js';
 import { formatPrice } from '#utils/formatPrice.js';
 import { setPageMeta } from '#utils/setPageMeta.js';
 import { effectivePrice, effectiveStock } from '#utils/productVariants.js';
+import { t } from '#utils/i18n.js';
 import '#atoms/app-badge/app-badge.js';
 import '#atoms/app-icon/app-icon.js';
 import CatalogView from '#pages/catalog/catalog-view.js';
@@ -62,7 +63,7 @@ export default define({
   [router.connect]: { url: '/product/:sku', stack: [] },
   render: {
     value: ({ product, cart: _cart, selectedVariant, qty, activeImage }) => {
-      if (!store.ready(product)) return html`<p>Loading…</p>`;
+      if (!store.ready(product)) return html`<p>${t('general.loading')}</p>`;
       const p = /** @type {any} */ (product);
       const price = effectivePrice(p, selectedVariant);
       const stock = effectiveStock(p, selectedVariant);
@@ -72,7 +73,7 @@ export default define({
       return html`
         <div class="product-detail">
           <a href="${router.url(CatalogView)}" class="product-detail__back">
-            <app-icon name="arrow-left" size="sm"></app-icon> Back
+            <app-icon name="arrow-left" size="sm"></app-icon> ${t('product.back')}
           </a>
           <div class="product-detail__layout">
             <div class="product-detail__gallery">
@@ -102,22 +103,26 @@ export default define({
               <h1>${p.name}</h1>
               <p class="product-detail__price">${formatPrice(price, p.currency)}</p>
               <app-badge
-                label="${stock <= 0 ? 'Out of Stock' : stock <= 5 ? 'Low Stock' : 'In Stock'}"
+                label="${stock <= 0
+                  ? t('product.outOfStock')
+                  : stock <= 5
+                    ? t('product.lowStock')
+                    : t('product.inStock')}"
                 color="${stock <= 0 ? 'danger' : stock <= 5 ? 'warning' : 'success'}"
               ></app-badge>
               <p>${p.description}</p>
               ${variants.length > 0 &&
               html`
                 <label class="product-detail__label">
-                  Variant
+                  ${t('product.variant')}
                   <select onchange="${handleVariantChange}">
-                    <option value="">Select…</option>
+                    <option value="">${t('product.select')}</option>
                     ${variants.map((v) => html`<option value="${v.id}">${v.label}</option>`)}
                   </select>
                 </label>
               `}
               <label class="product-detail__label">
-                Qty
+                ${t('product.qty')}
                 <input
                   type="number"
                   min="1"
@@ -131,7 +136,7 @@ export default define({
                 onclick="${handleAdd}"
                 disabled="${stock <= 0 || (variants.length > 0 && !selectedVariant)}"
               >
-                <app-icon name="cart" size="sm"></app-icon> Add to Cart
+                <app-icon name="cart" size="sm"></app-icon> ${t('cart.add')}
               </button>
             </div>
           </div>

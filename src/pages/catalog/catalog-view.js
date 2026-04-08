@@ -4,6 +4,7 @@
  */
 
 import { html, define, router } from 'hybrids';
+import { t } from '#utils/i18n.js';
 import '#organisms/product-grid/product-grid.js';
 import { setPageMeta } from '#utils/setPageMeta.js';
 import ProductDetailView from '#pages/product-detail/product-detail-view.js';
@@ -13,6 +14,13 @@ import OrderCancelledView from '#pages/order-cancelled/order-cancelled-view.js';
 import OrdersView from '#pages/orders/orders-view.js';
 
 const CATEGORIES = ['all', 'shirts', 'outerwear', 'accessories', 'prints'];
+
+/** @param {string} cat */
+function categoryLabel(cat) {
+  const key = `category.${cat}`;
+  const result = t(key);
+  return result !== key ? result : cat.charAt(0).toUpperCase() + cat.slice(1);
+}
 
 /**
  * @typedef {Object} CatalogViewHost
@@ -51,11 +59,11 @@ export default define({
       setPageMeta('');
       return html`
         <div class="catalog-view">
-          <h1>Shop</h1>
+          <h1>${t('catalog.title')}</h1>
           <input
             type="search"
             class="catalog-view__search"
-            placeholder="Search products…"
+            placeholder="${t('catalog.search')}"
             oninput="${handleSearch}"
           />
           <nav class="catalog-view__filters">
@@ -68,7 +76,7 @@ export default define({
                   data-category="${cat === 'all' ? '' : cat}"
                   onclick="${handleFilter}"
                 >
-                  ${cat.charAt(0).toUpperCase() + cat.slice(1)}
+                  ${categoryLabel(cat)}
                 </button>
               `,
             )}

@@ -6,6 +6,7 @@
 import { html, define, store, router } from 'hybrids';
 import CartState, { clearCart } from '#store/CartState.js';
 import UserPrefs, { saveUserInfo } from '#store/UserPrefs.js';
+import { t } from '#utils/i18n.js';
 import '#atoms/app-icon/app-icon.js';
 import CatalogView from '#pages/catalog/catalog-view.js';
 
@@ -52,12 +53,11 @@ export default define({
     value: ({ customerName }) => html`
       <div class="order-result">
         <app-icon name="circle-check" size="lg"></app-icon>
-        <h1>Order Confirmed!</h1>
-        <p>
-          ${customerName ? `Thanks, ${customerName}! ` : 'Thank you! '} You'll receive a
-          confirmation email shortly.
-        </p>
-        <a href="${router.url(CatalogView)}" class="btn btn-primary">Continue Shopping</a>
+        <h1>${t('order.confirmed')}</h1>
+        <p>${customerName ? t('order.thanksName', { name: customerName }) : t('order.thanks')}</p>
+        <a href="${router.url(CatalogView)}" class="btn btn-primary"
+          >${t('order.continueShopping')}</a
+        >
       </div>
     `,
     shadow: false,

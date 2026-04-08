@@ -40,6 +40,12 @@ const DEFAULTS = {
   'orders.noOrders': 'No orders found yet.',
   'orders.load': 'Load Orders',
   'orders.startShopping': 'Start Shopping',
+  'catalog.title': 'Shop',
+  'catalog.search': 'Search products…',
+  'cart.title': 'Your Cart',
+  'product.back': 'Back',
+  'product.select': 'Select…',
+  'general.loading': 'Loading…',
 };
 
 /** @type {Record<string, string>} */

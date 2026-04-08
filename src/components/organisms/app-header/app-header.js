@@ -5,6 +5,7 @@
 
 import { html, define, store, router } from 'hybrids';
 import UserPrefs from '#store/UserPrefs.js';
+import { t } from '#utils/i18n.js';
 import '#atoms/cart-count/cart-count.js';
 import '#atoms/theme-toggle/theme-toggle.js';
 import '#atoms/app-icon/app-icon.js';
@@ -35,8 +36,8 @@ export default define({
             <img src="/assets/staticart_logo.svg" alt="StatiCart" class="app-header__logo" />
           </a>
           <nav class="app-header__nav">
-            <a href="${router.url(CatalogView)}" class="app-header__link">Shop</a>
-            ${loggedIn && html`<a href="/orders" class="app-header__link">Orders</a>`}
+            <a href="${router.url(CatalogView)}" class="app-header__link">${t('nav.shop')}</a>
+            ${loggedIn && html`<a href="/orders" class="app-header__link">${t('nav.orders')}</a>`}
           </nav>
           <div class="app-header__actions">
             ${loggedIn &&
@@ -45,7 +46,9 @@ export default define({
                 <app-icon name="user" size="sm"></app-icon>
                 ${name || prefs.email}
               </span>
-              <button class="btn btn-secondary btn-sm" onclick="${handleSignOut}">Sign out</button>
+              <button class="btn btn-secondary btn-sm" onclick="${handleSignOut}">
+                ${t('nav.signOut')}
+              </button>
             `}
             <a href="/cart" class="app-header__cart-link">
               <app-icon name="cart" size="md"></app-icon>

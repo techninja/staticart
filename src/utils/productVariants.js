@@ -3,6 +3,8 @@
  * @module utils/productVariants
  */
 
+import { t } from '#utils/i18n.js';
+
 /** @param {any} p @param {string} vid */
 export function effectivePrice(p, vid) {
   if (!vid) return p.price;
@@ -18,9 +20,9 @@ export function effectiveStock(p, vid) {
 
 /** @param {number} stock */
 export function stockLabel(stock) {
-  if (stock <= 0) return 'Out of Stock';
-  if (stock <= 5) return 'Low Stock';
-  return 'In Stock';
+  if (stock <= 0) return t('product.outOfStock');
+  if (stock <= 5) return t('product.lowStock');
+  return t('product.inStock');
 }
 
 /** @param {number} stock */

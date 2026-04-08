@@ -65,11 +65,16 @@ node scripts/build-products.js   # DynamoDB → dist/data/products.json
 Default language is English. To translate:
 
 1. Set locale in `staticart.config.json`: `{ "store": { "locale": "es" } }`
-2. Package translations live in `src/locales/<lang>.json`
+2. Package translations live in `src/locales/<lang>.json` (UI chrome only)
 3. Project overrides in `src/locales/overrides.json` (English) and `src/locales/overrides.<lang>.json`
 4. Add custom keys for your own components in the override files
 
 Cascade: package defaults → locale file → project overrides → project locale overrides.
+
+The package translates **framework UI** (buttons, labels, status text). Store-specific
+terms — category names, variant labels, product descriptions — are **project data**.
+Define display names for your categories via `category.<slug>` keys in override files.
+Variant labels come from `products.json` and are the store owner's responsibility.
 
 ## Specification
 

@@ -8,6 +8,7 @@ import Product from '#store/Product.js';
 import CartState from '#store/CartState.js';
 import { formatPrice } from '#utils/formatPrice.js';
 import { requestCheckout } from '#utils/checkout.js';
+import { t } from '#utils/i18n.js';
 import '#molecules/cart-item/cart-item.js';
 import CatalogView from '#pages/catalog/catalog-view.js';
 
@@ -83,22 +84,24 @@ export default define({
     value: ({ cart, products, checkoutError, checkingOut }) => {
       const ready =
         /** @type {any} */ (store).ready(cart) && /** @type {any} */ (store).ready(products);
-      if (!ready) return html`<p>Loading…</p>`;
+      if (!ready) return html`<p>${t('general.loading')}</p>`;
       const items = /** @type {any[]} */ (cart.items).filter((i) => i.sku);
       const prods = /** @type {any[]} */ (products);
       if (items.length === 0) {
         return html`
           <div class="cart-view">
-            <h1>Your Cart</h1>
-            <p class="cart-view__empty">Your cart is empty.</p>
-            <a href="${router.url(CatalogView)}" class="btn btn-primary">Continue Shopping</a>
+            <h1>${t('cart.title')}</h1>
+            <p class="cart-view__empty">${t('cart.empty')}</p>
+            <a href="${router.url(CatalogView)}" class="btn btn-primary"
+              >${t('order.continueShopping')}</a
+            >
           </div>
         `;
       }
       const total = subtotal(prods, items);
       return html`
         <div class="cart-view">
-          <h1>Your Cart</h1>
+          <h1>${t('cart.title')}</h1>
           ${items.map((item) => {
             const p = findProduct(prods, item.sku);
             if (!p) return html``;
@@ -121,9 +124,9 @@ export default define({
             `;
           })}
           <div class="cart-view__footer">
-            <span class="cart-view__subtotal">Subtotal: ${formatPrice(total)}</span>
+            <span class="cart-view__subtotal">${t('cart.subtotal')}: ${formatPrice(total)}</span>
             <button class="btn btn-primary" onclick="${handleCheckout}" disabled="${checkingOut}">
-              ${checkingOut ? 'Processing…' : 'Proceed to Checkout'}
+              ${checkingOut ? t('cart.processing') : t('cart.checkout')}
             </button>
           </div>
           ${checkoutError && html`<p class="error-message">${checkoutError}</p>`}

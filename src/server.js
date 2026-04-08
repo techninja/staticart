@@ -88,6 +88,7 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use('/staticart.config.json', express.static('staticart.config.json'));
 app.use(express.static('src'));
 
 app.use((req, res, next) => {

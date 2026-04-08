@@ -28,10 +28,14 @@ export default define({
     },
   },
   render: {
-    value: ({ stack }) => html`
+    value: ({ stack, configLoaded }) => html`
       <div class="app-router">
-        <app-header></app-header>
-        <main class="app-main">${stack}</main>
+        ${configLoaded
+          ? html`
+              <app-header></app-header>
+              <main class="app-main">${stack}</main>
+            `
+          : html``}
       </div>
     `,
     shadow: false,
