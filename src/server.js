@@ -16,13 +16,15 @@ app.use('/api/webhook', express.raw({ type: 'application/json' }));
  * Adapt a Lambda handler to an Express route.
  * @param {Function} handler
  * @param {(req: any) => Record<string, string>} [getPathParams]
+ * @param {(req: any) => Record<string, string>} [getQueryParams]
  */
-function lambdaRoute(handler, getPathParams) {
+function lambdaRoute(handler, getPathParams, getQueryParams) {
   return async (req, res) => {
     const event = {
       body: typeof req.body === 'string' ? req.body : JSON.stringify(req.body),
       headers: req.headers,
       pathParameters: getPathParams ? getPathParams(req) : {},
+      queryStringParameters: getQueryParams ? getQueryParams(req) : {},
     };
     try {
       const result = await handler(event);
@@ -46,11 +48,21 @@ async function mountApi() {
     const { handler: checkout } = await import('../api/checkout.js');
     const { handler: webhook } = await import('../api/webhook.js');
     const { handler: stock } = await import('../api/stock.js');
+    const { handler: orders } = await import('../api/orders.js');
+    const { handler: session } = await import('../api/session.js');
     app.post('/api/checkout', lambdaRoute(checkout));
     app.post('/api/webhook', lambdaRoute(webhook));
     app.get(
       '/api/stock/:sku',
       lambdaRoute(stock, (req) => ({ sku: req.params.sku })),
+    );
+    app.get(
+      '/api/orders',
+      lambdaRoute(orders, null, (req) => req.query),
+    );
+    app.get(
+      '/api/session/:id',
+      lambdaRoute(session, (req) => ({ id: req.params.id })),
     );
     console.log('  API routes mounted (local dev mode)');
   } catch (e) {
@@ -61,7 +73,7 @@ async function mountApi() {
 app.use(express.static('src'));
 
 app.use((req, res, next) => {
-  if (req.method === 'GET' && !req.path.includes('.')) {
+  if (req.method === 'GET' && !req.path.includes('.') && !req.path.startsWith('/api/')) {
     return res.sendFile('index.html', { root: 'src' });
   }
   next();

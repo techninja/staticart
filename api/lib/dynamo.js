@@ -84,3 +84,19 @@ export async function queryByPK(pk, skPrefix) {
   );
   return Items || [];
 }
+
+/**
+ * Query orders by email using GSI.
+ * @param {string} email
+ */
+export async function queryByEmail(email) {
+  const { Items } = await doc.send(
+    new QueryCommand({
+      TableName: TABLE,
+      IndexName: 'email-index',
+      KeyConditionExpression: 'email = :email',
+      ExpressionAttributeValues: { ':email': email },
+    }),
+  );
+  return Items || [];
+}

@@ -48,4 +48,12 @@ app-header {
     text-decoration: none;
     color: inherit;
   }
+
+  & .app-header__user {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
 }

@@ -33,6 +33,11 @@
     </script>
   </head>
   <body>
+    <script>
+      // Capture Stripe session ID before the SPA router strips query params
+      const sid = new URLSearchParams(location.search).get('session_id');
+      if (sid) sessionStorage.setItem('stripe_session_id', sid);
+    </script>
     <app-router></app-router>
     <script type="module" src="/router/index.js"></script>
   </body>

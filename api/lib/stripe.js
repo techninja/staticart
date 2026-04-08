@@ -1,11 +1,25 @@
 /**
  * Stripe helpers — checkout session creation and webhook verification.
+ * Client is lazy-initialized so the module can be imported without keys.
  * @module api/lib/stripe
  */
 
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
+/** @type {Stripe|null} */
+let _stripe = null;
+
+/**
+ *
+ */
+export function getStripe() {
+  if (!_stripe) {
+    const key = process.env.STRIPE_SECRET_KEY;
+    if (!key) throw new Error('STRIPE_SECRET_KEY is not set');
+    _stripe = new Stripe(key);
+  }
+  return _stripe;
+}
 
 /**
  * Create a Stripe Checkout Session from cart items.
@@ -15,7 +29,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
  * @returns {Promise<string>} session URL
  */
 export async function createCheckoutSession(items, successUrl, cancelUrl) {
-  const session = await stripe.checkout.sessions.create({
+  const session = await getStripe().checkout.sessions.create({
     mode: 'payment',
     success_url: successUrl,
     cancel_url: cancelUrl,
@@ -38,7 +52,9 @@ export async function createCheckoutSession(items, successUrl, cancelUrl) {
  * @returns {Stripe.Event}
  */
 export function verifyWebhook(body, signature) {
-  return stripe.webhooks.constructEvent(body, signature, process.env.STRIPE_WEBHOOK_SECRET || '');
+  return getStripe().webhooks.constructEvent(
+    body,
+    signature,
+    process.env.STRIPE_WEBHOOK_SECRET || '',
+  );
 }
-
-export { stripe };

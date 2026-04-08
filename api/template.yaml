@@ -82,6 +82,32 @@ Resources:
             Path: /api/stock/{sku}
             Method: GET
 
+  OrdersFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: orders.handler
+      CodeUri: api/
+      Events:
+        Get:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref StatiCartApi
+            Path: /api/orders
+            Method: GET
+
+  SessionFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: session.handler
+      CodeUri: api/
+      Events:
+        Get:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref StatiCartApi
+            Path: /api/session/{id}
+            Method: GET
+
   StatiCartTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -92,11 +118,22 @@ Resources:
           AttributeType: S
         - AttributeName: SK
           AttributeType: S
+        - AttributeName: email
+          AttributeType: S
       KeySchema:
         - AttributeName: PK
           KeyType: HASH
         - AttributeName: SK
           KeyType: RANGE
+      GlobalSecondaryIndexes:
+        - IndexName: email-index
+          KeySchema:
+            - AttributeName: email
+              KeyType: HASH
+            - AttributeName: PK
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
 
 Outputs:
   ApiUrl:

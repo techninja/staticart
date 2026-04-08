@@ -15,3 +15,26 @@ export function effectiveStock(p, vid) {
   if (!vid) return p.stock;
   return /** @type {any[]} */ (p.variants).find((v) => v.id === vid)?.stock ?? 0;
 }
+
+/** @param {number} stock */
+export function stockLabel(stock) {
+  if (stock <= 0) return 'Out of Stock';
+  if (stock <= 5) return 'Low Stock';
+  return 'In Stock';
+}
+
+/** @param {number} stock */
+export function stockColor(stock) {
+  if (stock <= 0) return 'danger';
+  if (stock <= 5) return 'warning';
+  return 'success';
+}
+
+/** @param {string} json */
+export function parseVariants(json) {
+  try {
+    return JSON.parse(json);
+  } catch {
+    return [];
+  }
+}

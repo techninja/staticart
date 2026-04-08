@@ -16,7 +16,7 @@ export async function requestCheckout(items) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       items,
-      successUrl: `${origin}/order/success`,
+      successUrl: `${origin}/order/success?session_id={CHECKOUT_SESSION_ID}`,
       cancelUrl: `${origin}/order/cancelled`,
     }),
   });

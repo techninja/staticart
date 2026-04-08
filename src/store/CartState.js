@@ -85,7 +85,7 @@ export function updateQuantity(state, sku, variantId, quantity) {
 
 /** @param {any} state */
 export function cartCount(state) {
-  return state.items.reduce((sum, i) => sum + i.quantity, 0);
+  return state.items.filter((i) => i.sku).reduce((sum, i) => sum + i.quantity, 0);
 }
 
 /** @param {any} state */

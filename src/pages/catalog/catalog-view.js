@@ -10,6 +10,7 @@ import ProductDetailView from '#pages/product-detail/product-detail-view.js';
 import CartView from '#pages/cart/cart-view.js';
 import OrderSuccessView from '#pages/order-success/order-success-view.js';
 import OrderCancelledView from '#pages/order-cancelled/order-cancelled-view.js';
+import OrdersView from '#pages/orders/orders-view.js';
 
 const CATEGORIES = ['all', 'shirts', 'outerwear', 'accessories', 'prints'];
 
@@ -43,7 +44,7 @@ export default define({
   searchQuery: '',
   [router.connect]: {
     url: '/',
-    stack: [ProductDetailView, CartView, OrderSuccessView, OrderCancelledView],
+    stack: [ProductDetailView, CartView, OrderSuccessView, OrderCancelledView, OrdersView],
   },
   render: {
     value: ({ activeCategory, searchQuery }) => {

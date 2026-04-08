@@ -48,18 +48,20 @@ async function handleCheckout(host) {
   const prods = /** @type {any[]} */ (host.products);
   host.checkingOut = true;
   host.checkoutError = '';
-  const lineItems = items.map((item) => {
-    const p = findProduct(prods, item.sku);
-    const variants = /** @type {any[]} */ (p?.variants || []);
-    const v = item.variantId ? variants.find((v) => v.id === item.variantId) : null;
-    return {
-      sku: item.sku,
-      name: p?.name || item.sku,
-      price: v && v.price > 0 ? v.price : p?.price || 0,
-      currency: p?.currency || 'USD',
-      quantity: item.quantity,
-    };
-  });
+  const lineItems = items
+    .filter((item) => item.sku)
+    .map((item) => {
+      const p = findProduct(prods, item.sku);
+      const variants = /** @type {any[]} */ (p?.variants || []);
+      const v = item.variantId ? variants.find((v) => v.id === item.variantId) : null;
+      return {
+        sku: item.sku,
+        name: p?.name || item.sku,
+        price: v && v.price > 0 ? v.price : p?.price || 0,
+        currency: p?.currency || 'USD',
+        quantity: item.quantity,
+      };
+    });
   const result = await requestCheckout(lineItems);
   host.checkingOut = false;
   if (result.url) {
@@ -82,7 +84,7 @@ export default define({
       const ready =
         /** @type {any} */ (store).ready(cart) && /** @type {any} */ (store).ready(products);
       if (!ready) return html`<p>Loading…</p>`;
-      const items = /** @type {any[]} */ (cart.items);
+      const items = /** @type {any[]} */ (cart.items).filter((i) => i.sku);
       const prods = /** @type {any[]} */ (products);
       if (items.length === 0) {
         return html`
