@@ -14,6 +14,9 @@ Globals:
         STRIPE_WEBHOOK_SECRET: !Ref StripeWebhookSecret
         BUILD_HOOK_URL: !Ref BuildHookUrl
         SITE_ORIGIN: !Ref SiteOrigin
+    Policies:
+      - DynamoDBCrudPolicy:
+          TableName: !Ref StatiCartTable
 
 Parameters:
   StripeSecretKey:
@@ -38,10 +41,12 @@ Resources:
           - !Ref SiteOrigin
         AllowHeaders:
           - Content-Type
+          - Stripe-Signature
         AllowMethods:
           - POST
           - GET
           - OPTIONS
+      StageName: prod
 
   CheckoutFunction:
     Type: AWS::Serverless::Function

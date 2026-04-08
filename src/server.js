@@ -70,6 +70,24 @@ async function mountApi() {
   }
 }
 
+app.use((req, res, next) => {
+  res.setHeader(
+    'Content-Security-Policy',
+    [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline'",
+      "style-src 'self' 'unsafe-inline'",
+      'img-src * data:',
+      "connect-src 'self' https://checkout.stripe.com https://api.stripe.com",
+      'frame-src https://checkout.stripe.com',
+    ].join('; '),
+  );
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  next();
+});
+
 app.use(express.static('src'));
 
 app.use((req, res, next) => {

@@ -8,13 +8,56 @@
 
 Built with the [Clearstack](https://github.com/techninja/clearstack) no-build web component specification.
 
+## Architecture
+
+```
+Static Site (CDN)          Thin API (Lambda)         Database
+┌──────────────┐           ┌──────────────┐          ┌──────────┐
+│ Product pages│  checkout  │POST /checkout│  stock   │ DynamoDB │
+│ Cart (local) │ ────────> │POST /webhook │ <──────> │ (single  │
+│ SPA (hybrids)│           │GET  /stock   │  orders  │  table)  │
+└──────────────┘           │GET  /orders  │          └──────────┘
+                           │GET  /session │               │
+                           └──────────────┘          stock changed
+                                                         │
+                                                    Build Trigger
+                                                    (GitHub Actions)
+```
+
 ## Quick Start
 
 ```bash
 npm install
-npm run dev       # Start dev server
-npm test          # Run tests
-npm run spec      # Spec compliance checker
+cd api && npm install && cd ..
+npm run dev       # Start dev server (port from .env.local)
+npm test          # Run tests (18 node + 31 browser)
+npm run spec      # Spec compliance checker (10/10)
+```
+
+## Environment
+
+Copy `.env` defaults. Override in `.env.local` (gitignored):
+
+```bash
+STRIPE_SECRET_KEY=sk_test_...    # From Stripe dashboard
+STRIPE_WEBHOOK_SECRET=whsec_...  # From `stripe listen` CLI
+```
+
+## Deploy
+
+**Static site:** `src/` → CDN (S3+CloudFront or Cloudflare Pages)
+
+**API:** `api/` → AWS Lambda via SAM:
+
+```bash
+cd api
+sam build && sam deploy --guided
+```
+
+**Build pipeline:** GitHub Actions rebuilds on stock changes:
+
+```bash
+node scripts/build-products.js   # DynamoDB → dist/data/products.json
 ```
 
 ## Specification
