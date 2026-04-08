@@ -30,8 +30,10 @@
     "#pages/*": "./src/pages/*"
   },
   "devDependencies": {
+    "@aws-sdk/client-dynamodb": "^3.1026.0",
+    "@aws-sdk/lib-dynamodb": "^3.1026.0",
     "@open-wc/testing": "^4.0.0",
-    "@techninja/clearstack": "^0.3.16",
+    "@techninja/clearstack": "^0.3.17",
     "@types/node": "^22.0.0",
     "@web/test-runner": "^0.20.0",
     "@web/test-runner-playwright": "^0.11.0",

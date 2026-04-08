@@ -370,7 +370,8 @@ npm run spec all
 npm run spec code          # line counts (code files ≤150)
 npm run spec docs          # line counts (doc files ≤500)
 npm run spec imports       # import map aliases (no ../)
-npm run spec types         # JSDoc types (tsc --checkJs)
+npm run spec types         # all jsconfigs (auto-discovered)
+npm run spec types frontend # just .configs/jsconfig.json
 npm run spec audit         # security audit
 
 # Parent keys run all children

@@ -1,0 +1,38 @@
+name: Build & Deploy
+
+on:
+  repository_dispatch:
+    types: [stock-changed]
+  workflow_dispatch:
+
+concurrency:
+  group: build-deploy
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm ci
+      - run: cd api && npm ci
+
+      - run: npm run spec check all
+      - run: npm test
+
+      - name: Build dist
+        run: |
+          cp -r src/ dist/
+          node scripts/build-products.js
+        env:
+          DYNAMODB_TABLE: ${{ secrets.DYNAMODB_TABLE }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          SITE_URL: ${{ vars.SITE_URL }}
+
+      - name: Deploy
+        run: echo "TODO — deploy dist/ to CDN (S3+CloudFront or Cloudflare Pages)"

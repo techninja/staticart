@@ -250,3 +250,100 @@ These are the significant corrections:
 5. **The spec improves through implementation.** 9 significant corrections were
    made to the spec based on what we learned building the proof. The spec is
    now more accurate than if it had been written in isolation.
+
+---
+
+## StatiCart: Second Project Validation
+
+StatiCart is a full e-commerce platform built on Clearstack — the second
+project built against the spec, validating that the patterns hold beyond
+the original POC. Three phases (catalog, cart, polish) were completed in
+a single LLM session.
+
+### Velocity
+
+| Metric | Value |
+| --- | --- |
+| Phases completed | 3 of 8 |
+| Components created | 7 (2 atoms, 2 molecules, 2 organisms, 0 templates) |
+| Pages created | 5 (catalog, product-detail, cart, order-success, order-cancelled) |
+| Store models | 2 (Product enumerable, CartState singleton) |
+| Utilities | 4 (formatPrice, setPageMeta, productVariants, statusColors) |
+| Tests | 41 (10 node, 31 browser) |
+| Spec checks | 9/9 passing |
+| Files over 150 lines | 0 (2 hit the limit, both split successfully) |
+
+Three phases of a real app in one session. No blocked-on-framework moments.
+Every blocker was a hybrids runtime behavior, not a Clearstack constraint.
+
+### What the 150-Line Limit Actually Did
+
+The limit forced two splits during this build:
+
+1. `shared.css` hit 203 lines after adding page layout styles → split into
+   `pages.css`. Later `pages.css` hit 163 → split into `pages-cart.css`.
+2. `product-detail-view.js` hit 154 after adding the image gallery →
+   extracted `productVariants.js` utility.
+
+Both splits improved the code. The page styles split by concern (catalog
+vs cart) which made each file scannable. The utility extraction made
+`effectivePrice`/`effectiveStock` reusable and independently testable.
+
+Without the limit, these would have stayed as 300-line monoliths. The
+LLM would have needed to re-read them on every edit, and the utility
+functions would never have gotten their own test file.
+
+### What the Spec Documentation Prevented
+
+The Clearstack spec docs prevented several classes of bugs entirely:
+
+- **No `../` imports.** The import map alias rule (`#store/`, `#atoms/`)
+  was enforced from the first file. Zero refactoring of import paths.
+- **`shadow: false` everywhere.** No time wasted on shadow DOM styling
+  issues. Global CSS just worked.
+- **Named event handlers.** No "button doesn't work" debugging from
+  inline arrows in nested templates.
+- **`store.connect.get` returns `{}`.** The localStorage pattern was
+  correct on first write for CartState.
+- **Template functions over template components.** No host context bugs.
+
+### What the Spec Didn't Prevent (New Discoveries)
+
+Five new hybrids gotchas were found and documented:
+
+1. **Empty arrays throw** — `items: []` needs a prototype item
+2. **`id` is reserved in nested models** — even inside array prototypes
+3. **Enumerable models need `@type {any}`** — tsc can't type `id: true`
+4. **List store descriptors need 3 casts** — descriptor, ready(), and map()
+5. **`list` connector params need cast** — `ModelIdentifier` not plain object
+
+All five are hybrids type system friction, not architectural issues. The
+runtime behavior is correct — it's the JSDoc/tsc layer that struggles.
+Each was fixed in under 2 minutes once identified.
+
+### Test Runner Discovery
+
+`@web/test-runner` doesn't support browser import maps. A custom
+`resolveImport` plugin was needed to map `#prefix/` aliases to absolute
+paths. This is now documented in TESTING.md with the full config pattern.
+
+### Framework Reuse Validation
+
+The Clearstack scaffolder (`npm run spec update`) worked correctly for
+doc syncing. The config overwrite issue (jsconfig.json, eslint.config.js)
+was found and fixed upstream — `update` now skips existing configs unless
+`--force` is passed. This validates the "dependency, not template" model.
+
+### Key Insight
+
+The speed came from **not having to make architectural decisions**. The
+spec answered every "where does this go" question before it was asked:
+store models in `src/store/`, atoms vs molecules vs organisms, CSS in
+per-component files registered in `components.css`, pages in `src/pages/`.
+The LLM never had to ask "how should I structure this?" — it read the
+spec and built.
+
+This is the core value proposition: **Clearstack trades flexibility for
+velocity.** A team (or LLM) that knows the spec can build without
+discussion. The constraints aren't limitations — they're decisions that
+have already been made.

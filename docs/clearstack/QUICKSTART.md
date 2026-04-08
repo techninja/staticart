@@ -137,7 +137,7 @@ npm run spec lint      # ESLint + Stylelint + Markdown
 npm run spec lint es   # ESLint only
 npm run spec format    # Prettier
 npm run spec imports   # import map aliases
-npm run spec types     # JSDoc type validation
+npm run spec types     # JSDoc types (all jsconfigs)
 npm run spec audit     # security audit
 npm test               # Node + browser tests
 ```
@@ -172,7 +172,7 @@ spec all → lint + format + code + docs + imports + types + audit
 | Install dependencies  | `npm install`                              |
 | Start dev server      | `npm run dev`                              |
 | Lint + format         | `npm run spec lint && npm run spec format` |
-| Type check            | `npm run typecheck`                        |
+| Type check            | `npm run spec types`                       |
 | Run tests             | `npm test`                                 |
 | Full spec check       | `npm run spec`                             |
 | Update spec + configs | `npm run spec update`                      |

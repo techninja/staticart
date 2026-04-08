@@ -13,8 +13,8 @@
 TypeScript's `tsc` compiler validates JSDoc annotations via `--checkJs`,
 giving us compile-time type checking without a build step.
 
-A `jsconfig.json` at the project root enables `checkJs: true`. Running
-`npm run typecheck` invokes `tsc --project jsconfig.json` which:
+A `jsconfig.json` at `.configs/jsconfig.json` enables `checkJs: true` for
+frontend code. Running `npm run spec types` invokes `tsc` against it.
 
 1. Reads all `.js` files in `src/` and `scripts/`
 2. Parses JSDoc annotations as type information
@@ -23,6 +23,27 @@ A `jsconfig.json` at the project root enables `checkJs: true`. Running
 
 This means `@typedef`, `@type`, `@param`, and `@returns` are not just
 documentation — they are **enforced types**.
+
+### Multiple Type Configs
+
+The spec checker auto-discovers `jsconfig.json` files in subdirectories.
+If your project has a separate backend (e.g. `api/`) with its own
+dependencies and module resolution, add `api/jsconfig.json`:
+
+```
+your-project/
+├── .configs/jsconfig.json    ← frontend (src/, scripts/)
+└── api/jsconfig.json         ← backend (api/, auto-discovered)
+```
+
+```bash
+npm run spec types            # runs all discovered jsconfigs
+npm run spec types frontend   # just .configs/jsconfig.json
+npm run spec types api        # just api/jsconfig.json
+```
+
+The child key matches the directory name. Both must pass for
+`npm run spec all` to succeed.
 
 ---
 
@@ -151,4 +172,4 @@ list: async (params) => {
 - Keep JSDoc blocks to 3–5 lines. No novels.
 - Use `/** @type {any} */ (expr)` for framework type limitations (e.g.
   `store.pending()` on array results) — document why with a comment.
-- Run `npm run typecheck` before committing. Zero errors required.
+- Run `npm run spec types` before committing. Zero errors required.

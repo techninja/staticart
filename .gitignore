@@ -6,3 +6,4 @@ data/db.json
 src/public/vendor/
 src/public/icons.json
 api/node_modules/
+dist/
