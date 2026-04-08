@@ -1,0 +1,17 @@
+[
+  {
+    "sku": "sample-product-1",
+    "name": "Sample Product",
+    "description": "A sample product to get you started. Replace with your own catalog.",
+    "price": 1999,
+    "currency": "USD",
+    "images": ["https://picsum.photos/seed/sample-1/600/600"],
+    "category": "general",
+    "stock": 100,
+    "active": true,
+    "variants": [],
+    "metadata": {},
+    "createdAt": "2025-01-01T00:00:00Z",
+    "updatedAt": "2025-01-01T00:00:00Z"
+  }
+]

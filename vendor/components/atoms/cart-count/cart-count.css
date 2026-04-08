@@ -1,0 +1,18 @@
+cart-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  & .cart-count {
+    background: var(--color-accent);
+    color: var(--color-text-inverse);
+    font-size: var(--text-sm);
+    font-weight: 700;
+    min-width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 999px;
+    padding: 0 var(--space-xs);
+    text-align: center;
+    line-height: 1.5rem;
+  }
+}

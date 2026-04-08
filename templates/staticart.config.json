@@ -1,7 +1,6 @@
 {
   "store": {
-    "name": "StatiCart Demo Store",
-    "logo": "/assets/staticart_logo.svg",
+    "name": "My Store",
     "locale": "en-US",
     "currency": "USD"
   },
