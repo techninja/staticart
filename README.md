@@ -60,6 +60,17 @@ sam build && sam deploy --guided
 node scripts/build-products.js   # DynamoDB → dist/data/products.json
 ```
 
+## i18n
+
+Default language is English. To translate:
+
+1. Set locale in `staticart.config.json`: `{ "store": { "locale": "es" } }`
+2. Package translations live in `src/locales/<lang>.json`
+3. Project overrides in `src/locales/overrides.json` (English) and `src/locales/overrides.<lang>.json`
+4. Add custom keys for your own components in the override files
+
+Cascade: package defaults → locale file → project overrides → project locale overrides.
+
 ## Specification
 
 See `docs/` for the full specification this project follows.

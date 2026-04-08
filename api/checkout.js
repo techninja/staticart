@@ -1,11 +1,12 @@
 /**
  * POST /api/checkout — validate stock, create Stripe Checkout Session.
- * Falls back to skipping stock validation when DynamoDB is unavailable.
+ * Reads shipping + tax config from staticart.config.json.
  * @module api/checkout
  */
 
 import { getStock } from './lib/dynamo.js';
 import { createCheckoutSession } from './lib/stripe.js';
+import { getConfig } from './lib/config.js';
 import { ok, badRequest, conflict, serverError } from './lib/response.js';
 
 /** @param {any[]} items */
@@ -24,9 +25,7 @@ async function validateStock(items) {
   return unavailable;
 }
 
-/**
- * @param {{ body: string, headers: Record<string, string> }} event
- */
+/** @param {{ body: string, headers: Record<string, string> }} event */
 export async function handler(event) {
   try {
     const { items, successUrl, cancelUrl } = JSON.parse(event.body || '{}');
@@ -38,16 +37,20 @@ export async function handler(event) {
       return conflict({ error: 'Insufficient stock', unavailable });
     }
 
-    const url = await createCheckoutSession(
-      items.map((i) => ({
+    const cfg = getConfig();
+    const url = await createCheckoutSession({
+      items: items.map((i) => ({
         name: i.name,
         price: i.price,
-        currency: i.currency || 'usd',
+        currency: i.currency || cfg.store?.currency || 'usd',
         quantity: i.quantity,
       })),
       successUrl,
       cancelUrl,
-    );
+      shipping: cfg.shipping,
+      automaticTax: cfg.tax?.automatic,
+      locale: cfg.store?.locale,
+    });
 
     return ok({ url });
   } catch (e) {

@@ -1,0 +1,15 @@
+{
+  "store": {
+    "name": "StatiCart Demo Store",
+    "locale": "en-US",
+    "currency": "USD"
+  },
+  "shipping": {
+    "type": "flat",
+    "amount": 499
+  },
+  "tax": {
+    "automatic": false
+  },
+  "productFields": {}
+}
