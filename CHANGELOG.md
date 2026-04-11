@@ -26,4 +26,3 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Initial phase buildout
 - Initial readme
 - Initial Clearstack scaffolding
-
