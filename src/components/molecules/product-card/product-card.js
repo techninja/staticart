@@ -4,66 +4,15 @@
  */
 
 import { html, define, store } from 'hybrids';
-import CartState, { addToCart } from '#store/CartState.js';
+import CartState from '#store/CartState.js';
 import { formatPrice } from '#utils/formatPrice.js';
 import { stockLabel, stockColor, parseVariants } from '#utils/productVariants.js';
 import { t } from '#utils/i18n.js';
+import { handleAdd, handlePick, handleCancel } from './helpers.js';
 import '#atoms/app-icon/app-icon.js';
 import '#atoms/app-badge/app-badge.js';
 
-/**
- * @typedef {Object} ProductCardHost
- * @property {string} sku
- * @property {string} name
- * @property {number} price
- * @property {string} currency
- * @property {string} image
- * @property {number} stock
- * @property {string} detailUrl
- * @property {string} variantsJson
- * @property {boolean} showVariants
- * @property {string} addedLabel
- * @property {any} cart
- */
-
-/** @param {string} json */
-/** @param {ProductCardHost & HTMLElement} host @param {string} [label] */
-function showAdded(host, label) {
-  host.addedLabel = label ? t('cart.addedVariant', { variant: label }) : t('cart.added');
-  setTimeout(() => {
-    host.addedLabel = '';
-  }, 1500);
-}
-
-/** @param {ProductCardHost & HTMLElement} host */
-function handleAdd(host) {
-  if (!store.ready(host.cart) || host.addedLabel) return;
-  const variants = parseVariants(host.variantsJson);
-  if (variants.length > 0) {
-    host.showVariants = true;
-    return;
-  }
-  addToCart(host.cart, host.sku);
-  showAdded(host);
-}
-
-/** @param {ProductCardHost & HTMLElement} host */
-function handlePick(host, e) {
-  const vid = e.target.dataset.vid;
-  if (!vid || !store.ready(host.cart)) return;
-  const variants = parseVariants(host.variantsJson);
-  const picked = variants.find((v) => v.id === vid);
-  addToCart(host.cart, host.sku, vid);
-  host.showVariants = false;
-  showAdded(host, picked?.label);
-}
-
-/** @param {ProductCardHost & HTMLElement} host */
-function handleCancel(host) {
-  host.showVariants = false;
-}
-
-/** @type {import('hybrids').Component<ProductCardHost>} */
+/** @type {import('hybrids').Component<any>} */
 export default define({
   tag: 'product-card',
   sku: '',
@@ -97,7 +46,11 @@ export default define({
             <div class="product-card__image">
               ${image
                 ? html`<img src="${image}" alt="${name}" loading="lazy" />`
-                : html`<app-icon name="image" size="xl" class="product-card__placeholder"></app-icon>`}
+                : html`<app-icon
+                    name="image"
+                    size="xl"
+                    class="product-card__placeholder"
+                  ></app-icon>`}
             </div>
             <h3 class="product-card__name">${name}</h3>
           </a>

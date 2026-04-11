@@ -24,7 +24,7 @@ export default define({
   products: /** @type {any} */ (store([Product], { id: () => ({}) })),
   render: {
     value: ({ series, currentSku, products }) => {
-      if (!series || !/** @type {any} */ (store).ready(products)) return html``;
+      if (!series || !(/** @type {any} */ (store).ready(products))) return html``;
       const related = /** @type {any[]} */ (products)
         .filter((p) => p.metadata?.seriesTitle === series && p.sku !== currentSku && p.stock > 0)
         .sort((a, b) => a.name.localeCompare(b.name));
@@ -35,7 +35,11 @@ export default define({
           <div class="series-gallery__scroll">
             ${related.map(
               (p) => html`
-                <a href="${router.url(ProductDetailView, { sku: p.sku })}" class="series-gallery__item" key="${p.sku}">
+                <a
+                  href="${router.url(ProductDetailView, { sku: p.sku })}"
+                  class="series-gallery__item"
+                  key="${p.sku}"
+                >
                   <img
                     src="${p.images[0] || ''}"
                     alt="${p.name}"

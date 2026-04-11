@@ -47,8 +47,11 @@ export default define({
         <div class="region-select">
           <app-icon name="globe" size="sm"></app-icon>
           <select class="region-select__picker" onchange="${handleChange}">
-            ${REGIONS.map((r) =>
-              html`<option value="${r.code}" selected="${r.code === current}">${r.label}</option>`,
+            ${REGIONS.map(
+              (r) =>
+                html`<option value="${r.code}" selected="${r.code === current}">
+                  ${r.label}
+                </option>`,
             )}
           </select>
         </div>

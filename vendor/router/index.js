@@ -13,7 +13,9 @@ import '#organisms/app-footer/app-footer.js';
 import CatalogView from '#pages/catalog/catalog-view.js';
 
 let isBack = false;
-window.addEventListener('popstate', () => { isBack = true; });
+window.addEventListener('popstate', () => {
+  isBack = true;
+});
 
 export default define({
   tag: 'app-router',

@@ -24,7 +24,7 @@ export function getStripe() {
  * @property {Array<{name: string, price: number, currency: string, quantity: number}>} items
  * @property {string} successUrl
  * @property {string} cancelUrl
- * @property {{type: string, amount?: number}} [shipping]
+ * @property {{type: string, amount?: number, displayName?: string}} [shipping]
  * @property {boolean} [automaticTax]
  * @property {string} [locale]
  */

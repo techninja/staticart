@@ -16,7 +16,10 @@ export function parseFrontmatter(raw) {
     let val = line.slice(idx + 1).trim();
     if (val.startsWith('"') && val.endsWith('"')) val = val.slice(1, -1);
     if (val.startsWith('[') && val.endsWith(']')) {
-      val = val.slice(1, -1).split(',').map((s) => s.trim());
+      val = val
+        .slice(1, -1)
+        .split(',')
+        .map((s) => s.trim());
     }
     meta[key] = val;
   }

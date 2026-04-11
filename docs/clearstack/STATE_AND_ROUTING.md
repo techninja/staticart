@@ -253,6 +253,43 @@ This applies to any property with `value: []` and an async `connect`.
 The `connect` callback sets the value and calls `invalidate()`, but the
 first render happens before that resolves.
 
+#### Async Init with Child Component Props
+
+When a parent loads data during `connect` and passes it to a child via
+template props, the child may never see the change. Hybrids' change
+detection requires observing old → new. If the prop is set before the
+child mounts, there's no "old" value to compare against.
+
+```javascript
+// ❌ BAD — resultCount set during connect, before child mounts
+_init: {
+  value: false,
+  connect: (host, _key, invalidate) => {
+    loadData(host).then(() => {
+      host.resultCount = 14;
+      invalidate(); // child mounts with 14, never sees a change
+    });
+  },
+},
+```
+
+The fix: defer the prop update to after the first render frame so the
+child is mounted and can observe the transition:
+
+```javascript
+// ✅ GOOD — child mounts with default (0), then sees 0 → 14
+connect: (host, _key, invalidate) => {
+  loadData(host).then(() => {
+    invalidate();
+    requestAnimationFrame(() => { host.resultCount = loadedCount; });
+  });
+},
+```
+
+Pre-populate external caches during `loadData` so the child has data
+ready when the deferred update triggers. The 0 → 14 transition happens
+within a single frame — no flicker.
+
 ---
 
 ## Routing
@@ -410,37 +447,16 @@ For live data updates, the backend pushes events via **Server-Sent Events
 
 ### Frontend: SSE Listener
 
-Lives in `src/utils/realtimeSync.js`:
+`src/utils/realtimeSync.js` connects to the SSE endpoint, listens for
+`update` events, and calls `store.clear(Model)` to invalidate the cache.
+Any component bound via `store()` re-fetches automatically.
 
-```javascript
-import { store } from 'hybrids';
+The listener reconnects on error (5s delay) and returns a disconnect
+function for cleanup in the router shell's `connect` descriptor.
 
-export function connectRealtime(url, modelMap) {
-  const source = new EventSource(url);
-
-  source.addEventListener('update', (event) => {
-    const { type } = JSON.parse(event.data);
-    const Model = modelMap[type];
-    if (Model) store.clear(Model); // full clear triggers re-fetch
-  });
-
-  source.addEventListener('error', () => {
-    source.close();
-    setTimeout(() => connectRealtime(url, modelMap), 5000);
-  });
-
-  return () => source.close();
-}
-```
-
-`store.clear(Model)` fully invalidates the cache for that model type.
-Any component bound to the model via `store()` will automatically re-fetch
-from the API. This is the mechanism that makes multi-user realtime work —
-when user A creates a task, user B's task list updates automatically.
-
-For the local user, form submit handlers also call `store.clear(Model)`
-immediately after a successful save. The SSE event that follows is
-redundant for the local user but ensures other connected clients update.
+`store.clear(Model)` is also called by form submit handlers after a
+successful save. The SSE event that follows is redundant for the local
+user but ensures other connected clients update.
 
 ### Backend: SSE Endpoint
 
@@ -449,31 +465,20 @@ contract.
 
 ### Wiring It Up
 
-In the router shell's `connect` descriptor:
+In the router shell, use a `connect` descriptor to start SSE and return
+the disconnect function. Map entity types to store models:
 
 ```javascript
-import { connectRealtime } from '../utils/realtimeSync.js';
-import UserModel from '../store/UserModel.js';
-
-export default define({
-  tag: 'app-router',
-  stack: router(HomeView, { url: '/' }),
-  connection: {
-    value: undefined,
-    connect(host) {
-      const disconnect = connectRealtime('/api/events', {
-        user: UserModel,
-      });
-      return disconnect;
-    },
+connection: {
+  value: undefined,
+  connect(host) {
+    return connectRealtime('/api/events', { user: UserModel });
   },
-  render: ({ stack }) => html` <template layout="column height::100vh">${stack}</template> `,
-});
+},
 ```
 
-When the backend sends `{ type: "user", id: "42" }` over SSE, the store
-cache for `UserModel` is cleared, and any component displaying that user
-re-fetches automatically.
+When the backend sends `{ type: "user" }` over SSE, the store cache for
+`UserModel` is cleared and any bound component re-fetches automatically.
 
 ### Debouncing Batch Operations
 

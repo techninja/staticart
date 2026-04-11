@@ -25,7 +25,9 @@ export default define({
             ${links.length > 0 &&
             html`
               <nav class="app-footer__links">
-                ${links.map((l) => html`<a href="${l.url}" class="app-footer__link">${l.label}</a>`)}
+                ${links.map(
+                  (l) => html`<a href="${l.url}" class="app-footer__link">${l.label}</a>`,
+                )}
               </nav>
             `}
             <p class="app-footer__text">${text}</p>

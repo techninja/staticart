@@ -17,9 +17,9 @@ const ROOT = dirname(dirname(dirname(dirname(fileURLToPath(import.meta.url)))));
 
 /**
  * @typedef {Object} ShippingContext
- * @property {any[]} items — cart items with { sku, name, price, quantity, metadata }
- * @property {string} [country] — ISO country code from shipping address
- * @property {any} config — full staticart.config.json
+ * @property {any[]} items - cart items with { sku, name, price, quantity, metadata }
+ * @property {string} [country] - ISO country code from shipping address
+ * @property {any} config - full staticart.config.json
  */
 
 /**

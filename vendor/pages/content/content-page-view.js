@@ -32,7 +32,11 @@ export default define({
   page: {
     value: /** @type {any} */ (undefined),
     connect(host, _key, invalidate) {
-      if (host.slug) loadPage(host.slug).then((p) => { host.page = p; invalidate(); });
+      if (host.slug)
+        loadPage(host.slug).then((p) => {
+          host.page = p;
+          invalidate();
+        });
     },
   },
   render: {

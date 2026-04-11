@@ -23,17 +23,19 @@ export function subtotal(products, items) {
 
 /** @param {any[]} products @param {any[]} items @returns {any[]} */
 export function buildLineItems(products, items) {
-  return items.filter((i) => i.sku).map((item) => {
-    const p = findProduct(products, item.sku);
-    const v = item.variantId ? (p?.variants || []).find((v) => v.id === item.variantId) : null;
-    return {
-      sku: item.sku,
-      name: p?.name || item.sku,
-      price: v && v.price > 0 ? v.price : p?.price || 0,
-      currency: p?.currency || 'USD',
-      quantity: item.quantity,
-    };
-  });
+  return items
+    .filter((i) => i.sku)
+    .map((item) => {
+      const p = findProduct(products, item.sku);
+      const v = item.variantId ? (p?.variants || []).find((v) => v.id === item.variantId) : null;
+      return {
+        sku: item.sku,
+        name: p?.name || item.sku,
+        price: v && v.price > 0 ? v.price : p?.price || 0,
+        currency: p?.currency || 'USD',
+        quantity: item.quantity,
+      };
+    });
 }
 
 /** @param {any[]} products @param {any[]} items @returns {any[]} */

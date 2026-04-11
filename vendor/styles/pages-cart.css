@@ -59,7 +59,10 @@
 .shipping-breakdown__table {
   margin-bottom: var(--space-md);
 
-  & h4 { margin: 0 0 var(--space-xs); font-size: var(--text-sm); }
+  & h4 {
+    margin: 0 0 var(--space-xs);
+    font-size: var(--text-sm);
+  }
 
   & table {
     width: 100%;
@@ -67,16 +70,35 @@
     text-align: center;
   }
 
-  & th, & td {
+  & th,
+  & td {
     padding: var(--space-xs) var(--space-sm);
     border: 1px solid var(--color-border);
   }
 
-  & th { background: var(--color-bg); font-weight: 600; }
-  & th.active-region { background: var(--color-primary); color: var(--color-text-inverse); }
-  & tr.active-tier { font-weight: 600; }
-  & td.active-cell { background: var(--color-accent); color: var(--color-text); font-weight: 700; }
-  & td:first-child { text-align: left; }
+  & th {
+    background: var(--color-bg);
+    font-weight: 600;
+  }
+
+  & th.active-region {
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
+  }
+
+  & tr.active-tier {
+    font-weight: 600;
+  }
+
+  & td.active-cell {
+    background: var(--color-accent);
+    color: var(--color-text);
+    font-weight: 700;
+  }
+
+  & td:first-child {
+    text-align: left;
+  }
 }
 
 /* Order result pages */
@@ -107,58 +129,4 @@
     flex-direction: column;
     gap: var(--space-md);
   }
-}
-
-/* Orders lookup */
-
-.orders-view {
-  max-width: 700px;
-  margin: 0 auto;
-}
-
-.orders-view__form {
-  display: flex;
-  gap: var(--space-sm);
-  margin-bottom: var(--space-lg);
-
-  & input {
-    flex: 1;
-    margin-bottom: 0;
-  }
-}
-
-.orders-view__email {
-  color: var(--color-text-muted);
-  margin-bottom: var(--space-md);
-}
-
-.orders-view__list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-}
-
-.orders-view__item {
-  display: flex;
-  align-items: center;
-  gap: var(--space-md);
-  padding: var(--space-sm) var(--space-md);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-}
-
-.orders-view__id {
-  font-family: var(--font-mono);
-  font-size: var(--text-sm);
-}
-
-.orders-view__total {
-  font-weight: 700;
-  margin-left: auto;
-}
-
-.orders-view__date {
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
 }

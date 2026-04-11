@@ -18,14 +18,18 @@ import CatalogView from '#pages/catalog/catalog-view.js';
 
 /** @param {any} host */
 async function handleCheckout(host) {
-  if (!/** @type {any} */ (store).ready(host.cart)) return;
+  if (!(/** @type {any} */ (store).ready(host.cart))) return;
   const items = /** @type {any[]} */ (host.cart.items);
   const prods = /** @type {any[]} */ (host.products);
   host.checkingOut = true;
   host.checkoutError = '';
   const shippingItems = buildShippingItems(prods, items);
   const { summary } = estimateShipping(shippingItems, host.appState?.region || 'US');
-  const result = await requestCheckout(buildLineItems(prods, items), host.appState?.region || 'US', summary);
+  const result = await requestCheckout(
+    buildLineItems(prods, items),
+    host.appState?.region || 'US',
+    summary,
+  );
   host.checkingOut = false;
   if (result.url) window.location.href = result.url;
   else host.checkoutError = result.error || 'Checkout failed';
@@ -51,13 +55,18 @@ export default define({
           <div class="cart-view">
             <h1>${t('cart.title')}</h1>
             <p class="cart-view__empty">${t('cart.empty')}</p>
-            <a href="${router.url(CatalogView)}" class="btn btn-primary">${t('order.continueShopping')}</a>
+            <a href="${router.url(CatalogView)}" class="btn btn-primary"
+              >${t('order.continueShopping')}</a
+            >
           </div>
         `;
       }
       const total = subtotal(prods, items);
       const region = appState?.region || 'US';
-      const { amount: shipping, summary: shippingSummary } = estimateShipping(buildShippingItems(prods, items), region);
+      const { amount: shipping, summary: shippingSummary } = estimateShipping(
+        buildShippingItems(prods, items),
+        region,
+      );
       return html`
         <div class="cart-view">
           <h1>${t('cart.title')}</h1>
@@ -67,10 +76,14 @@ export default define({
             const v = item.variantId ? p.variants.find((v) => v.id === item.variantId) : null;
             return html`
               <cart-item
-                sku="${item.sku}" variantId="${item.variantId}"
-                name="${p.name}" variantLabel="${v ? v.label : ''}"
-                price="${v && v.price > 0 ? v.price : p.price}" currency="${p.currency}"
-                image="${p.images[0] || ''}" quantity="${item.quantity}"
+                sku="${item.sku}"
+                variantId="${item.variantId}"
+                name="${p.name}"
+                variantLabel="${v ? v.label : ''}"
+                price="${v && v.price > 0 ? v.price : p.price}"
+                currency="${p.currency}"
+                image="${p.images[0] || ''}"
+                quantity="${item.quantity}"
                 maxStock="${v ? v.stock : p.stock}"
               ></cart-item>
             `;
@@ -79,9 +92,14 @@ export default define({
           <div class="cart-view__footer">
             <div class="cart-view__totals">
               <span>${t('cart.subtotal')}: ${formatPrice(total)}</span>
-              <span>${t('cart.shipping')}: ${shipping > 0 ? formatPrice(shipping) : t('cart.freeShipping')}</span>
+              <span
+                >${t('cart.shipping')}:
+                ${shipping > 0 ? formatPrice(shipping) : t('cart.freeShipping')}</span
+              >
               <span class="cart-view__shipping-detail">${shippingSummary}</span>
-              <span class="cart-view__total">${t('cart.total')}: ${formatPrice(total + shipping)}</span>
+              <span class="cart-view__total"
+                >${t('cart.total')}: ${formatPrice(total + shipping)}</span
+              >
             </div>
             <button class="btn btn-primary" onclick="${handleCheckout}" disabled="${checkingOut}">
               ${checkingOut ? t('cart.processing') : t('cart.checkout')}

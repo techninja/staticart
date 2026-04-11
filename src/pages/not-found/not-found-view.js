@@ -31,7 +31,10 @@ export default define({
   page: {
     value: /** @type {any} */ (undefined),
     connect(host, _key, invalidate) {
-      load404().then((p) => { host.page = p; invalidate(); });
+      load404().then((p) => {
+        host.page = p;
+        invalidate();
+      });
     },
   },
   render: {

@@ -39,7 +39,11 @@ export default define({
         <header class="app-header">
           <a href="${router.url(CatalogView)}" class="app-header__brand">
             ${store_cfg.logo
-              ? html`<img src="${store_cfg.logo}" alt="${store_cfg.name}" class="app-header__logo" />`
+              ? html`<img
+                  src="${store_cfg.logo}"
+                  alt="${store_cfg.name}"
+                  class="app-header__logo"
+                />`
               : html`<span class="app-header__name">${store_cfg.name}</span>`}
           </a>
           <nav class="app-header__nav">

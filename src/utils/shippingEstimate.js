@@ -53,7 +53,8 @@ export function estimateShipping(items, region) {
         break;
       }
     }
-    if (!matched && shipping.defaultClass) subtotals[shipping.defaultClass] += item.price * item.quantity;
+    if (!matched && shipping.defaultClass)
+      subtotals[shipping.defaultClass] += item.price * item.quantity;
   }
 
   let total = 0;
@@ -68,8 +69,12 @@ export function estimateShipping(items, region) {
       const rate = tier.rates?.[regionKey] || 0;
       total += rate;
       const clsLabel = CLASS_LABELS[cls] || cls;
-      const tierLabel = tier.upTo ? `under ${formatPrice(tier.upTo)}` : `${formatPrice(tiers[i - 1]?.upTo || 0)}+`;
-      parts.push(`${clsLabel} (${tierLabel}), ${regionLabel}: ${rate > 0 ? formatPrice(rate) : 'Free'}`);
+      const tierLabel = tier.upTo
+        ? `under ${formatPrice(tier.upTo)}`
+        : `${formatPrice(tiers[i - 1]?.upTo || 0)}+`;
+      parts.push(
+        `${clsLabel} (${tierLabel}), ${regionLabel}: ${rate > 0 ? formatPrice(rate) : 'Free'}`,
+      );
       break;
     }
   }

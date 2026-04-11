@@ -1,0 +1,59 @@
+/* Content page and prose styles. */
+
+.content-page {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.content-page__back {
+  display: inline-block;
+  margin-bottom: var(--space-md);
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.prose h2 {
+  margin-top: var(--space-xl);
+}
+
+.prose h3 {
+  margin-top: var(--space-lg);
+}
+
+.prose p {
+  line-height: 1.7;
+  margin: var(--space-md) 0;
+}
+
+.prose ul {
+  padding-left: var(--space-lg);
+  margin: var(--space-md) 0;
+}
+
+.prose li {
+  margin: var(--space-xs) 0;
+  line-height: 1.6;
+}
+
+.prose code {
+  background: var(--color-border);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+}
+
+.prose img {
+  max-width: 100%;
+  border-radius: var(--radius-md);
+  margin: var(--space-md) 0;
+}
+
+.prose hr {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: var(--space-xl) 0;
+}
+
+.prose a {
+  color: var(--color-primary);
+}

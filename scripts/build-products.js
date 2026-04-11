@@ -85,7 +85,7 @@ async function main() {
   try {
     products = await fetchFromDynamo();
     console.log(`✓ Fetched ${products.length} products from DynamoDB`);
-  } catch (e) {
+  } catch {
     if (existsSync(OUT)) {
       console.warn(`⚠ DynamoDB unavailable, keeping existing products.json`);
       products = JSON.parse(readFileSync(OUT, 'utf-8'));

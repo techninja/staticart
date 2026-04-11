@@ -6,6 +6,9 @@
 
 import { getStoreConfigSync } from '#utils/storeConfig.js';
 
+/**
+ *
+ */
 export function setPageMeta(title, description) {
   const name = getStoreConfigSync()?.store?.name || 'StatiCart';
   document.title = title ? `${title} — ${name}` : name;

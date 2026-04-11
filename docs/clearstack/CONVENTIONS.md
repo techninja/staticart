@@ -197,6 +197,20 @@ function toggle(host) {
 }
 ```
 
+```javascript
+// BAD — silent catch hides the failure completely
+try {
+  store.clear([Model]);
+} catch {
+  /* list may not exist */
+}
+```
+
+**Never use empty `catch` blocks.** If you catch to prevent crashing,
+you must `console.warn` or `console.error` so the failure is visible.
+Silent catches turn bugs into ghosts — things "just don't work" with
+zero console output to trace.
+
 ### ✅ Do
 
 ```javascript
@@ -212,6 +226,15 @@ function toggle(host) {
   if (!store.ready(host.state)) return;
   const next = host.state.theme === 'light' ? 'dark' : 'light';
   store.set(host.state, { theme: next });
+}
+```
+
+```javascript
+// GOOD — catch to prevent crash, but log so failures are visible
+try {
+  store.clear([Model]);
+} catch (e) {
+  console.warn('[store] clear failed:', e.message);
 }
 ```
 
@@ -251,10 +274,24 @@ export const fullName = (user) => `${user.firstName} ${user.lastName}`;
 
 ---
 
-## File Size: Soft Warnings Before Hard Limits
+## File Size: Why 150 Lines
 
-The 150-line limit is a hard gate in CI, but treat **~120 lines as a yellow
-light.** When a file passes 120 lines:
+The 150-line limit isn't about the number — it's about **context cost**.
+A 400-line file isn't hard to scroll through, but it's expensive to
+_hold in mind_. Humans can only reason about a limited scope at once.
+LLMs face the same constraint differently: every token spent reading a
+bloated file is a token not spent on the actual task. Small files mean
+context is spent on _building_, not on _understanding what you're
+looking at_.
+
+When every file is small enough to comprehend in one pass, both humans
+and LLMs can generate, review, and modify code without re-reading
+unrelated sections. Refactors become safe because the blast radius of
+any change is one small file. The limit forces decomposition into
+concept-sized units — not arbitrary chunks, but files where each one
+answers a single question.
+
+Treat **~120 lines as a yellow light.** When a file passes 120 lines:
 
 1. Add a `// SPLIT CANDIDATE:` comment noting where a logical split could happen
 2. Continue working — don't split mid-feature
@@ -270,7 +307,9 @@ function moveObj(o, dx, dy) { ... }
 ### When a File Exceeds 150 Lines
 
 The **only correct response** is to split the file into two or more files.
-Never do any of the following to reduce line count:
+The concepts have outgrown the container — find the seam between them
+and give each its own file. Never do any of the following to reduce
+line count:
 
 - Remove or shorten JSDoc comments
 - Collapse multi-line expressions onto one line

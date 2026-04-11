@@ -61,15 +61,11 @@ const htmlPath = resolve(ROOT, 'src/index.html');
 const html = readFileSync(htmlPath, 'utf-8');
 
 const mapEntry = `"${layerPrefix}${name}/": "/components/${component}/"`;
-const generalEntry = `"${layerPrefix}": "/vendor/staticart/components/${layer}/"`;
 
 if (html.includes(mapEntry)) {
   console.log('✓ Import map already has override entry');
 } else {
-  const patched = html.replace(
-    `"${layerPrefix}"`,
-    `${mapEntry},\n          "${layerPrefix}"`,
-  );
+  const patched = html.replace(`"${layerPrefix}"`, `${mapEntry},\n          "${layerPrefix}"`);
   writeFileSync(htmlPath, patched);
   console.log(`✓ Patched import map: ${mapEntry}`);
 }

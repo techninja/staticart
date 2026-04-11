@@ -14,9 +14,16 @@ let loaded = false;
 const waiting = new Set();
 
 fetch('/icons.json')
-  .then((r) => r.ok ? r.json() : {})
-  .then((data) => { iconCache = data; loaded = true; waiting.forEach((fn) => fn()); })
-  .catch(() => { iconCache = {}; loaded = true; });
+  .then((r) => (r.ok ? r.json() : {}))
+  .then((data) => {
+    iconCache = data;
+    loaded = true;
+    waiting.forEach((fn) => fn());
+  })
+  .catch(() => {
+    iconCache = {};
+    loaded = true;
+  });
 
 /**
  * @typedef {Object} AppIconHost
@@ -33,19 +40,28 @@ export default define({
   ready: {
     value: false,
     connect(host, _key, invalidate) {
-      if (loaded) { host.ready = true; return; }
-      const cb = () => { host.ready = true; invalidate(); };
+      if (loaded) {
+        host.ready = true;
+        return;
+      }
+      const cb = () => {
+        host.ready = true;
+        invalidate();
+      };
       waiting.add(cb);
       return () => waiting.delete(cb);
     },
   },
   render: {
     value: ({ name, size, ready }) => {
-      const inner = ready && iconCache?.[name] || '';
+      const inner = (ready && iconCache?.[name]) || '';
       return html`
-        <span class="icon icon-${size}" innerHTML="${inner
-          ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${inner}</svg>`
-          : ''}"></span>
+        <span
+          class="icon icon-${size}"
+          innerHTML="${inner
+            ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${inner}</svg>`
+            : ''}"
+        ></span>
       `;
     },
     shadow: false,

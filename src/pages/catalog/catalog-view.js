@@ -65,7 +65,15 @@ export default define({
   products: /** @type {any} */ (store([Product], { id: () => ({}) })),
   [router.connect]: {
     url: '/',
-    stack: [ProductDetailView, CartView, OrderSuccessView, OrderCancelledView, OrdersView, ContentPageView, NotFoundView],
+    stack: [
+      ProductDetailView,
+      CartView,
+      OrderSuccessView,
+      OrderCancelledView,
+      OrdersView,
+      ContentPageView,
+      NotFoundView,
+    ],
   },
   render: {
     value: ({ activeCategory, searchQuery, products }) => {

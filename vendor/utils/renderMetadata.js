@@ -20,7 +20,7 @@ export function renderMetadata(product, config) {
   if (!fields) return '';
   const meta = product.metadata || {};
   const entries = Object.entries(fields)
-    .filter(([key]) => meta[key] != null && meta[key] !== '')
+    .filter(([key]) => meta[key] !== null && meta[key] !== undefined && meta[key] !== '')
     .map(([key, def]) => ({
       label: /** @type {any} */ (def).label || key,
       value: /** @type {any} */ (def).type === 'boolean' ? boolLabel(meta[key]) : meta[key],
@@ -29,7 +29,9 @@ export function renderMetadata(product, config) {
   return html`
     <dl class="product-detail__metadata">
       ${entries.map(
-        (e) => html`<dt>${e.label}</dt><dd>${e.value}</dd>`,
+        (e) =>
+          html`<dt>${e.label}</dt>
+            <dd>${e.value}</dd>`,
       )}
     </dl>
   `;

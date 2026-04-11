@@ -42,14 +42,16 @@ export default define({
   products: /** @type {any} */ (store([Product], { id: () => ({}) })),
   render: {
     value: ({ currentSku, excludeSeries, products }) => {
-      if (!currentSku || !/** @type {any} */ (store).ready(products)) return html``;
+      if (!currentSku || !(/** @type {any} */ (store).ready(products))) return html``;
       const all = /** @type {any[]} */ (products);
       const current = all.find((p) => p.sku === currentSku);
       if (!current) return html``;
       const related = all
-        .filter((p) =>
-          p.sku !== currentSku && p.stock > 0 &&
-          (!excludeSeries || p.metadata?.seriesTitle !== excludeSeries),
+        .filter(
+          (p) =>
+            p.sku !== currentSku &&
+            p.stock > 0 &&
+            (!excludeSeries || p.metadata?.seriesTitle !== excludeSeries),
         )
         .map((p) => ({ product: p, score: relevanceScore(current, p) }))
         .filter((r) => r.score > 0)
@@ -63,7 +65,11 @@ export default define({
           <div class="related-products__scroll">
             ${related.map(
               (p) => html`
-                <a href="${router.url(ProductDetailView, { sku: p.sku })}" class="related-products__item" key="${p.sku}">
+                <a
+                  href="${router.url(ProductDetailView, { sku: p.sku })}"
+                  class="related-products__item"
+                  key="${p.sku}"
+                >
                   <img
                     src="${p.images[0] || ''}"
                     alt="${p.name}"
@@ -71,9 +77,7 @@ export default define({
                     class="related-products__img"
                   />
                   <span class="related-products__name">${p.name}</span>
-                  <span class="related-products__price">
-                    ${formatPrice(p.price, p.currency)}
-                  </span>
+                  <span class="related-products__price"> ${formatPrice(p.price, p.currency)} </span>
                 </a>
               `,
             )}

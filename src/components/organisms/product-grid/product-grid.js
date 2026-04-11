@@ -30,10 +30,14 @@ function matchesSearch(p, q) {
  */
 
 /** @param {ProductGridHost & HTMLElement} host */
-function handleShowMore(host) { host.visibleCount += PAGE_SIZE; }
+function handleShowMore(host) {
+  host.visibleCount += PAGE_SIZE;
+}
 
 /** @param {ProductGridHost & HTMLElement} host */
-function handleShowAll(host) { host.showAll = true; }
+function handleShowAll(host) {
+  host.showAll = true;
+}
 
 /** @type {IntersectionObserver|null} */
 let scrollObserver = null;
@@ -43,23 +47,36 @@ export default define({
   tag: 'product-grid',
   category: {
     value: '',
-    observe: (host, val, last) => { if (last !== undefined) { host.visibleCount = PAGE_SIZE; host.showAll = false; } },
+    observe: (host, val, last) => {
+      if (last !== undefined) {
+        host.visibleCount = PAGE_SIZE;
+        host.showAll = false;
+      }
+    },
   },
   search: {
     value: '',
-    observe: (host, val, last) => { if (last !== undefined) { host.visibleCount = PAGE_SIZE; host.showAll = false; } },
+    observe: (host, val, last) => {
+      if (last !== undefined) {
+        host.visibleCount = PAGE_SIZE;
+        host.showAll = false;
+      }
+    },
   },
   visibleCount: PAGE_SIZE,
   showAll: false,
   products: /** @type {any} */ (store([Product], { id: () => ({}) })),
   render: {
     value: ({ products, category, search, visibleCount, showAll }) => {
-      if (!/** @type {any} */ (store).ready(products)) return html`<p>${t('general.loading')}</p>`;
+      if (!(/** @type {any} */ (store).ready(products)))
+        return html`<p>${t('general.loading')}</p>`;
       const filtered = /** @type {any[]} */ (products).filter(
         (p) =>
           p.stock > 0 &&
           (!category ||
-            (Array.isArray(p.category) ? p.category.includes(category) : p.category === category)) &&
+            (Array.isArray(p.category)
+              ? p.category.includes(category)
+              : p.category === category)) &&
           matchesSearch(p, search),
       );
       const total = filtered.length;
@@ -69,11 +86,15 @@ export default define({
       return html`
         <div class="product-grid">
           <p class="product-grid__count">${total} ${total === 1 ? 'product' : 'products'}</p>
-          ${visible.map(
-            (p) => html`
+          ${visible.map((p) =>
+            html`
               <product-card
-                sku="${p.sku}" name="${p.name}" price="${p.price}" currency="${p.currency}"
-                image="${p.images[0] || ''}" stock="${p.stock}"
+                sku="${p.sku}"
+                name="${p.name}"
+                price="${p.price}"
+                currency="${p.currency}"
+                image="${p.images[0] || ''}"
+                stock="${p.stock}"
                 detailUrl="${`/product/${p.sku}`}"
                 variantsJson="${JSON.stringify(p.variants || [])}"
               ></product-card>
@@ -98,16 +119,22 @@ export default define({
     shadow: false,
     observe: (host) => {
       if (!host.showAll) {
-        if (scrollObserver) { scrollObserver.disconnect(); scrollObserver = null; }
+        if (scrollObserver) {
+          scrollObserver.disconnect();
+          scrollObserver = null;
+        }
         return;
       }
       requestAnimationFrame(() => {
         const sentinel = host.querySelector('.product-grid__sentinel');
         if (!sentinel) return;
         if (scrollObserver) scrollObserver.disconnect();
-        scrollObserver = new IntersectionObserver((entries) => {
-          if (entries[0]?.isIntersecting) host.visibleCount += PAGE_SIZE;
-        }, { rootMargin: '400px' });
+        scrollObserver = new IntersectionObserver(
+          (entries) => {
+            if (entries[0]?.isIntersecting) host.visibleCount += PAGE_SIZE;
+          },
+          { rootMargin: '400px' },
+        );
         scrollObserver.observe(sentinel);
       });
     },

@@ -34,7 +34,10 @@ export default define({
       }
       return html`
         <button class="btn btn-ghost theme-toggle-btn" onclick="${toggle}">
-          <app-icon name="${store.ready(state) && state.theme === 'light' ? 'moon' : 'sun'}" size="sm"></app-icon>
+          <app-icon
+            name="${store.ready(state) && state.theme === 'light' ? 'moon' : 'sun'}"
+            size="sm"
+          ></app-icon>
         </button>
       `;
     },
