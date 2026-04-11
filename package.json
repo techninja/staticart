@@ -2,6 +2,10 @@
   "name": "@techninja/staticart",
   "version": "0.1.5",
   "description": "StatiCart — a full-featured e-commerce platform built 99% on static hosting",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/techninja/staticart"
+  },
   "main": "src/server.js",
   "files": [
     "vendor/",
