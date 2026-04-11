@@ -54,7 +54,7 @@ if (existsSync(syncScript)) {
 
 // Spec check
 console.log('\n🔍 Running spec checks...\n');
-run('node scripts/spec.js check all');
+run('npm run spec -- check all');
 
 // Changelog
 const changelogPath = resolve(ROOT, 'CHANGELOG.md');
