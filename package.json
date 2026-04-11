@@ -1,6 +1,6 @@
 {
   "name": "@techninja/staticart",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "StatiCart — a full-featured e-commerce platform built 99% on static hosting",
   "main": "src/server.js",
   "files": [
@@ -31,7 +31,8 @@
     "start": "node src/server.js",
     "dev": "node --watch --env-file=.env --env-file=.env.local src/server.js",
     "postinstall": "node scripts/setup.js",
-    "spec": "clearstack"
+    "spec": "clearstack",
+    "release": "node scripts/release.js"
   },
   "keywords": [],
   "author": "",

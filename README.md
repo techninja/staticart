@@ -1,38 +1,100 @@
 <p align="center">
-  <img src="src/assets/staticart_logo.svg" alt="StatiCart logo" width="240" />
+  <a href="https://staticart.org">
+    <img src="src/assets/staticart_logo.svg" alt="StatiCart logo" width="240" />
+  </a>
 </p>
 
-# staticart
+<h1 align="center">StatiCart</h1>
+<p align="center">
+  Free and open source, cheaply hosted, Stripe-powered,<br/>
+  full-featured, limited-scope e-commerce platform.
+</p>
+<p align="center">
+  <a href="https://staticart.org">staticart.org</a> ·
+  <a href="https://www.npmjs.com/package/@techninja/staticart">npm</a> ·
+  <a href="https://github.com/techninja/staticart">GitHub</a>
+</p>
 
-> StatiCart — a full-featured e-commerce platform built 99% on static hosting
+---
 
-Built with the [Clearstack](https://github.com/techninja/clearstack) no-build web component specification.
+Built with the [Clearstack](https://github.com/techninja/clearstack) no-build web component specification. Ships as an npm package that scaffolds complete stores via Clearstack's platform stacking system.
 
 ## Architecture
 
-```
-Static Site (CDN)          Thin API (Lambda)         Database
-┌──────────────┐           ┌──────────────┐          ┌──────────┐
-│ Product pages│  checkout  │POST /checkout│  stock   │ DynamoDB │
-│ Cart (local) │ ────────> │POST /webhook │ <──────> │ (single  │
-│ SPA (hybrids)│           │GET  /stock   │  orders  │  table)  │
-└──────────────┘           │GET  /orders  │          └──────────┘
-                           │GET  /session │               │
-                           └──────────────┘          stock changed
-                                                         │
-                                                    Build Trigger
-                                                    (GitHub Actions)
+<div align="center">
+
+```mermaid
+flowchart TB
+  subgraph CDN["Static Site (CDN)"]
+    pages["Product pages"] ~~~ cart["Cart (localStorage)"] ~~~ spa["SPA (Hybrids.js)"]
+  end
+
+  subgraph API["Thin API (Lambda)"]
+    checkout["POST /checkout"] ~~~ webhook["POST /webhook"] ~~~ stock["GET /stock"]
+    orders["GET /orders"] ~~~ session["GET /session"]
+  end
+
+  subgraph DB["Database"]
+    dynamo["DynamoDB (single table)"]
+  end
+
+  CDN -- "checkout" --> API
+  API <-- "stock & orders" --> DB
+  dynamo -- "stock changed" --> rebuild["Build Trigger (GitHub Actions)"]
+  rebuild --> CDN
 ```
 
-## Quick Start
+</div>
+
+## Quick Start (New Store)
+
+```bash
+mkdir my-store && cd my-store
+npm init -y
+npm install @techninja/staticart
+npm install -D @techninja/clearstack
+npx clearstack init -y --static   # Detects StatiCart, scaffolds store
+npm install
+npm run dev
+```
+
+Edit `staticart.config.json` to set your store name, then replace `src/data/products.json` with your catalog.
+
+## Quick Start (Development)
 
 ```bash
 npm install
 cd api && npm install && cd ..
 npm run dev       # Start dev server (port from .env.local)
 npm test          # Run tests (18 node + 31 browser)
-npm run spec      # Spec compliance checker (10/10)
+npm run spec      # Spec compliance checker (11/11)
 ```
+
+## Configuration
+
+All store settings live in `staticart.config.json`:
+
+```json
+{
+  "store": {
+    "name": "My Store",
+    "logo": "/assets/logo.svg",
+    "locale": "en-US",
+    "currency": "USD"
+  },
+  "shipping": { "type": "flat", "amount": 499 },
+  "tax": { "automatic": false },
+  "productFields": {
+    "isbn": { "type": "string", "label": "ISBN" },
+    "grade": { "type": "string", "label": "Condition" }
+  }
+}
+```
+
+- `store.name` — displayed in the header (text fallback when no logo)
+- `store.logo` — optional path to logo image
+- `shipping.type` — `"flat"`, `"tiered"`, or `"custom"` (see docs)
+- `productFields` — custom metadata fields rendered on product detail pages
 
 ## Environment
 
@@ -43,21 +105,32 @@ STRIPE_SECRET_KEY=sk_test_...    # From Stripe dashboard
 STRIPE_WEBHOOK_SECRET=whsec_...  # From `stripe listen` CLI
 ```
 
-## Deploy
+## Platform Stacking
 
-**Static site:** `src/` → CDN (S3+CloudFront or Cloudflare Pages)
+StatiCart is a Clearstack platform. Child projects get:
 
-**API:** `api/` → AWS Lambda via SAM:
+- Vendored components, store models, utils, and styles in `src/vendor/staticart/`
+- Config-driven branding, shipping, and product fields
+- Override any component via import map specificity
+- Override styles via CSS custom properties in `tokens.css`
+- Override translations via `locales/overrides.json`
+
+See `docs/app-spec/SCAFFOLD.md` for the full override architecture.
+
+### Component Overrides
 
 ```bash
-cd api
-sam build && sam deploy --guided
+node scripts/override.js molecules/product-card
 ```
 
-**Build pipeline:** GitHub Actions rebuilds on stock changes:
+This copies the vendor component to `src/components/` and patches the import map. Edit freely — your override is project-owned and never overwritten.
+
+### Vendor Sync (Development)
+
+When developing StatiCart itself, sync source to the vendor directory before committing:
 
 ```bash
-node scripts/build-products.js   # DynamoDB → dist/data/products.json
+node scripts/sync-vendor.js
 ```
 
 ## i18n
@@ -75,6 +148,31 @@ The package translates **framework UI** (buttons, labels, status text). Store-sp
 terms — category names, variant labels, product descriptions — are **project data**.
 Define display names for your categories via `category.<slug>` keys in override files.
 Variant labels come from `products.json` and are the store owner's responsibility.
+
+## Shipping
+
+Three shipping models:
+
+- **Flat rate** — single fixed amount (`"type": "flat"`)
+- **Tiered** — rate tiers by cart subtotal with product classes and regional pricing (`"type": "tiered"`)
+- **Custom** — project-provided module at `api/lib/shipping-custom.js` (`"type": "custom"`)
+
+## Deploy
+
+**Static site:** `src/` → CDN (S3+CloudFront or Cloudflare Pages)
+
+**API:** `api/` → AWS Lambda via SAM:
+
+```bash
+cd api
+sam build && sam deploy --guided
+```
+
+**Build pipeline:** GitHub Actions rebuilds on stock changes:
+
+```bash
+node scripts/build-products.js   # DynamoDB → dist/data/products.json
+```
 
 ## Specification
 
