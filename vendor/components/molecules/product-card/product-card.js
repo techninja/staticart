@@ -27,7 +27,18 @@ export default define({
   addedLabel: '',
   cart: store(CartState),
   render: {
-    value: ({ sku: _s, name, price, currency, image, stock, detailUrl, variantsJson, showVariants, addedLabel }) => {
+    value: ({
+      sku: _s,
+      name,
+      price,
+      currency,
+      image,
+      stock,
+      detailUrl,
+      variantsJson,
+      showVariants,
+      addedLabel,
+    }) => {
       const variants = parseVariants(variantsJson);
       return html`
         <article class="product-card">
@@ -35,7 +46,11 @@ export default define({
             <div class="product-card__image">
               ${image
                 ? html`<img src="${image}" alt="${name}" loading="lazy" />`
-                : html`<app-icon name="image" size="xl" class="product-card__placeholder"></app-icon>`}
+                : html`<app-icon
+                    name="image"
+                    size="xl"
+                    class="product-card__placeholder"
+                  ></app-icon>`}
             </div>
             <h3 class="product-card__name">${name}</h3>
           </a>
@@ -49,7 +64,9 @@ export default define({
               : showVariants
                 ? html`
                     <div class="product-card__variants">
-                      <button class="product-card__variants-close" onclick="${handleCancel}">✕</button>
+                      <button class="product-card__variants-close" onclick="${handleCancel}">
+                        ✕
+                      </button>
                       <div class="product-card__variants-row">
                         ${variants.map(
                           (v) => html`
