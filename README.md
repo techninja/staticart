@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://staticart.org">
-    <img src="src/assets/staticart_logo.svg" alt="StatiCart logo" width="240" />
+    <img src="https://raw.githubusercontent.com/techninja/staticart/main/src/assets/staticart_logo.svg" alt="StatiCart logo" width="240" />
   </a>
 </p>
 
