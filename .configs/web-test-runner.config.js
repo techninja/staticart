@@ -1,11 +1,9 @@
 import { playwrightLauncher } from '@web/test-runner-playwright';
-import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const ROOT = resolve(__dirname, '..');
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
-/** @type {Record<string, string>} */
 const aliases = {
   '#store/': '/src/store/',
   '#utils/': '/src/utils/',
@@ -16,17 +14,13 @@ const aliases = {
   '#pages/': '/src/pages/',
 };
 
-/**
- *
- */
+/** Resolve #prefix/ imports for @web/test-runner. */
 function importMapPlugin() {
   return {
     name: 'import-map-aliases',
     resolveImport({ source }) {
       for (const [prefix, target] of Object.entries(aliases)) {
-        if (source.startsWith(prefix)) {
-          return source.replace(prefix, target);
-        }
+        if (source.startsWith(prefix)) return source.replace(prefix, target);
       }
     },
   };

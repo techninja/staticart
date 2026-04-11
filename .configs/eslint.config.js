@@ -39,6 +39,7 @@ export default [
       'unused-imports/no-unused-imports': 'error',
       'unused-imports/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
       'no-console': 'off',
+      'no-empty': ['error', { allowEmptyCatch: false }],
 
       // JSDoc enforcement
       'jsdoc/require-jsdoc': [
