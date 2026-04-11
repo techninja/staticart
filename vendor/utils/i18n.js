@@ -18,6 +18,9 @@ const DEFAULTS = {
   'cart.addedVariant': '✓ Added {variant}!',
   'cart.empty': 'Your cart is empty.',
   'cart.subtotal': 'Subtotal',
+  'cart.shipping': 'Shipping',
+  'cart.freeShipping': 'Free',
+  'cart.total': 'Total',
   'cart.checkout': 'Proceed to Checkout',
   'cart.processing': 'Processing…',
   'product.inStock': 'In Stock',
@@ -45,6 +48,8 @@ const DEFAULTS = {
   'cart.title': 'Your Cart',
   'product.back': 'Back',
   'product.select': 'Select…',
+  'product.seriesLabel': 'More in this series',
+  'product.relatedLabel': 'You might also like',
   'general.loading': 'Loading…',
 };
 

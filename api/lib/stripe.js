@@ -71,7 +71,7 @@ export async function createCheckoutSession(opts) {
       {
         shipping_rate_data: {
           type: 'fixed_amount',
-          display_name: 'Standard Shipping',
+          display_name: opts.shipping.displayName || 'Shipping and Handling',
           fixed_amount: { amount: opts.shipping.amount, currency: opts.items[0]?.currency || 'usd' },
         },
       },

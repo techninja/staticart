@@ -9,6 +9,7 @@ import { t } from '#utils/i18n.js';
 import { getStoreConfigSync } from '#utils/storeConfig.js';
 import '#atoms/cart-count/cart-count.js';
 import '#atoms/theme-toggle/theme-toggle.js';
+import '#atoms/region-select/region-select.js';
 import '#atoms/app-icon/app-icon.js';
 import CatalogView from '#pages/catalog/catalog-view.js';
 
@@ -31,16 +32,19 @@ export default define({
     value: ({ prefs }) => {
       const loggedIn = store.ready(prefs) && prefs.email;
       const name = store.ready(prefs) ? prefs.displayName : '';
-      const cfg = getStoreConfigSync().store || {};
+      const cfg = getStoreConfigSync();
+      const store_cfg = cfg.store || {};
+      const navLinks = cfg.nav?.links || [];
       return html`
         <header class="app-header">
           <a href="${router.url(CatalogView)}" class="app-header__brand">
-            ${cfg.logo
-              ? html`<img src="${cfg.logo}" alt="${cfg.name}" class="app-header__logo" />`
-              : html`<span class="app-header__name">${cfg.name}</span>`}
+            ${store_cfg.logo
+              ? html`<img src="${store_cfg.logo}" alt="${store_cfg.name}" class="app-header__logo" />`
+              : html`<span class="app-header__name">${store_cfg.name}</span>`}
           </a>
           <nav class="app-header__nav">
             <a href="${router.url(CatalogView)}" class="app-header__link">${t('nav.shop')}</a>
+            ${navLinks.map((l) => html`<a href="${l.url}" class="app-header__link">${l.label}</a>`)}
             ${loggedIn && html`<a href="/orders" class="app-header__link">${t('nav.orders')}</a>`}
           </nav>
           <div class="app-header__actions">
@@ -59,6 +63,7 @@ export default define({
               <cart-count></cart-count>
             </a>
             <theme-toggle></theme-toggle>
+            <region-select></region-select>
           </div>
         </header>
       `;

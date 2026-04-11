@@ -22,7 +22,8 @@ import { store } from 'hybrids';
  * @property {number} price
  * @property {string} currency
  * @property {string[]} images
- * @property {string} category
+ * @property {string|string[]} category
+ * @property {string[]} tags
  * @property {number} stock
  * @property {boolean} active
  * @property {any[]} variants
@@ -51,11 +52,12 @@ const Product = {
   price: 0,
   currency: 'USD',
   images: [String],
-  category: '',
+  category: /** @type {string|string[]} */ (''),
+  tags: [String],
   stock: 0,
   active: true,
   variants: [{ id: true, label: '', sku: '', price: 0, stock: 0 }],
-  metadata: { key: '' },
+  metadata: ({ sku }) => cache?.find((p) => p.sku === sku)?.metadata || {},
   createdAt: '',
   updatedAt: '',
   [store.connect]: {
@@ -65,10 +67,17 @@ const Product = {
     },
     list: async (params) => {
       const products = await fetchProducts();
-      const active = products.filter((p) => p.active);
-      const category = /** @type {any} */ (params)?.category;
-      if (category) return active.filter((p) => p.category === category);
-      return active;
+      const p = /** @type {any} */ (params) || {};
+      let filtered = products.filter((item) => item.active);
+      if (!p.showOutOfStock) filtered = filtered.filter((item) => item.stock > 0);
+      if (p.category) {
+        filtered = filtered.filter((item) =>
+          Array.isArray(item.category)
+            ? item.category.includes(p.category)
+            : item.category === p.category,
+        );
+      }
+      return filtered;
     },
   },
 };

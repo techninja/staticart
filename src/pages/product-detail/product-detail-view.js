@@ -5,53 +5,31 @@
 
 import { html, define, store, router } from 'hybrids';
 import Product from '#store/Product.js';
-import CartState, { addToCart } from '#store/CartState.js';
+import CartState from '#store/CartState.js';
 import { formatPrice } from '#utils/formatPrice.js';
 import { setPageMeta } from '#utils/setPageMeta.js';
 import { effectivePrice, effectiveStock } from '#utils/productVariants.js';
 import { t } from '#utils/i18n.js';
+import { getStoreConfig } from '#utils/storeConfig.js';
+import { renderMetadata } from '#utils/renderMetadata.js';
+import { parseFrontmatter } from '#utils/parseFrontmatter.js';
+import { renderMarkdown } from '#utils/renderMarkdown.js';
+import { stockBadge, handleAdd, handleVariantChange, handleQtyChange, handleThumbClick } from './helpers.js';
+
+/** @type {any} */
+let load404Cache = null;
+fetch('/content/404.md').then((r) => r.ok ? r.text() : null).then((raw) => {
+  if (!raw) return;
+  const { meta, content } = parseFrontmatter(raw);
+  load404Cache = { meta, html: renderMarkdown(content) };
+}).catch(() => {});
 import '#atoms/app-badge/app-badge.js';
 import '#atoms/app-icon/app-icon.js';
+import '#molecules/series-gallery/series-gallery.js';
+import '#molecules/related-products/related-products.js';
 import CatalogView from '#pages/catalog/catalog-view.js';
 
-/**
- * @typedef {Object} ProductDetailHost
- * @property {string} sku
- * @property {string} selectedVariant
- * @property {number} qty
- * @property {number} activeImage
- * @property {any} product
- * @property {any} cart
- */
-
-/** @param {ProductDetailHost & HTMLElement} host */
-function handleAdd(host) {
-  if (!store.ready(host.cart) || !store.ready(host.product)) return;
-  const p = host.product;
-  const vid = host.selectedVariant;
-  const variants = /** @type {any[]} */ (p.variants);
-  const stock = vid ? (variants.find((v) => v.id === vid)?.stock ?? 0) : p.stock;
-  if (host.qty > stock || stock <= 0) return;
-  addToCart(host.cart, p.sku, vid, host.qty);
-}
-
-/** @param {ProductDetailHost & HTMLElement} host */
-function handleVariantChange(host, e) {
-  host.selectedVariant = e.target.value;
-  host.qty = 1;
-}
-
-/** @param {ProductDetailHost & HTMLElement} host */
-function handleQtyChange(host, e) {
-  host.qty = Math.max(1, parseInt(e.target.value, 10) || 1);
-}
-
-/** @param {ProductDetailHost & HTMLElement} host */
-function handleThumbClick(host, e) {
-  host.activeImage = parseInt(e.target.dataset.index, 10) || 0;
-}
-
-/** @type {import('hybrids').Component<ProductDetailHost>} */
+/** @type {import('hybrids').Component<any>} */
 export default define({
   tag: 'product-detail-view',
   sku: '',
@@ -59,11 +37,33 @@ export default define({
   qty: 1,
   activeImage: 0,
   product: store(Product, { id: 'sku' }),
+  config: {
+    value: /** @type {any} */ (undefined),
+    connect: (host) => { getStoreConfig().then((c) => { host.config = c; }); },
+  },
   cart: store(CartState),
-  [router.connect]: { url: '/product/:sku', stack: [] },
+  [router.connect]: { url: '/product/:sku', multiple: true, stack: [] },
   render: {
-    value: ({ product, cart: _cart, selectedVariant, qty, activeImage }) => {
-      if (!store.ready(product)) return html`<p>${t('general.loading')}</p>`;
+    value: ({ product, config, cart: _cart, selectedVariant, qty, activeImage }) => {
+      if (!store.ready(product)) {
+        if (!store.error(product)) return html`<p>${t('general.loading')}</p>`;
+        setPageMeta('Page Not Found');
+        const md = load404Cache;
+        return html`
+          <div class="content-page">
+            <a href="${router.url(CatalogView)}" class="content-page__back">
+              <app-icon name="arrow-left" size="sm"></app-icon> ${t('product.back')}
+            </a>
+            ${md
+              ? html`
+                  ${md.meta.title ? html`<h1>${md.meta.title}</h1>` : html``}
+                  <div class="content-page__body prose" innerHTML="${md.html}"></div>
+                `
+              : html`<h1>Page Not Found</h1><p>The page you're looking for doesn't exist.</p>`}
+            <a href="${router.url(CatalogView)}" class="btn btn-primary">${t('order.continueShopping')}</a>
+          </div>
+        `;
+      }
       const p = /** @type {any} */ (product);
       const price = effectivePrice(p, selectedVariant);
       const stock = effectiveStock(p, selectedVariant);
@@ -77,42 +77,26 @@ export default define({
           </a>
           <div class="product-detail__layout">
             <div class="product-detail__gallery">
-              <img
-                class="product-detail__main-img"
-                src="${images[activeImage] || ''}"
-                alt="${p.name}"
-              />
-              ${images.length > 1 &&
-              html`
+              <img class="product-detail__main-img" src="${images[activeImage] || ''}" alt="${p.name}" />
+              ${images.length > 1 && html`
                 <div class="product-detail__thumbs">
-                  ${images.map(
-                    (src, i) => html`
-                      <img
-                        class="product-detail__thumb ${i === activeImage ? 'active' : ''}"
-                        src="${src}"
-                        alt="${p.name} ${i + 1}"
-                        data-index="${i}"
-                        onclick="${handleThumbClick}"
-                      />
-                    `,
-                  )}
+                  ${images.map((src, i) => html`
+                    <img
+                      class="product-detail__thumb ${i === activeImage ? 'active' : ''}"
+                      src="${src}" alt="${p.name} ${i + 1}"
+                      data-index="${i}" onclick="${handleThumbClick}"
+                    />
+                  `)}
                 </div>
               `}
             </div>
             <div class="product-detail__info">
               <h1>${p.name}</h1>
               <p class="product-detail__price">${formatPrice(price, p.currency)}</p>
-              <app-badge
-                label="${stock <= 0
-                  ? t('product.outOfStock')
-                  : stock <= 5
-                    ? t('product.lowStock')
-                    : t('product.inStock')}"
-                color="${stock <= 0 ? 'danger' : stock <= 5 ? 'warning' : 'success'}"
-              ></app-badge>
+              ${stockBadge(stock)}
               <p>${p.description}</p>
-              ${variants.length > 0 &&
-              html`
+              ${renderMetadata(p, config)}
+              ${variants.length > 0 && html`
                 <label class="product-detail__label">
                   ${t('product.variant')}
                   <select onchange="${handleVariantChange}">
@@ -123,23 +107,16 @@ export default define({
               `}
               <label class="product-detail__label">
                 ${t('product.qty')}
-                <input
-                  type="number"
-                  min="1"
-                  max="${stock}"
-                  value="${qty}"
-                  onchange="${handleQtyChange}"
-                />
+                <input type="number" min="1" max="${stock}" value="${qty}" onchange="${handleQtyChange}" />
               </label>
-              <button
-                class="btn btn-primary"
-                onclick="${handleAdd}"
-                disabled="${stock <= 0 || (variants.length > 0 && !selectedVariant)}"
-              >
+              <button class="btn btn-primary" onclick="${handleAdd}"
+                disabled="${stock <= 0 || (variants.length > 0 && !selectedVariant)}">
                 <app-icon name="cart" size="sm"></app-icon> ${t('cart.add')}
               </button>
             </div>
           </div>
+          <series-gallery series="${p.metadata?.seriesTitle || ''}" currentSku="${p.sku}"></series-gallery>
+          <related-products currentSku="${p.sku}" excludeSeries="${p.metadata?.seriesTitle || ''}"></related-products>
         </div>
       `;
     },

@@ -6,4 +6,24 @@ product-grid {
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     gap: var(--space-lg);
   }
+
+  & .product-grid__count {
+    grid-column: 1 / -1;
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    margin: 0;
+  }
+
+  & .product-grid__pagination {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: center;
+    gap: var(--space-md);
+    padding: var(--space-lg) 0;
+  }
+
+  & .product-grid__sentinel {
+    grid-column: 1 / -1;
+    height: 1px;
+  }
 }

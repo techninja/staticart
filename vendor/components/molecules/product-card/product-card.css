@@ -20,12 +20,20 @@ product-card {
     aspect-ratio: 1;
     background: var(--color-border);
     overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     & img {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
+  }
+
+  & .product-card__placeholder {
+    color: var(--color-text-muted);
+    opacity: 0.4;
   }
 
   & .product-card__name {

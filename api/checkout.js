@@ -6,8 +6,9 @@
 
 import { getStock } from './lib/dynamo.js';
 import { createCheckoutSession } from './lib/stripe.js';
-import { getConfig } from './lib/config.js';
+import { getConfig, getProducts } from './lib/config.js';
 import { ok, badRequest, conflict, serverError } from './lib/response.js';
+import { calculateShipping } from './lib/shipping/index.js';
 
 /** @param {any[]} items */
 async function validateStock(items) {
@@ -28,7 +29,7 @@ async function validateStock(items) {
 /** @param {{ body: string, headers: Record<string, string> }} event */
 export async function handler(event) {
   try {
-    const { items, successUrl, cancelUrl } = JSON.parse(event.body || '{}');
+    const { items, region, shippingSummary, successUrl, cancelUrl } = JSON.parse(event.body || '{}');
     if (!Array.isArray(items) || items.length === 0) return badRequest('Cart is empty');
     if (!successUrl || !cancelUrl) return badRequest('Missing redirect URLs');
 
@@ -38,6 +39,17 @@ export async function handler(event) {
     }
 
     const cfg = getConfig();
+    const productData = getProducts();
+    const enrichedItems = items.map((i) => {
+      const p = productData.find((pd) => pd.sku === i.sku);
+      return { ...i, metadata: p?.metadata || {} };
+    });
+    const regionMap = { US: 'US', CA: 'CA', INT: 'INT' };
+    const shippingAmount = await calculateShipping({
+      items: enrichedItems,
+      country: regionMap[region] || 'US',
+      config: cfg,
+    });
     const url = await createCheckoutSession({
       items: items.map((i) => ({
         name: i.name,
@@ -47,7 +59,7 @@ export async function handler(event) {
       })),
       successUrl,
       cancelUrl,
-      shipping: cfg.shipping,
+      shipping: { type: 'flat', amount: shippingAmount, displayName: shippingSummary || '' },
       automaticTax: cfg.tax?.automatic,
       locale: cfg.store?.locale,
     });

@@ -6,6 +6,7 @@
 
 import { html, define, store } from 'hybrids';
 import AppState from '#store/AppState.js';
+import '#atoms/app-icon/app-icon.js';
 
 /**
  * @typedef {Object} ThemeToggleHost
@@ -33,7 +34,7 @@ export default define({
       }
       return html`
         <button class="btn btn-ghost theme-toggle-btn" onclick="${toggle}">
-          ${store.ready(state) && state.theme === 'light' ? '🌙' : '☀️'}
+          <app-icon name="${store.ready(state) && state.theme === 'light' ? 'moon' : 'sun'}" size="sm"></app-icon>
         </button>
       `;
     },

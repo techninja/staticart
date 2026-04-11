@@ -8,6 +8,7 @@ import CartState, { addToCart } from '#store/CartState.js';
 import { formatPrice } from '#utils/formatPrice.js';
 import { stockLabel, stockColor, parseVariants } from '#utils/productVariants.js';
 import { t } from '#utils/i18n.js';
+import '#atoms/app-icon/app-icon.js';
 import '#atoms/app-badge/app-badge.js';
 
 /**
@@ -94,7 +95,9 @@ export default define({
         <article class="product-card">
           <a href="${detailUrl}" class="product-card__link">
             <div class="product-card__image">
-              <img src="${image}" alt="${name}" loading="lazy" />
+              ${image
+                ? html`<img src="${image}" alt="${name}" loading="lazy" />`
+                : html`<app-icon name="image" size="xl" class="product-card__placeholder"></app-icon>`}
             </div>
             <h3 class="product-card__name">${name}</h3>
           </a>

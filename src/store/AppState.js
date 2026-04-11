@@ -5,12 +5,13 @@
 
 import { store } from 'hybrids';
 
-/** @typedef {{ theme: 'light'|'dark', count: number }} AppState */
+/** @typedef {{ theme: 'light'|'dark', count: number, region: string }} AppState */
 
 /** @type {import('hybrids').Model<AppState>} */
 const AppState = {
   theme: 'light',
   count: 0,
+  region: '',
   [store.connect]: {
     get: () => {
       const raw = localStorage.getItem('appState');

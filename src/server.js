@@ -92,7 +92,7 @@ app.use('/staticart.config.json', express.static('staticart.config.json'));
 app.use(express.static('src'));
 
 app.use((req, res, next) => {
-  if (req.method === 'GET' && !req.path.includes('.') && !req.path.startsWith('/api/')) {
+  if (req.method === 'GET' && !req.path.startsWith('/api/')) {
     return res.sendFile('index.html', { root: 'src' });
   }
   next();

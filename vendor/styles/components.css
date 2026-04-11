@@ -7,12 +7,16 @@
 @import '../components/atoms/app-badge/app-badge.css';
 @import '../components/atoms/app-icon/app-icon.css';
 @import '../components/atoms/theme-toggle/theme-toggle.css';
+@import '../components/atoms/region-select/region-select.css';
 @import '../components/atoms/cart-count/cart-count.css';
 
 /* Molecules */
 @import '../components/molecules/product-card/product-card.css';
 @import '../components/molecules/cart-item/cart-item.css';
+@import '../components/molecules/series-gallery/series-gallery.css';
+@import '../components/molecules/related-products/related-products.css';
 
 /* Organisms */
 @import '../components/organisms/product-grid/product-grid.css';
 @import '../components/organisms/app-header/app-header.css';
+@import '../components/organisms/app-footer/app-footer.css';

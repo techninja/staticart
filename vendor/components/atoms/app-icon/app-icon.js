@@ -8,28 +8,21 @@ import { html, define } from 'hybrids';
 
 /** @type {Record<string, string>|null} */
 let iconCache = null;
+let loaded = false;
 
-/** @type {Promise<Record<string, string>>} */
-const loading = fetch('/icons.json')
-  .then((r) => {
-    if (r.ok) return r;
-    throw new Error('icons.json not found');
-  })
-  .then((r) => r.json())
-  .then((data) => {
-    iconCache = data;
-    return data;
-  })
-  .catch(() => {
-    iconCache = {};
-    return {};
-  });
+/** @type {Set<Function>} */
+const waiting = new Set();
+
+fetch('/icons.json')
+  .then((r) => r.ok ? r.json() : {})
+  .then((data) => { iconCache = data; loaded = true; waiting.forEach((fn) => fn()); })
+  .catch(() => { iconCache = {}; loaded = true; });
 
 /**
  * @typedef {Object} AppIconHost
  * @property {string} name
- * @property {'sm'|'md'|'lg'} size
- * @property {string} svgContent - Resolved SVG inner markup
+ * @property {'sm'|'md'|'lg'|'xl'} size
+ * @property {boolean} ready
  */
 
 /** @type {import('hybrids').Component<AppIconHost>} */
@@ -37,24 +30,24 @@ export default define({
   tag: 'app-icon',
   name: '',
   size: 'md',
-  svgContent: {
-    value: '',
+  ready: {
+    value: false,
     connect(host, _key, invalidate) {
-      loading.then(() => {
-        host.svgContent = iconCache?.[host.name] || '';
-        invalidate();
-      });
-    },
-    observe(host, val) {
-      const span = host.querySelector('.icon');
-      if (!span) return;
-      span.innerHTML = val
-        ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${val}</svg>`
-        : '';
+      if (loaded) { host.ready = true; return; }
+      const cb = () => { host.ready = true; invalidate(); };
+      waiting.add(cb);
+      return () => waiting.delete(cb);
     },
   },
   render: {
-    value: ({ size }) => html`<span class="icon icon-${size}"></span>`,
+    value: ({ name, size, ready }) => {
+      const inner = ready && iconCache?.[name] || '';
+      return html`
+        <span class="icon icon-${size}" innerHTML="${inner
+          ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${inner}</svg>`
+          : ''}"></span>
+      `;
+    },
     shadow: false,
   },
 });

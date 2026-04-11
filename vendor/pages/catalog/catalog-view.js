@@ -3,8 +3,9 @@
  * @module pages/catalog
  */
 
-import { html, define, router } from 'hybrids';
+import { html, define, router, store } from 'hybrids';
 import { t } from '#utils/i18n.js';
+import Product from '#store/Product.js';
 import '#organisms/product-grid/product-grid.js';
 import { setPageMeta } from '#utils/setPageMeta.js';
 import ProductDetailView from '#pages/product-detail/product-detail-view.js';
@@ -12,8 +13,18 @@ import CartView from '#pages/cart/cart-view.js';
 import OrderSuccessView from '#pages/order-success/order-success-view.js';
 import OrderCancelledView from '#pages/order-cancelled/order-cancelled-view.js';
 import OrdersView from '#pages/orders/orders-view.js';
+import ContentPageView from '#pages/content/content-page-view.js';
+import NotFoundView from '#pages/not-found/not-found-view.js';
 
-const CATEGORIES = ['all', 'shirts', 'outerwear', 'accessories', 'prints'];
+/** @param {any[]} products @returns {string[]} */
+function extractCategories(products) {
+  const set = new Set();
+  for (const p of products) {
+    if (Array.isArray(p.category)) p.category.forEach((c) => set.add(c));
+    else if (p.category) set.add(p.category);
+  }
+  return [...set].sort((a, b) => categoryLabel(a).localeCompare(categoryLabel(b)));
+}
 
 /** @param {string} cat */
 function categoryLabel(cat) {
@@ -26,6 +37,7 @@ function categoryLabel(cat) {
  * @typedef {Object} CatalogViewHost
  * @property {string} activeCategory
  * @property {string} searchQuery
+ * @property {any} products
  */
 
 /** @type {any} */
@@ -50,13 +62,16 @@ export default define({
   tag: 'catalog-view',
   activeCategory: '',
   searchQuery: '',
+  products: /** @type {any} */ (store([Product], { id: () => ({}) })),
   [router.connect]: {
     url: '/',
-    stack: [ProductDetailView, CartView, OrderSuccessView, OrderCancelledView, OrdersView],
+    stack: [ProductDetailView, CartView, OrderSuccessView, OrderCancelledView, OrdersView, ContentPageView, NotFoundView],
   },
   render: {
-    value: ({ activeCategory, searchQuery }) => {
+    value: ({ activeCategory, searchQuery, products }) => {
       setPageMeta('');
+      const ready = /** @type {any} */ (store).ready(products);
+      const categories = ready ? extractCategories(/** @type {any[]} */ (products)) : [];
       return html`
         <div class="catalog-view">
           <h1>${t('catalog.title')}</h1>
@@ -64,16 +79,22 @@ export default define({
             type="search"
             class="catalog-view__search"
             placeholder="${t('catalog.search')}"
+            value="${searchQuery}"
             oninput="${handleSearch}"
           />
           <nav class="catalog-view__filters">
-            ${CATEGORIES.map(
+            <button
+              class="btn ${activeCategory === '' ? 'btn-primary' : 'btn-secondary'}"
+              data-category=""
+              onclick="${handleFilter}"
+            >
+              ${categoryLabel('all')}
+            </button>
+            ${categories.map(
               (cat) => html`
                 <button
-                  class="btn ${activeCategory === (cat === 'all' ? '' : cat)
-                    ? 'btn-primary'
-                    : 'btn-secondary'}"
-                  data-category="${cat === 'all' ? '' : cat}"
+                  class="btn ${activeCategory === cat ? 'btn-primary' : 'btn-secondary'}"
+                  data-category="${cat}"
                   onclick="${handleFilter}"
                 >
                   ${categoryLabel(cat)}

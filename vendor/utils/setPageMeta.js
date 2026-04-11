@@ -3,8 +3,12 @@
  * @param {string} title
  * @param {string} [description]
  */
+
+import { getStoreConfigSync } from '#utils/storeConfig.js';
+
 export function setPageMeta(title, description) {
-  document.title = title ? `${title} — StatiCart` : 'StatiCart — Static E-Commerce';
+  const name = getStoreConfigSync()?.store?.name || 'StatiCart';
+  document.title = title ? `${title} — ${name}` : name;
   if (description) {
     let meta = document.querySelector('meta[name="description"]');
     if (!meta) {

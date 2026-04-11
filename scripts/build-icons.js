@@ -38,6 +38,7 @@ const ICON_MAP = {
   'circle-check': 'circle-check',
   'circle-x': 'circle-x',
   'alert-triangle': 'alert-triangle',
+  image: 'image',
 };
 
 /**
