@@ -22,3 +22,9 @@ export async function getStoreConfig() {
 export function getStoreConfigSync() {
   return _config || { store: { locale: 'en-US', currency: 'USD' } };
 }
+
+/** API base URL — from config or default to relative /api. */
+export function getApiBase() {
+  const cfg = getStoreConfigSync();
+  return cfg.api?.baseUrl || '/api';
+}

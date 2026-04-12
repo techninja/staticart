@@ -3,7 +3,7 @@
  * @module utils/checkout
  */
 
-const API_BASE = '/api';
+import { getApiBase } from '#utils/storeConfig.js';
 
 /**
  * @param {Array<{sku: string, name: string, price: number, currency: string, quantity: number}>} items
@@ -13,7 +13,7 @@ const API_BASE = '/api';
  */
 export async function requestCheckout(items, region, shippingSummary) {
   const origin = window.location.origin;
-  const res = await fetch(`${API_BASE}/checkout`, {
+  const res = await fetch(`${getApiBase()}/checkout`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({

@@ -24,7 +24,7 @@ import '#atoms/app-icon/app-icon.js';
 
 /** @param {CartItemHost & HTMLElement} host */
 function handleIncrement(host) {
-  if (!store.ready(host.cart) || host.quantity >= host.maxStock) return;
+  if (!store.ready(host.cart) || (host.maxStock > 0 && host.quantity >= host.maxStock)) return;
   updateQuantity(host.cart, host.sku, host.variantId, host.quantity + 1);
 }
 

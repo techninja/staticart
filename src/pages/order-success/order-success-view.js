@@ -8,6 +8,7 @@ import CartState, { clearCart } from '#store/CartState.js';
 import UserPrefs, { saveUserInfo } from '#store/UserPrefs.js';
 import { t } from '#utils/i18n.js';
 import '#atoms/app-icon/app-icon.js';
+import { getApiBase } from '#utils/storeConfig.js';
 import CatalogView from '#pages/catalog/catalog-view.js';
 
 /**
@@ -24,7 +25,7 @@ async function fetchSession(host) {
   sessionStorage.removeItem('stripe_session_id');
   if (!sessionId) return;
   try {
-    const res = await fetch(`/api/session/${sessionId}`);
+    const res = await fetch(`${getApiBase()}/session/${sessionId}`);
     if (!res.ok) return;
     const { email, name } = await res.json();
     if (store.ready(host.prefs) && email) saveUserInfo(host.prefs, name, email);

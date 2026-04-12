@@ -79,9 +79,7 @@ export async function createCheckoutSession(opts) {
   }
 
   const itemsMeta = opts.items.map((i) => ({
-    sku: i.sku || '',
-    quantity: i.quantity,
-    metadata: i.metadata || {},
+    sku: i.sku || '', quantity: i.quantity,
   }));
   params.metadata = { items: JSON.stringify(itemsMeta) };
 

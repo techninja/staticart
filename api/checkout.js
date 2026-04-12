@@ -16,7 +16,7 @@ async function validateStock(items) {
   for (const item of items) {
     try {
       const stock = await getStock(item.sku);
-      if (stock < item.quantity) {
+      if (stock >= 0 && stock < item.quantity) {
         unavailable.push({ sku: item.sku, requested: item.quantity, available: stock });
       }
     } catch {

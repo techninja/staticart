@@ -7,6 +7,7 @@ import { html, define, store, router } from 'hybrids';
 import UserPrefs from '#store/UserPrefs.js';
 import { formatPrice } from '#utils/formatPrice.js';
 import { t } from '#utils/i18n.js';
+import { getApiBase } from '#utils/storeConfig.js';
 import CatalogView from '#pages/catalog/catalog-view.js';
 
 /**
@@ -22,7 +23,7 @@ async function fetchOrders(host, email) {
   host.loading = true;
   host.error = '';
   try {
-    const res = await fetch(`/api/orders?email=${encodeURIComponent(email)}`);
+    const res = await fetch(`${getApiBase()}/orders?email=${encodeURIComponent(email)}`);
     const body = await res.json();
     host.orders = body.orders || [];
     if (host.orders.length === 0) host.error = t('orders.noOrders');
