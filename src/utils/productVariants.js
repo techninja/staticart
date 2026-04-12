@@ -20,14 +20,16 @@ export function effectiveStock(p, vid) {
 
 /** @param {number} stock */
 export function stockLabel(stock) {
-  if (stock <= 0) return t('product.outOfStock');
+  if (stock < 0) return t('product.inStock');
+  if (stock === 0) return t('product.outOfStock');
   if (stock <= 5) return t('product.lowStock');
   return t('product.inStock');
 }
 
 /** @param {number} stock */
 export function stockColor(stock) {
-  if (stock <= 0) return 'danger';
+  if (stock < 0) return 'success';
+  if (stock === 0) return 'danger';
   if (stock <= 5) return 'warning';
   return 'success';
 }

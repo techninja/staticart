@@ -115,7 +115,7 @@ export default define({
               <button
                 class="btn btn-primary"
                 onclick="${handleAdd}"
-                disabled="${stock <= 0 || (variants.length > 0 && !selectedVariant)}"
+                disabled="${stock === 0 || (variants.length > 0 && !selectedVariant)}"
               >
                 <app-icon name="cart" size="sm"></app-icon> ${t('cart.add')}
               </button>

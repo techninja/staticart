@@ -74,7 +74,7 @@ export default define({
                               class="btn btn-primary btn-sm"
                               data-vid="${v.id}"
                               onclick="${handlePick}"
-                              disabled="${v.stock <= 0}"
+                              disabled="${v.stock === 0}"
                             >
                               ${v.label}
                             </button>
@@ -87,7 +87,7 @@ export default define({
                     <button
                       class="btn btn-primary product-card__add"
                       onclick="${handleAdd}"
-                      disabled="${stock <= 0}"
+                      disabled="${stock === 0}"
                     >
                       ${t('cart.add')}
                     </button>
