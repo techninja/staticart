@@ -22,7 +22,9 @@ function findPkgSrc(pkg, subdir) {
     const marker = `node_modules/${pkg}/`;
     const idx = entry.indexOf(marker);
     if (idx !== -1) return resolve(entry.slice(0, idx + marker.length), subdir);
-  } catch { /* fall through */ }
+  } catch {
+    /* fall through */
+  }
   return resolve(ROOT, 'node_modules', pkg, subdir);
 }
 
