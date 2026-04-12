@@ -4,27 +4,21 @@
  */
 
 /** @type {any} */
-let _config = null;
+const _config = await fetch('/staticart.config.json')
+  .then((r) => r.json())
+  .catch(() => ({ store: { locale: 'en-US', currency: 'USD' } }));
 
 /** @returns {Promise<any>} */
 export async function getStoreConfig() {
-  if (_config) return _config;
-  try {
-    const res = await fetch('/staticart.config.json');
-    _config = await res.json();
-  } catch {
-    _config = { store: { locale: 'en-US', currency: 'USD' } };
-  }
   return _config;
 }
 
 /** @returns {any} */
 export function getStoreConfigSync() {
-  return _config || { store: { locale: 'en-US', currency: 'USD' } };
+  return _config;
 }
 
 /** API base URL — from config or default to relative /api. */
 export function getApiBase() {
-  const cfg = getStoreConfigSync();
-  return cfg.api?.baseUrl || '/api';
+  return _config.api?.baseUrl || '/api';
 }
