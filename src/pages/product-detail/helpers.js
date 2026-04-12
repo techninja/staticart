@@ -49,7 +49,14 @@ export function renderNotFound(CatalogView) {
 
 /** @param {number} s */
 export function stockBadge(s) {
-  const label = s < 0 ? 'product.inStock' : s === 0 ? 'product.outOfStock' : s <= 5 ? 'product.lowStock' : 'product.inStock';
+  const label =
+    s < 0
+      ? 'product.inStock'
+      : s === 0
+        ? 'product.outOfStock'
+        : s <= 5
+          ? 'product.lowStock'
+          : 'product.inStock';
   const color = s < 0 ? 'success' : s === 0 ? 'danger' : s <= 5 ? 'warning' : 'success';
   return html`<app-badge label="${t(label)}" color="${color}"></app-badge>`;
 }

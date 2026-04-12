@@ -6,11 +6,15 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.1.12] - 2026-04-12
+
+- Add related gallery infinite stock support
+
+
 ## [0.1.11] - 2026-04-12
 
 - Complete support for infinite stock
 - Don't forget the globe
-
 
 ## [0.1.10] - 2026-04-12
 
