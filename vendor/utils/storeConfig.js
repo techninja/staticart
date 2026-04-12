@@ -18,7 +18,9 @@ export function getStoreConfigSync() {
   return _config;
 }
 
-/** API base URL — from config or default to relative /api. */
+/** API base URL from config. Falls back to /api only on localhost. */
 export function getApiBase() {
-  return _config.api?.baseUrl || '/api';
+  if (_config.api?.baseUrl) return _config.api.baseUrl;
+  if (typeof location !== 'undefined' && location.hostname === 'localhost') return '/api';
+  throw new Error('api.baseUrl not set in staticart.config.json');
 }
