@@ -6,10 +6,14 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.1.9] - 2026-04-12
+
+- Don't forget to vendor!
+
+
 ## [0.1.8] - 2026-04-12
 
 - Learnings from StatiCart Shop
-
 
 - Fix stock filtering to treat `stock: -1` as unlimited (dropship/POD support)
 - Pass item metadata through Stripe session for post-checkout fulfillment
