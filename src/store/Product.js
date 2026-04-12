@@ -69,7 +69,7 @@ const Product = {
       const products = await fetchProducts();
       const p = /** @type {any} */ (params) || {};
       let filtered = products.filter((item) => item.active);
-      if (!p.showOutOfStock) filtered = filtered.filter((item) => item.stock > 0);
+      if (!p.showOutOfStock) filtered = filtered.filter((item) => item.stock !== 0);
       if (p.category) {
         filtered = filtered.filter((item) =>
           Array.isArray(item.category)

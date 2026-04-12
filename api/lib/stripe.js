@@ -21,7 +21,7 @@ export function getStripe() {
 
 /**
  * @typedef {Object} CheckoutOptions
- * @property {Array<{name: string, price: number, currency: string, quantity: number}>} items
+ * @property {Array<{name: string, price: number, currency: string, quantity: number, sku?: string, metadata?: any}>} items
  * @property {string} successUrl
  * @property {string} cancelUrl
  * @property {{type: string, amount?: number, displayName?: string}} [shipping]
@@ -77,6 +77,13 @@ export async function createCheckoutSession(opts) {
       },
     ];
   }
+
+  const itemsMeta = opts.items.map((i) => ({
+    sku: i.sku || '',
+    quantity: i.quantity,
+    metadata: i.metadata || {},
+  }));
+  params.metadata = { items: JSON.stringify(itemsMeta) };
 
   const session = await getStripe().checkout.sessions.create(params);
   return session.url;

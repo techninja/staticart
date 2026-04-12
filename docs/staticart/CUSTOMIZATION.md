@@ -61,3 +61,61 @@ npx clearstack update             # re-vendor + sync docs
 ```
 
 Your config, tokens, products, and overrides are never touched.
+
+## Shipping Types
+
+StatiCart supports three shipping modes via `staticart.config.json`:
+
+### Flat Rate
+
+```json
+{ "shipping": { "type": "flat", "amount": 499 } }
+```
+
+### Tiered (by cart subtotal + product class)
+
+See the demo store config for a full example with `classes`, `regions`,
+and `tiers`.
+
+### Custom (external API)
+
+```json
+{ "shipping": { "type": "custom" } }
+```
+
+Create `api/lib/shipping-custom.js` exporting:
+
+```javascript
+export async function calculateShipping(ctx) {
+  // ctx.items — cart items with metadata
+  // ctx.country — ISO country code
+  // ctx.config — full staticart.config.json
+  return amountInCents;
+}
+```
+
+The platform calls this automatically when `shipping.type` is `"custom"`.
+
+## Stock Convention
+
+- `stock > 0` — finite inventory, decremented on purchase
+- `stock: 0` — out of stock, hidden from catalog
+- `stock: -1` — unlimited / dropship (always in stock, never decremented)
+
+Use `stock: -1` for print-on-demand or dropshipped products.
+
+## Post-Checkout Fulfillment
+
+To add fulfillment logic after a successful payment, import your module
+in `api/webhook.js` and call it after the order is recorded:
+
+```javascript
+import { fulfillOrder } from './lib/fulfillment.js';
+
+// Inside handleCheckoutCompleted, after putItem:
+const result = await fulfillOrder({ orderId, email, items, session });
+```
+
+Item metadata (from `products.json`) is passed through the Stripe session
+and available in the webhook's `items` array.
+

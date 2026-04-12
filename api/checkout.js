@@ -51,12 +51,17 @@ export async function handler(event) {
       config: cfg,
     });
     const url = await createCheckoutSession({
-      items: items.map((i) => ({
-        name: i.name,
-        price: i.price,
-        currency: i.currency || cfg.store?.currency || 'usd',
-        quantity: i.quantity,
-      })),
+      items: items.map((i) => {
+        const p = productData.find((pd) => pd.sku === i.sku);
+        return {
+          sku: i.sku,
+          name: i.name,
+          price: i.price,
+          currency: i.currency || cfg.store?.currency || 'usd',
+          quantity: i.quantity,
+          metadata: p?.metadata || {},
+        };
+      }),
       successUrl,
       cancelUrl,
       shipping: { type: 'flat', amount: shippingAmount, displayName: shippingSummary || '' },
