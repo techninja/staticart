@@ -6,10 +6,14 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.1.14] - 2026-04-12
+
+- :lock: it up!
+
+
 ## [0.1.13] - 2026-04-12
 
 - Fix bug in child project vendor for hybrids
-
 
 ## [0.1.12] - 2026-04-12
 
