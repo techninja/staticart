@@ -17,11 +17,13 @@ const require = createRequire(import.meta.url);
 /** Resolve a package's source dir, handling npm hoisting. */
 function findPkgSrc(pkg, subdir) {
   try {
-    const entry = require.resolve(`${pkg}/package.json`);
-    return resolve(dirname(entry), subdir);
-  } catch {
-    return resolve(ROOT, 'node_modules', pkg, subdir);
-  }
+    const entry = require.resolve(pkg);
+    // Walk up from entry to find the package root (dir containing node_modules/<pkg>)
+    const marker = `node_modules/${pkg}/`;
+    const idx = entry.indexOf(marker);
+    if (idx !== -1) return resolve(entry.slice(0, idx + marker.length), subdir);
+  } catch { /* fall through */ }
+  return resolve(ROOT, 'node_modules', pkg, subdir);
 }
 
 /** @type {{ name: string, src: string, subdir: string }[]} */
