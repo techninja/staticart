@@ -5,7 +5,7 @@
  * can load them directly via import map. Runs on `npm postinstall`.
  */
 
-import { cpSync, mkdirSync, existsSync } from 'node:fs';
+import { cpSync, mkdirSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
