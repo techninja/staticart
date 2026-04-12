@@ -118,4 +118,3 @@ const result = await fulfillOrder({ orderId, email, items, session });
 
 Item metadata (from `products.json`) is passed through the Stripe session
 and available in the webhook's `items` array.
-

@@ -72,7 +72,7 @@ export default define({
         return html`<p>${t('general.loading')}</p>`;
       const filtered = /** @type {any[]} */ (products).filter(
         (p) =>
-          p.stock > 0 &&
+          p.stock !== 0 &&
           (!category ||
             (Array.isArray(p.category)
               ? p.category.includes(category)
