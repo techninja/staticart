@@ -26,7 +26,7 @@ export default define({
     value: ({ series, currentSku, products }) => {
       if (!series || !(/** @type {any} */ (store).ready(products))) return html``;
       const related = /** @type {any[]} */ (products)
-        .filter((p) => p.metadata?.seriesTitle === series && p.sku !== currentSku && p.stock > 0)
+        .filter((p) => p.metadata?.seriesTitle === series && p.sku !== currentSku && p.stock !== 0)
         .sort((a, b) => a.name.localeCompare(b.name));
       if (!related.length) return html``;
       return html`

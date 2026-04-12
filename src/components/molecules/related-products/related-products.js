@@ -50,11 +50,10 @@ export default define({
         .filter(
           (p) =>
             p.sku !== currentSku &&
-            p.stock > 0 &&
+            p.stock !== 0 &&
             (!excludeSeries || p.metadata?.seriesTitle !== excludeSeries),
         )
         .map((p) => ({ product: p, score: relevanceScore(current, p) }))
-        .filter((r) => r.score > 0)
         .sort((a, b) => b.score - a.score)
         .slice(0, MAX_RELATED)
         .map((r) => r.product);

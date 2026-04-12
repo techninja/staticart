@@ -49,8 +49,8 @@ export function renderNotFound(CatalogView) {
 
 /** @param {number} s */
 export function stockBadge(s) {
-  const label = s <= 0 ? 'product.outOfStock' : s <= 5 ? 'product.lowStock' : 'product.inStock';
-  const color = s <= 0 ? 'danger' : s <= 5 ? 'warning' : 'success';
+  const label = s < 0 ? 'product.inStock' : s === 0 ? 'product.outOfStock' : s <= 5 ? 'product.lowStock' : 'product.inStock';
+  const color = s < 0 ? 'success' : s === 0 ? 'danger' : s <= 5 ? 'warning' : 'success';
   return html`<app-badge label="${t(label)}" color="${color}"></app-badge>`;
 }
 
@@ -59,7 +59,7 @@ export function handleAdd(host) {
   if (!store.ready(host.cart) || !store.ready(host.product)) return;
   const { product: p, selectedVariant: vid, qty } = host;
   const stock = vid ? (p.variants.find((v) => v.id === vid)?.stock ?? 0) : p.stock;
-  if (qty <= stock && stock > 0) addToCart(host.cart, p.sku, vid, qty);
+  if (stock < 0 || (qty <= stock && stock > 0)) addToCart(host.cart, p.sku, vid, qty);
 }
 
 /** @param {any} host */
