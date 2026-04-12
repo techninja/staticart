@@ -6,10 +6,14 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.1.19] - 2026-04-12
+
+- Correct store and don't default API to same domain
+
+
 ## [0.1.18] - 2026-04-12
 
 - Load config import directly
-
 
 ## [0.1.17] - 2026-04-12
 
