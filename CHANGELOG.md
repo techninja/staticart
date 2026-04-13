@@ -6,6 +6,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-04-13
+
+- Improve product management scripts
+
+
 ## [0.2.0] - 2026-04-13
 
 - Upgrade to latest Clearstack
