@@ -1,6 +1,7 @@
 .product-detail {
   max-width: 900px;
   margin: 0 auto;
+  overflow: hidden;
 }
 
 .product-detail__back {
@@ -16,8 +17,15 @@
   gap: var(--space-xl);
 }
 
+.product-detail__gallery {
+  min-width: 0;
+  overflow: hidden;
+}
+
 .product-detail__main-img {
   width: 100%;
+  max-width: 100%;
+  height: auto;
   border-radius: var(--radius-lg);
   background: var(--color-border);
 }
