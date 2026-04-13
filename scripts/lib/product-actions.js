@@ -26,11 +26,23 @@ function ask(prompt) {
 /** @param {any} helpers @param {string} apiKey */
 export async function sync(helpers, apiKey) {
   const client = helpers.createClient(apiKey);
+  const categories = await helpers.loadCategories(client);
   const remote = await client.call('GET', '/store/products');
+  const catCache = new Map();
   const products = [];
   for (const sp of remote) {
     const detail = await client.call('GET', `/store/products/${sp.id}`);
-    products.push(helpers.toProduct(detail.sync_product, detail.sync_variants));
+    const catalogId = detail.sync_variants[0]?.product?.product_id;
+    if (catalogId && !catCache.has(catalogId)) {
+      const cat = await client.call('GET', `/products/${catalogId}`);
+      catCache.set(catalogId, cat.product.main_category_id || 0);
+    }
+    products.push(
+      helpers.toProduct(detail.sync_product, detail.sync_variants, {
+        categoryId: catCache.get(catalogId) || 0,
+        categories,
+      }),
+    );
   }
   writeFileSync(r('src/data/products.json'), JSON.stringify(products, null, 2) + '\n');
   console.log(`✓ Synced ${products.length} products → src/data/products.json`);
@@ -121,7 +133,9 @@ export async function browse(helpers, apiKey, query, inspectId) {
   if (!id) return;
   const info = await helpers.inspectProduct(client, parseInt(id));
   console.log(`\n  ${info.product.title} (id: ${info.product.id})`);
-  console.log(`  Colors: ${info.colors.join(', ') || '(none)'}`);
-  console.log(`  Sizes:  ${info.sizes.join(', ') || '(none)'}`);
+  console.log(`  Brand:    ${info.brand || '(none)'}`);
+  console.log(`  Category: ${info.categoryId}`);
+  console.log(`  Colors:   ${info.colors.join(', ') || '(none)'}`);
+  console.log(`  Sizes:    ${info.sizes.join(', ') || '(none)'}`);
   console.log(`  In stock: ${info.inStock}/${info.total} variants`);
 }

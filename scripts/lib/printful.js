@@ -1,7 +1,10 @@
 /**
- * Printful API helpers for product management scripts.
+ * Printful API client and variant helpers for product management scripts.
+ * Product mapping lives in printful-mapping.js.
  * @module scripts/lib/printful
  */
+
+export { toProduct, loadCategories } from './printful-mapping.js';
 
 const API = 'https://api.printful.com';
 
@@ -52,39 +55,6 @@ export function buildSyncVariants(variants, product, logoFileId) {
   });
 }
 
-/** Map a Printful sync product + variants to StatiCart product shape. */
-export function toProduct(syncProduct, syncVariants) {
-  const first = syncVariants[0];
-  const seen = new Set();
-  const images = syncVariants
-    .flatMap((v) => v.files?.filter((f) => f.type === 'preview') || [])
-    .filter((f) => f.preview_url && !seen.has(f.preview_url) && seen.add(f.preview_url))
-    .map((f) => f.preview_url);
-
-  return {
-    sku: syncProduct.external_id || `pf-${syncProduct.id}`,
-    name: syncProduct.name,
-    description: syncProduct.name,
-    price: Math.round(parseFloat(first?.retail_price || '0') * 100),
-    currency: first?.currency || 'USD',
-    images: images.length ? images : [],
-    category: guessCategory(syncProduct.name),
-    tags: guessTags(syncProduct.name),
-    stock: -1,
-    active: true,
-    variants: syncVariants.map((v) => ({
-      id: String(v.id),
-      label: v.name.replace(syncProduct.name, '').replace(/^[\s—-]+/, '') || 'Default',
-      sku: v.external_id || `pf-v-${v.id}`,
-      price: 0,
-      stock: -1,
-    })),
-    metadata: { printfulSyncProductId: syncProduct.id },
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
-}
-
 /**
  * Search the Printful product catalog by keyword.
  * @param {any} client
@@ -103,32 +73,18 @@ export async function browseCatalog(client, query) {
  */
 export async function inspectProduct(client, productId) {
   const data = await client.call('GET', `/products/${productId}`);
+  const p = data.product;
   const variants = data.variants || [];
   const colors = [...new Set(variants.map((v) => v.color).filter(Boolean))];
   const sizes = [...new Set(variants.map((v) => v.size).filter(Boolean))];
   const inStock = variants.filter((v) => v.in_stock).length;
-  return { product: data.product, colors, sizes, inStock, total: variants.length };
-}
-
-/** @param {string} name */
-function guessCategory(name) {
-  const n = name.toLowerCase();
-  if (n.includes('mug')) return 'drinkware';
-  if (n.includes('sticker')) return 'stickers';
-  if (n.includes('poster') || n.includes('print')) return 'prints';
-  return 'apparel';
-}
-
-/** @param {string} name */
-function guessTags(name) {
-  const n = name.toLowerCase();
-  const tags = [];
-  if (n.includes('tee') || n.includes('hoodie')) tags.push('clothing');
-  if (n.includes('tee')) tags.push('tee');
-  if (n.includes('hoodie')) tags.push('hoodie');
-  if (n.includes('mug')) tags.push('drinkware');
-  if (n.includes('sticker')) tags.push('sticker');
-  if (n.includes('hat') || n.includes('cap')) tags.push('hat');
-  if (n.includes('poster')) tags.push('print');
-  return tags;
+  return {
+    product: p,
+    categoryId: p.main_category_id,
+    brand: p.brand,
+    colors,
+    sizes,
+    inStock,
+    total: variants.length,
+  };
 }
