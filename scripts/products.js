@@ -1,9 +1,12 @@
 #!/usr/bin/env node
 /**
- * Product manager — interactive menu for provider-based product management.
+ * Product manager — interactive menu + CLI subcommands.
  * Discovers provider from staticart.config.json, delegates to provider helpers.
  *
- * Usage: node --env-file=.env --env-file=.env.local scripts/products.js
+ * Interactive: node scripts/products.js
+ * CLI:        node scripts/products.js sync|create|delete|browse|status [args]
+ *   browse <query>       — search provider catalog by keyword
+ *   browse <query> <id>  — search + inspect a specific product ID
  * @module scripts/products
  */
 
@@ -31,9 +34,44 @@ const MENU = [
   { key: '1', label: 'Sync from provider → products.json', action: 'sync' },
   { key: '2', label: 'Create from catalog → provider', action: 'create' },
   { key: '3', label: 'Delete orphans', action: 'deleteOrphans' },
-  { key: '4', label: 'Status', action: 'status' },
+  { key: '4', label: 'Browse provider catalog', action: 'browse' },
+  { key: '5', label: 'Status', action: 'status' },
   { key: 'q', label: 'Quit', action: 'quit' },
 ];
+
+const CLI_MAP = {
+  sync: 'sync',
+  create: 'create',
+  delete: 'deleteOrphans',
+  browse: 'browse',
+  status: 'status',
+};
+
+/** @param {any} helpers @param {string} apiKey @param {any} config */
+async function run(helpers, apiKey, config) {
+  const [cmd, ...args] = process.argv.slice(2);
+
+  if (cmd && CLI_MAP[cmd]) {
+    const action = CLI_MAP[cmd];
+    if (action === 'create') return actions.create(helpers, apiKey, config);
+    if (action === 'browse') return actions.browse(helpers, apiKey, args[0], args[1]);
+    return actions[action](helpers, apiKey);
+  }
+
+  if (cmd) {
+    console.error(`Unknown: ${cmd}. Use: sync|create|delete|browse|status`);
+    return;
+  }
+
+  console.log('');
+  for (const m of MENU) console.log(`  ${m.key}) ${m.label}`);
+  const choice = await ask('\n? ');
+  const selected = MENU.find((m) => m.key === choice);
+  if (!selected || selected.action === 'quit') return;
+  if (selected.action === 'create') return actions.create(helpers, apiKey, config);
+  if (selected.action === 'browse') return actions.browse(helpers, apiKey);
+  return actions[selected.action](helpers, apiKey);
+}
 
 /**
  *
@@ -45,29 +83,20 @@ async function main() {
     console.error('No fulfillment.provider in staticart.config.json');
     process.exit(1);
   }
-
   const helpersPath = r(`scripts/lib/${name}.js`);
   if (!existsSync(helpersPath)) {
     console.error(`Not found: scripts/lib/${name}.js`);
     process.exit(1);
   }
   const helpers = await import(helpersPath);
-
   const envKey = `${name.toUpperCase()}_API_KEY`;
   const apiKey = process.env[envKey];
   if (!apiKey) {
     console.error(`Set ${envKey} in .env.local`);
     process.exit(1);
   }
-
-  console.log(`\nProduct Manager — ${name}\n`);
-  for (const m of MENU) console.log(`  ${m.key}) ${m.label}`);
-  const choice = await ask('\n? ');
-  const selected = MENU.find((m) => m.key === choice);
-  if (!selected || selected.action === 'quit') return;
-
-  if (selected.action === 'create') await actions.create(helpers, apiKey, config);
-  else await actions[selected.action](helpers, apiKey);
+  console.log(`Product Manager — ${name}`);
+  await run(helpers, apiKey, config);
 }
 
 main().catch((e) => {

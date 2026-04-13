@@ -11,7 +11,6 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Upgrade to latest Clearstack
 - Backport Printful integration from merch
 
-
 ### Added
 
 - Fulfillment provider system — config-driven `api/lib/providers/` with auto-discovery
@@ -24,6 +23,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Product management menu (`npm run products`) — sync, create, delete, status
 - Printful script helpers (`scripts/lib/printful.js`) — API client, variant lookup, product mapping
 - Deploy script template (`templates/scripts/deploy-api.js`) — SAM deploy with secret management
+- Browse provider catalog action in product manager (`npm run products` → option 4)
 
 ### Fixed
 

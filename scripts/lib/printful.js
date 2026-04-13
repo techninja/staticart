@@ -85,6 +85,31 @@ export function toProduct(syncProduct, syncVariants) {
   };
 }
 
+/**
+ * Search the Printful product catalog by keyword.
+ * @param {any} client
+ * @param {string} query
+ */
+export async function browseCatalog(client, query) {
+  const all = await client.call('GET', '/products');
+  const q = query.toLowerCase();
+  return all.filter((p) => p.title.toLowerCase().includes(q));
+}
+
+/**
+ * Get detailed variant info for a catalog product.
+ * @param {any} client
+ * @param {number} productId
+ */
+export async function inspectProduct(client, productId) {
+  const data = await client.call('GET', `/products/${productId}`);
+  const variants = data.variants || [];
+  const colors = [...new Set(variants.map((v) => v.color).filter(Boolean))];
+  const sizes = [...new Set(variants.map((v) => v.size).filter(Boolean))];
+  const inStock = variants.filter((v) => v.in_stock).length;
+  return { product: data.product, colors, sizes, inStock, total: variants.length };
+}
+
 /** @param {string} name */
 function guessCategory(name) {
   const n = name.toLowerCase();
