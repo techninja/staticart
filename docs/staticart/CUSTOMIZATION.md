@@ -64,7 +64,7 @@ Your config, tokens, products, and overrides are never touched.
 
 ## Shipping Types
 
-StatiCart supports three shipping modes via `staticart.config.json`:
+StatiCart supports four shipping modes via `staticart.config.json`:
 
 ### Flat Rate
 
@@ -76,6 +76,18 @@ StatiCart supports three shipping modes via `staticart.config.json`:
 
 See the demo store config for a full example with `classes`, `regions`,
 and `tiers`.
+
+### Provider (fulfillment API)
+
+```json
+{
+  "shipping": { "type": "provider" },
+  "fulfillment": { "provider": "printful" }
+}
+```
+
+Delegates shipping calculation to the fulfillment provider's
+`calculateShipping` method. See Fulfillment Providers below.
 
 ### Custom (external API)
 
@@ -103,6 +115,68 @@ The platform calls this automatically when `shipping.type` is `"custom"`.
 - `stock: -1` — unlimited / dropship (always in stock, never decremented)
 
 Use `stock: -1` for print-on-demand or dropshipped products.
+
+## Fulfillment Providers
+
+StatiCart supports config-driven fulfillment for dropship/POD stores.
+
+### Configuration
+
+```json
+{
+  "fulfillment": {
+    "provider": "printful",
+    "autoRefundOnFailure": true
+  }
+}
+```
+
+- `provider` — name maps to `api/lib/providers/{name}.js`
+- `autoRefundOnFailure` — auto-refund the customer if fulfillment fails
+
+### Provider Interface
+
+Create `api/lib/providers/{name}.js` exporting:
+
+```javascript
+export default {
+  name: 'my-provider',
+  async calculateShipping(ctx) { /* return cents */ },
+  async fulfillOrder(order) { /* return { success, providerId?, error? } */ },
+}
+```
+
+The webhook calls `fulfillOrder` after recording the order. If it fails
+and `autoRefundOnFailure` is true, the payment is automatically refunded.
+
+### Product Management
+
+For provider-based stores, manage products with:
+
+```bash
+npm run products
+```
+
+This interactive menu discovers your provider from config and offers:
+
+1. **Sync from provider** — pulls prices, images, variants → `products.json`
+2. **Create from catalog** — upserts `src/data/{provider}-catalog.json` → provider
+3. **Delete orphans** — removes provider products not in local catalog
+4. **Status** — shows remote vs local product counts
+
+The catalog file (`src/data/printful-catalog.json`) defines desired products.
+The store file (`printful-store.json`, gitignored) tracks provider IDs.
+
+### Deploy
+
+Deploy the API to AWS Lambda via SAM:
+
+```bash
+npm run deploy:api
+```
+
+This reads secrets from `.env.local`, copies `products.json` + config into
+`api/` for Lambda, stamps a deploy marker, and runs `sam build && sam deploy`.
 
 ## Post-Checkout Fulfillment
 

@@ -4,9 +4,11 @@
  * @module api/webhook
  */
 
-import { verifyWebhook } from './lib/stripe.js';
+import { verifyWebhook, refundPayment } from './lib/stripe.js';
 import { decrementStock, incrementStock, putItem, getItem } from './lib/dynamo.js';
 import { ok, badRequest, serverError } from './lib/response.js';
+import { getConfig } from './lib/config.js';
+import { loadProvider } from './lib/providers/index.js';
 
 /** @param {string} buildHookUrl */
 async function triggerRebuild(buildHookUrl) {
@@ -52,6 +54,7 @@ async function handleCheckoutCompleted(session) {
 
   const metadata = session.metadata || {};
   const items = JSON.parse(metadata.items || '[]');
+  const email = session.customer_email || session.customer_details?.email || 'unknown';
 
   let stockChanged = false;
   for (const item of items) {
@@ -62,7 +65,7 @@ async function handleCheckoutCompleted(session) {
   await putItem({
     PK: `ORDER#${orderId}`,
     SK: 'META',
-    email: session.customer_email || '',
+    email,
     items,
     totalCents: session.amount_total,
     currency: session.currency,
@@ -72,7 +75,47 @@ async function handleCheckoutCompleted(session) {
   });
 
   if (stockChanged) await triggerRebuild(process.env.BUILD_HOOK_URL);
+
+  const config = getConfig();
+  const provider = await loadProvider(config);
+  if (provider?.fulfillOrder) {
+    await handleFulfillment(provider, config, { orderId, email, items, session });
+  }
+
   return ok({ received: true });
+}
+
+/** @param {any} provider @param {any} config @param {any} order */
+async function handleFulfillment(provider, config, order) {
+  const result = await provider.fulfillOrder(order);
+
+  await putItem({
+    PK: `ORDER#${order.orderId}`,
+    SK: 'FULFILLMENT',
+    provider: config.fulfillment.provider,
+    success: result.success,
+    providerId: result.providerId || null,
+    error: result.error || null,
+    createdAt: new Date().toISOString(),
+  });
+
+  if (!result.success && config.fulfillment?.autoRefundOnFailure) {
+    console.error('Fulfillment failed, auto-refunding:', result.error);
+    try {
+      await refundPayment(order.session.payment_intent, result.error);
+      await putItem({
+        PK: `ORDER#${order.orderId}`, SK: 'META',
+        email: order.email, items: order.items,
+        totalCents: order.session.amount_total,
+        currency: order.session.currency,
+        stripePaymentId: order.session.payment_intent,
+        status: 'refunded-fulfillment-failed',
+        createdAt: new Date().toISOString(),
+      });
+    } catch (refundErr) {
+      console.error('Auto-refund also failed:', refundErr);
+    }
+  }
 }
 
 /** @param {any} charge */

@@ -6,10 +6,29 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+
+- Fulfillment provider system — config-driven `api/lib/providers/` with auto-discovery
+- `shipping.type: "provider"` — delegates shipping calculation to fulfillment provider
+- Auto-refund on fulfillment failure (`fulfillment.autoRefundOnFailure` config)
+- `refundPayment` helper in `api/lib/stripe.js`
+- Session endpoint returns `orderStatus` and `fulfillment` info
+- Order success page shows failure/refund state instead of always showing thanks
+- i18n keys: `order.failed`, `order.refunded` (English + Spanish)
+- Product management menu (`npm run products`) — sync, create, delete, status
+- Printful script helpers (`scripts/lib/printful.js`) — API client, variant lookup, product mapping
+- Deploy script template (`templates/scripts/deploy-api.js`) — SAM deploy with secret management
+
+### Fixed
+
+- Empty email crashes DynamoDB GSI — fallback chain: `customer_email` → `customer_details.email` → `'unknown'`
+- Lambda can't read config/products — dual-path lookup (api/ dir first, then project root)
+- Checkout skips stock validation for `stock: -1` (unlimited/dropship) products
+- Stock conflict error shows product names instead of SKUs
+
 ## [0.1.19] - 2026-04-12
 
 - Correct store and don't default API to same domain
-
 
 ## [0.1.18] - 2026-04-12
 

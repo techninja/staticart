@@ -32,7 +32,14 @@ async function handleCheckout(host) {
   );
   host.checkingOut = false;
   if (result.url) window.location.href = result.url;
-  else host.checkoutError = result.error || 'Checkout failed';
+  else if (result.unavailable) {
+    const prods = /** @type {any[]} */ (host.products);
+    const names = result.unavailable.map((u) => {
+      const p = prods.find((pd) => pd.sku === u.sku);
+      return `${p?.name || u.sku} (${u.available} left)`;
+    });
+    host.checkoutError = `Insufficient stock: ${names.join(', ')}`;
+  } else host.checkoutError = result.error || 'Checkout failed';
 }
 
 /** @type {import('hybrids').Component<any>} */

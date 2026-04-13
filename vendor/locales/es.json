@@ -22,6 +22,8 @@
   "catalog.search": "Buscar productos…",
   "general.loading": "Cargando…",
   "order.confirmed": "¡Pedido confirmado!",
+  "order.failed": "No se pudo completar el pedido",
+  "order.refunded": "Tu pago ha sido reembolsado. Inténtalo de nuevo o contacta con soporte.",
   "order.thanks": "¡Gracias! Recibirás un correo de confirmación en breve.",
   "order.thanksName": "¡Gracias, {name}! Recibirás un correo de confirmación en breve.",
   "order.cancelled": "Pago cancelado",

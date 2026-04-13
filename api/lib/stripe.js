@@ -100,3 +100,12 @@ export function verifyWebhook(body, signature) {
     process.env.STRIPE_WEBHOOK_SECRET || '',
   );
 }
+
+/** @param {string} paymentIntentId @param {string} [reason] */
+export async function refundPayment(paymentIntentId, reason) {
+  return getStripe().refunds.create({
+    payment_intent: paymentIntentId,
+    reason: 'requested_by_customer',
+    metadata: { auto_refund_reason: reason || 'fulfillment_failed' },
+  });
+}

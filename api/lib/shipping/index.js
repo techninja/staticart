@@ -12,6 +12,7 @@
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { existsSync } from 'node:fs';
+import { providerRate } from '../providers/index.js';
 
 const ROOT = dirname(dirname(dirname(dirname(fileURLToPath(import.meta.url)))));
 
@@ -32,6 +33,7 @@ export async function calculateShipping(ctx) {
   switch (shipping.type) {
     case 'flat': return shipping.amount || 0;
     case 'tiered': return tieredRate(shipping, ctx);
+    case 'provider': return providerRate(ctx);
     case 'custom': return customRate(ctx);
     default: return 0;
   }

@@ -17,6 +17,7 @@ import CatalogView from '#pages/catalog/catalog-view.js';
  * @property {any} prefs
  * @property {boolean} cleared
  * @property {string} customerName
+ * @property {string} orderStatus
  */
 
 /** @param {OrderSuccessHost & HTMLElement} host */
@@ -27,9 +28,10 @@ async function fetchSession(host) {
   try {
     const res = await fetch(`${getApiBase()}/session/${sessionId}`);
     if (!res.ok) return;
-    const { email, name } = await res.json();
-    if (store.ready(host.prefs) && email) saveUserInfo(host.prefs, name, email);
-    if (name) host.customerName = name;
+    const data = await res.json();
+    if (store.ready(host.prefs) && data.email) saveUserInfo(host.prefs, data.name, data.email);
+    if (data.name) host.customerName = data.name;
+    if (data.orderStatus) host.orderStatus = data.orderStatus;
   } catch {
     /* session lookup is best-effort */
   }
@@ -41,6 +43,7 @@ export default define({
   cart: store(CartState),
   prefs: store(UserPrefs),
   customerName: '',
+  orderStatus: 'paid',
   cleared: {
     value: false,
     connect(host, _key, invalidate) {
@@ -51,16 +54,26 @@ export default define({
   },
   [router.connect]: { url: '/order/success', stack: [] },
   render: {
-    value: ({ customerName }) => html`
-      <div class="order-result">
-        <app-icon name="circle-check" size="lg"></app-icon>
-        <h1>${t('order.confirmed')}</h1>
-        <p>${customerName ? t('order.thanksName', { name: customerName }) : t('order.thanks')}</p>
-        <a href="${router.url(CatalogView)}" class="btn btn-primary"
-          >${t('order.continueShopping')}</a
-        >
-      </div>
-    `,
+    value: ({ customerName, orderStatus }) => {
+      const failed = orderStatus === 'refunded-fulfillment-failed';
+      const icon = failed ? 'circle-x' : 'circle-check';
+      const heading = failed ? t('order.failed') : t('order.confirmed');
+      const message = failed
+        ? t('order.refunded')
+        : customerName
+          ? t('order.thanksName', { name: customerName })
+          : t('order.thanks');
+      return html`
+        <div class="order-result">
+          <app-icon name="${icon}" size="lg"></app-icon>
+          <h1>${heading}</h1>
+          <p>${message}</p>
+          <a href="${router.url(CatalogView)}" class="btn btn-primary"
+            >${t('order.continueShopping')}</a
+          >
+        </div>
+      `;
+    },
     shadow: false,
   },
 });

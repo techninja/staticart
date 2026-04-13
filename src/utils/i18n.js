@@ -32,6 +32,8 @@ const DEFAULTS = {
   'nav.orders': 'Orders',
   'nav.signOut': 'Sign out',
   'order.confirmed': 'Order Confirmed!',
+  'order.failed': 'Order Could Not Be Fulfilled',
+  'order.refunded': 'Your payment has been refunded. Please try again or contact support.',
   'order.thanks': "Thank you! You'll receive a confirmation email shortly.",
   'order.thanksName': "Thanks, {name}! You'll receive a confirmation email shortly.",
   'order.cancelled': 'Checkout Cancelled',

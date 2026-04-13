@@ -10,10 +10,12 @@ import { getConfig, getProducts } from './lib/config.js';
 import { ok, badRequest, conflict, serverError } from './lib/response.js';
 import { calculateShipping } from './lib/shipping/index.js';
 
-/** @param {any[]} items */
-async function validateStock(items) {
+/** @param {any[]} items @param {any[]} productData */
+async function validateStock(items, productData) {
   const unavailable = [];
   for (const item of items) {
+    const product = productData.find((p) => p.sku === item.sku);
+    if (product?.stock < 0) continue;
     try {
       const stock = await getStock(item.sku);
       if (stock >= 0 && stock < item.quantity) {
@@ -33,13 +35,13 @@ export async function handler(event) {
     if (!Array.isArray(items) || items.length === 0) return badRequest('Cart is empty');
     if (!successUrl || !cancelUrl) return badRequest('Missing redirect URLs');
 
-    const unavailable = await validateStock(items);
+    const cfg = getConfig();
+    const productData = getProducts();
+
+    const unavailable = await validateStock(items, productData);
     if (unavailable.length > 0) {
       return conflict({ error: 'Insufficient stock', unavailable });
     }
-
-    const cfg = getConfig();
-    const productData = getProducts();
     const enrichedItems = items.map((i) => {
       const p = productData.find((pd) => pd.sku === i.sku);
       return { ...i, metadata: p?.metadata || {} };
