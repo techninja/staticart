@@ -1,5 +1,6 @@
 /**
  * Variant selector — cascading color/size or flat fallback.
+ * Pure render function — no host mutation. Auto-select via connect in the view.
  * @module pages/product-detail/variant-selector
  */
 
@@ -13,18 +14,29 @@ import {
 } from '#utils/variantDimensions.js';
 
 /** @param {any} host */
-function handleColorChange(host, e) {
-  host.selectedColor = e.target.value;
+export function selectColor(host, color) {
+  host.selectedColor = color;
   host.selectedSize = '';
-  host.selectedVariant = '';
   host.qty = 1;
-  if (host.selectedColor) {
-    const v = host.product.variants.find((v) => v.color === host.selectedColor);
-    if (v?.image) {
-      const idx = host.product.images.indexOf(v.image);
-      host.activeImage = idx >= 0 ? idx : 0;
-    }
+  autoSelectSize(host, color);
+}
+
+/** Auto-select size if only one option, and resolve variant. */
+function autoSelectSize(host, color) {
+  const variants = /** @type {any[]} */ (host.product.variants);
+  const forColor = filterVariants(variants, { color });
+  const sizes = uniqueValues(forColor, 'size');
+  if (sizes.length <= 1) {
+    host.selectedSize = sizes[0] || '';
+    host.selectedVariant = forColor[0]?.id || '';
+  } else {
+    host.selectedVariant = '';
   }
+}
+
+/** @param {any} host */
+function handleColorChange(host, e) {
+  selectColor(host, e.target.value);
 }
 
 /** @param {any} host */
@@ -42,47 +54,82 @@ function handleFlatChange(host, e) {
   host.qty = 1;
 }
 
+/** Check if a color has any purchasable variants. */
+function colorInStock(variants, color) {
+  return filterVariants(variants, { color }).some((v) => v.stock !== 0);
+}
+
+/** Check if a specific color+size variant is purchasable. */
+function sizeInStock(variants, color, size) {
+  const v = findVariant(variants, { color, size });
+  return v && v.stock !== 0;
+}
+
 /** Render variant selectors — cascading if dimensions detected, flat otherwise. */
 export function renderVariantSelector(host) {
   const variants = /** @type {any[]} */ (host.product.variants);
   if (!variants.length) return html``;
   const dims = detectDimensions(variants);
-  if (dims.includes('color') && dims.includes('size')) {
-    const colors = uniqueValues(variants, 'color');
-    const sizes = host.selectedColor
-      ? uniqueValues(filterVariants(variants, { color: host.selectedColor }), 'size')
-      : [];
+
+  if (!dims.includes('color')) {
     return html`
       <label class="product-detail__label">
-        ${t('product.color')}
-        <select onchange="${handleColorChange}">
+        ${t('product.variant')}
+        <select onchange="${handleFlatChange}">
           <option value="">${t('product.select')}</option>
-          ${colors.map(
-            (c) => html`<option value="${c}" selected="${host.selectedColor === c}">${c}</option>`,
-          )}
+          ${variants.map((v) => html`<option value="${v.id}">${v.label}</option>`)}
         </select>
       </label>
-      ${sizes.length > 0 &&
-      html`
-        <label class="product-detail__label">
-          ${t('product.size')}
-          <select onchange="${handleSizeChange}">
-            <option value="">${t('product.select')}</option>
-            ${sizes.map(
-              (s) => html`<option value="${s}" selected="${host.selectedSize === s}">${s}</option>`,
-            )}
-          </select>
-        </label>
-      `}
     `;
   }
+
+  const colors = uniqueValues(variants, 'color');
+  const color = host.selectedColor || colors[0] || '';
+  const hasSizes = dims.includes('size');
+  const sizes = color ? uniqueValues(filterVariants(variants, { color }), 'size') : [];
+
   return html`
-    <label class="product-detail__label">
-      ${t('product.variant')}
-      <select onchange="${handleFlatChange}">
-        <option value="">${t('product.select')}</option>
-        ${variants.map((v) => html`<option value="${v.id}">${v.label}</option>`)}
-      </select>
-    </label>
+    ${colors.length === 1
+      ? html`<p class="product-detail__label">
+          ${t('product.color')}: <strong>${colors[0]}</strong>
+        </p>`
+      : html`
+          <label class="product-detail__label">
+            ${t('product.color')}
+            <select onchange="${handleColorChange}">
+              ${colors.map((c) => {
+                const oos = !colorInStock(variants, c);
+                const label = oos ? `${c} — ${t('product.outOfStock')}` : c;
+                return html`<option value="${c}" selected="${color === c}" disabled="${oos}">
+                  ${label}
+                </option>`;
+              })}
+            </select>
+          </label>
+        `}
+    ${hasSizes &&
+    sizes.length === 1 &&
+    html`<p class="product-detail__label">${t('product.size')}: <strong>${sizes[0]}</strong></p>`}
+    ${hasSizes &&
+    sizes.length > 1 &&
+    html`
+      <label class="product-detail__label">
+        ${t('product.size')}
+        <select onchange="${handleSizeChange}">
+          <option value="">${t('product.select')}</option>
+          ${sizes.map((s) => {
+            const oos = !sizeInStock(variants, color, s);
+            const label = oos ? `${s} — ${t('product.outOfStock')}` : s;
+            return html`<option
+              value="${s}"
+              selected="${host.selectedSize === s}"
+              disabled="${oos}"
+            >
+              ${label}
+            </option>`;
+          })}
+        </select>
+      </label>
+    `}
   `;
 }

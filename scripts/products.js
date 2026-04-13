@@ -15,6 +15,7 @@ import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createInterface } from 'node:readline';
 import * as actions from './lib/product-actions.js';
+import { mockups as mockupsAction } from './lib/mockup-action.js';
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const r = (/** @type {string} */ p) => resolve(ROOT, p);
@@ -33,15 +34,17 @@ function ask(prompt) {
 const MENU = [
   { key: '1', label: 'Sync from provider → products.json', action: 'sync' },
   { key: '2', label: 'Create from catalog → provider', action: 'create' },
-  { key: '3', label: 'Delete orphans', action: 'deleteOrphans' },
-  { key: '4', label: 'Browse provider catalog', action: 'browse' },
-  { key: '5', label: 'Status', action: 'status' },
+  { key: '3', label: 'Generate mockup images', action: 'mockups' },
+  { key: '4', label: 'Delete orphans', action: 'deleteOrphans' },
+  { key: '5', label: 'Browse provider catalog', action: 'browse' },
+  { key: '6', label: 'Status', action: 'status' },
   { key: 'q', label: 'Quit', action: 'quit' },
 ];
 
 const CLI_MAP = {
   sync: 'sync',
   create: 'create',
+  mockups: 'mockups',
   delete: 'deleteOrphans',
   browse: 'browse',
   status: 'status',
@@ -54,6 +57,15 @@ async function run(helpers, apiKey, config) {
   if (cmd && CLI_MAP[cmd]) {
     const action = CLI_MAP[cmd];
     if (action === 'create') return actions.create(helpers, apiKey, config);
+    if (action === 'sync') return actions.sync(helpers, apiKey, config);
+    if (action === 'mockups') {
+      const filter = args.find((a) => !a.startsWith('--'));
+      return mockupsAction(helpers, apiKey, {
+        force: args.includes('--force'),
+        fresh: args.includes('--fresh'),
+        filter,
+      });
+    }
     if (action === 'browse') return actions.browse(helpers, apiKey, args[0], args[1]);
     return actions[action](helpers, apiKey);
   }
@@ -69,6 +81,8 @@ async function run(helpers, apiKey, config) {
   const selected = MENU.find((m) => m.key === choice);
   if (!selected || selected.action === 'quit') return;
   if (selected.action === 'create') return actions.create(helpers, apiKey, config);
+  if (selected.action === 'sync') return actions.sync(helpers, apiKey, config);
+  if (selected.action === 'mockups') return mockupsAction(helpers, apiKey);
   if (selected.action === 'browse') return actions.browse(helpers, apiKey);
   return actions[selected.action](helpers, apiKey);
 }

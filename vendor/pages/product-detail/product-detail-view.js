@@ -9,17 +9,19 @@ import CartState from '#store/CartState.js';
 import { formatPrice } from '#utils/formatPrice.js';
 import { setPageMeta } from '#utils/setPageMeta.js';
 import { effectivePrice, effectiveStock } from '#utils/productVariants.js';
+import { colorImages } from '#utils/variantDimensions.js';
 import { t } from '#utils/i18n.js';
 import { getStoreConfig } from '#utils/storeConfig.js';
 import { renderMetadata } from '#utils/renderMetadata.js';
 import {
   stockBadge,
   handleAdd,
-  handleQtyChange,
+  handleIncrement,
+  handleDecrement,
   handleThumbClick,
   renderNotFound,
 } from './helpers.js';
-import { renderVariantSelector } from './variant-selector.js';
+import { renderVariantSelector, selectColor } from './variant-selector.js';
 import '#atoms/app-badge/app-badge.js';
 import '#atoms/app-icon/app-icon.js';
 import '#molecules/series-gallery/series-gallery.js';
@@ -35,8 +37,17 @@ export default define({
   selectedColor: '',
   selectedSize: '',
   qty: 1,
+  addedLabel: '',
   activeImage: 0,
-  product: store(Product, { id: 'sku' }),
+  product: {
+    ...store(Product, { id: 'sku' }),
+    observe(host) {
+      if (host.selectedColor || !store.ready(host.product)) return;
+      const variants = /** @type {any[]} */ (host.product.variants);
+      const first = variants.find((v) => v.color && v.stock !== 0);
+      if (first) selectColor(host, first.color);
+    },
+  },
   config: {
     value: /** @type {any} */ (undefined),
     connect: (host) => {
@@ -48,7 +59,8 @@ export default define({
   cart: store(CartState),
   [router.connect]: { url: '/product/:sku', multiple: true, stack: [] },
   render: {
-    value: ({ product, config, cart: _cart, selectedVariant, qty, activeImage, ...host }) => {
+    value: (host) => {
+      const { product, config, selectedVariant, qty, addedLabel, activeImage } = host;
       if (!store.ready(product)) {
         if (!store.error(product)) return html`<p>${t('general.loading')}</p>`;
         return renderNotFound(CatalogView);
@@ -57,7 +69,9 @@ export default define({
       const price = effectivePrice(p, selectedVariant);
       const stock = effectiveStock(p, selectedVariant);
       const variants = /** @type {any[]} */ (p.variants);
-      const images = /** @type {string[]} */ (p.images);
+      const images = /** @type {string[]} */ (
+        colorImages(p.variants, host.selectedColor, p.images)
+      );
       setPageMeta(p.name, p.description);
       return html`
         <div class="product-detail">
@@ -94,23 +108,25 @@ export default define({
               ${stockBadge(stock)}
               <p>${p.description}</p>
               ${renderMetadata(p, config)} ${renderVariantSelector(host)}
-              <label class="product-detail__label">
-                ${t('product.qty')}
-                <input
-                  type="number"
-                  min="1"
-                  max="${stock}"
-                  value="${qty}"
-                  onchange="${handleQtyChange}"
-                />
-              </label>
-              <button
-                class="btn btn-primary"
-                onclick="${handleAdd}"
-                disabled="${stock === 0 || (variants.length > 0 && !selectedVariant)}"
-              >
-                <app-icon name="cart" size="sm"></app-icon> ${t('cart.add')}
-              </button>
+              <div class="product-detail__qty">
+                <span>${t('product.qty')}</span>
+                <button class="btn btn-secondary btn-sm" onclick="${handleDecrement}">
+                  <app-icon name="minus" size="sm"></app-icon>
+                </button>
+                <span>${qty}</span>
+                <button class="btn btn-secondary btn-sm" onclick="${handleIncrement}">
+                  <app-icon name="plus" size="sm"></app-icon>
+                </button>
+              </div>
+              ${addedLabel
+                ? html`<span class="product-detail__added">${addedLabel}</span>`
+                : html`<button
+                    class="btn btn-primary"
+                    onclick="${handleAdd}"
+                    disabled="${stock === 0 || (variants.length > 0 && !selectedVariant)}"
+                  >
+                    <app-icon name="cart" size="sm"></app-icon> ${t('cart.add')}
+                  </button>`}
             </div>
           </div>
           <series-gallery

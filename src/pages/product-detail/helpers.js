@@ -63,10 +63,17 @@ export function stockBadge(s) {
 
 /** @param {any} host */
 export function handleAdd(host) {
-  if (!store.ready(host.cart) || !store.ready(host.product)) return;
+  if (!store.ready(host.cart) || !store.ready(host.product) || host.addedLabel) return;
   const { product: p, selectedVariant: vid, qty } = host;
   const stock = vid ? (p.variants.find((v) => v.id === vid)?.stock ?? 0) : p.stock;
-  if (stock < 0 || (qty <= stock && stock > 0)) addToCart(host.cart, p.sku, vid, qty);
+  if (stock < 0 || (qty <= stock && stock > 0)) {
+    addToCart(host.cart, p.sku, vid, qty);
+    const v = vid ? p.variants.find((v) => v.id === vid) : null;
+    host.addedLabel = v ? t('cart.addedVariant', { variant: v.label }) : t('cart.added');
+    setTimeout(() => {
+      host.addedLabel = '';
+    }, 1500);
+  }
 }
 
 /** @param {any} host */
@@ -76,8 +83,17 @@ export function handleVariantChange(host, e) {
 }
 
 /** @param {any} host */
-export function handleQtyChange(host, e) {
-  host.qty = Math.max(1, parseInt(e.target.value, 10) || 1);
+export function handleIncrement(host) {
+  if (!store.ready(host.product)) return;
+  const p = host.product;
+  const vid = host.selectedVariant;
+  const stock = vid ? (p.variants.find((v) => v.id === vid)?.stock ?? 0) : p.stock;
+  if (stock < 0 || host.qty < stock) host.qty++;
+}
+
+/** @param {any} host */
+export function handleDecrement(host) {
+  if (host.qty > 1) host.qty--;
 }
 
 /** @param {any} host */

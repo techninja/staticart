@@ -45,7 +45,6 @@ function assignDimensions(product) {
 /** Merge a group of same-catalogId products into one. */
 function mergeGroup(group) {
   const base = { ...group[0] };
-  // Strip color suffix: "Logo Tee — Black" → "Logo Tee"
   base.name = base.name.replace(/\s*[—–-]\s*[^—–-]+$/, '') || base.name;
   base.sku = `pf-${base.metadata.printfulCategoryId}`;
   base.description = base.name;
@@ -66,4 +65,42 @@ function mergeGroup(group) {
   base.variants = allVariants;
   base.metadata.mergedFrom = group.map((p) => p.metadata.printfulSyncProductId);
   return base;
+}
+
+/**
+ * Enrich merged products with out-of-stock variants from the Printful catalog.
+ * Only adds variants for colors listed in the project's catalog file.
+ * @param {any[]} products
+ * @param {Map<number, any[]>} catalogVariants - catalogId → catalog variant list
+ * @param {any[]} projectCatalog - entries from printful-catalog.json
+ */
+export function enrichOutOfStock(products, catalogVariants, projectCatalog) {
+  const wantedColors = new Map();
+  for (const entry of projectCatalog) {
+    if (!wantedColors.has(entry.catalogId)) wantedColors.set(entry.catalogId, new Set());
+    if (entry.colors) entry.colors.forEach((c) => wantedColors.get(entry.catalogId).add(c));
+  }
+  for (const p of products) {
+    const catId = p.metadata?.printfulCategoryId;
+    const catVars = catalogVariants.get(catId);
+    const wanted = wantedColors.get(catId);
+    if (!catVars || !wanted) continue;
+    const existing = new Set(p.variants.map((v) => `${v.color}|${v.size}`));
+    for (const cv of catVars) {
+      if (!wanted.has(cv.color)) continue;
+      const key = `${cv.color}|${cv.size}`;
+      if (existing.has(key)) continue;
+      if (cv.in_stock) continue;
+      p.variants.push({
+        id: `oos-${cv.id}`,
+        label: [cv.color, cv.size].filter(Boolean).join(' / ') || cv.name,
+        sku: `pf-oos-${cv.id}`,
+        price: 0,
+        stock: 0,
+        color: cv.color || '',
+        size: cv.size || '',
+        image: '',
+      });
+    }
+  }
 }

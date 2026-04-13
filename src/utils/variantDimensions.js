@@ -37,6 +37,22 @@ export function findVariant(variants, selection) {
 }
 
 /**
+ * Get images for a specific color from variants.
+ * Falls back to allImages if no color-specific images.
+ * @param {any[]} variants
+ * @param {string} color
+ * @param {string[]} allImages
+ * @returns {string[]}
+ */
+export function colorImages(variants, color, allImages) {
+  if (!color) return allImages;
+  const forColor = filterVariants(variants, { color });
+  const imgs = forColor.flatMap((v) => (v.images?.length ? v.images : v.image ? [v.image] : []));
+  const unique = [...new Set(imgs)];
+  return unique.length ? unique : allImages;
+}
+
+/**
  * Detect which dimensions a product's variants use.
  * @param {any[]} variants
  * @returns {string[]} e.g. ['color', 'size'] or ['color'] or []

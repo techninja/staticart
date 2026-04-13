@@ -23,12 +23,13 @@ function ask(prompt) {
   );
 }
 
-/** @param {any} helpers @param {string} apiKey */
-export async function sync(helpers, apiKey) {
+/** @param {any} helpers @param {string} apiKey @param {any} [config] */
+export async function sync(helpers, apiKey, config) {
   const client = helpers.createClient(apiKey);
   const categories = await helpers.loadCategories(client);
   const remote = await client.call('GET', '/store/products');
   const catCache = new Map();
+  const catVariants = new Map();
   const products = [];
   for (const sp of remote) {
     const detail = await client.call('GET', `/store/products/${sp.id}`);
@@ -36,6 +37,7 @@ export async function sync(helpers, apiKey) {
     if (catalogId && !catCache.has(catalogId)) {
       const cat = await client.call('GET', `/products/${catalogId}`);
       catCache.set(catalogId, cat.product.main_category_id || 0);
+      catVariants.set(catalogId, cat.variants || []);
     }
     products.push(
       helpers.toProduct(detail.sync_product, detail.sync_variants, {
@@ -45,6 +47,9 @@ export async function sync(helpers, apiKey) {
     );
   }
   const merged = helpers.mergeByBaseName(products);
+  const catPath = r(`src/data/${config?.fulfillment?.provider || 'printful'}-catalog.json`);
+  const catalog = existsSync(catPath) ? JSON.parse(readFileSync(catPath, 'utf-8')) : [];
+  helpers.enrichOutOfStock(merged, catVariants, catalog);
   writeFileSync(r('src/data/products.json'), JSON.stringify(merged, null, 2) + '\n');
   console.log(
     `✓ Synced ${remote.length} remote → ${merged.length} products → src/data/products.json`,
