@@ -27,6 +27,8 @@ const DEFAULTS = {
   'product.lowStock': 'Low Stock',
   'product.outOfStock': 'Out of Stock',
   'product.variant': 'Variant',
+  'product.color': 'Color',
+  'product.size': 'Size',
   'product.qty': 'Qty',
   'nav.shop': 'Shop',
   'nav.orders': 'Orders',

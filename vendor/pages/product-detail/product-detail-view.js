@@ -15,11 +15,11 @@ import { renderMetadata } from '#utils/renderMetadata.js';
 import {
   stockBadge,
   handleAdd,
-  handleVariantChange,
   handleQtyChange,
   handleThumbClick,
   renderNotFound,
 } from './helpers.js';
+import { renderVariantSelector } from './variant-selector.js';
 import '#atoms/app-badge/app-badge.js';
 import '#atoms/app-icon/app-icon.js';
 import '#molecules/series-gallery/series-gallery.js';
@@ -32,6 +32,8 @@ export default define({
   tag: 'product-detail-view',
   sku: '',
   selectedVariant: '',
+  selectedColor: '',
+  selectedSize: '',
   qty: 1,
   activeImage: 0,
   product: store(Product, { id: 'sku' }),
@@ -46,7 +48,7 @@ export default define({
   cart: store(CartState),
   [router.connect]: { url: '/product/:sku', multiple: true, stack: [] },
   render: {
-    value: ({ product, config, cart: _cart, selectedVariant, qty, activeImage }) => {
+    value: ({ product, config, cart: _cart, selectedVariant, qty, activeImage, ...host }) => {
       if (!store.ready(product)) {
         if (!store.error(product)) return html`<p>${t('general.loading')}</p>`;
         return renderNotFound(CatalogView);
@@ -91,17 +93,7 @@ export default define({
               <p class="product-detail__price">${formatPrice(price, p.currency)}</p>
               ${stockBadge(stock)}
               <p>${p.description}</p>
-              ${renderMetadata(p, config)}
-              ${variants.length > 0 &&
-              html`
-                <label class="product-detail__label">
-                  ${t('product.variant')}
-                  <select onchange="${handleVariantChange}">
-                    <option value="">${t('product.select')}</option>
-                    ${variants.map((v) => html`<option value="${v.id}">${v.label}</option>`)}
-                  </select>
-                </label>
-              `}
+              ${renderMetadata(p, config)} ${renderVariantSelector(host)}
               <label class="product-detail__label">
                 ${t('product.qty')}
                 <input

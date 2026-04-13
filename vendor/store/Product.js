@@ -56,7 +56,7 @@ const Product = {
   tags: [String],
   stock: 0,
   active: true,
-  variants: [{ id: true, label: '', sku: '', price: 0, stock: 0 }],
+  variants: [{ id: true, label: '', sku: '', price: 0, stock: 0, color: '', size: '', image: '' }],
   metadata: ({ sku }) => cache?.find((p) => p.sku === sku)?.metadata || {},
   createdAt: '',
   updatedAt: '',

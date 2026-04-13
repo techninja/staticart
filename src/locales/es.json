@@ -12,6 +12,8 @@
   "product.outOfStock": "Agotado",
   "product.selectOptions": "Elegir opciones",
   "product.variant": "Variante",
+  "product.color": "Color",
+  "product.size": "Talla",
   "product.qty": "Cant.",
   "product.back": "Volver",
   "product.select": "Elegir…",

@@ -81,9 +81,15 @@ export function toProduct(syncProduct, syncVariants, ctx) {
   // Build variant-specific image map
   const variants = syncVariants.map((v) => {
     const preview = v.files?.find((f) => f.type === 'preview')?.preview_url || '';
+    const raw = v.name.replace(syncProduct.name, '').replace(/^[\s/—-]+/, '');
+    const parts = raw
+      .split('/')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const label = parts.length > 1 ? parts.join(' / ') : parts[0] || 'Default';
     return {
       id: String(v.id),
-      label: v.name.replace(syncProduct.name, '').replace(/^[\s—-]+/, '') || 'Default',
+      label,
       sku: v.external_id || `pf-v-${v.id}`,
       price: 0,
       stock: -1,

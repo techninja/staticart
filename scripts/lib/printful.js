@@ -5,6 +5,7 @@
  */
 
 export { toProduct, loadCategories } from './printful-mapping.js';
+export { mergeByBaseName } from './product-merge.js';
 
 const API = 'https://api.printful.com';
 

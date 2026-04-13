@@ -44,8 +44,11 @@ export async function sync(helpers, apiKey) {
       }),
     );
   }
-  writeFileSync(r('src/data/products.json'), JSON.stringify(products, null, 2) + '\n');
-  console.log(`✓ Synced ${products.length} products → src/data/products.json`);
+  const merged = helpers.mergeByBaseName(products);
+  writeFileSync(r('src/data/products.json'), JSON.stringify(merged, null, 2) + '\n');
+  console.log(
+    `✓ Synced ${remote.length} remote → ${merged.length} products → src/data/products.json`,
+  );
 }
 
 /** @param {any} helpers @param {string} apiKey @param {any} config */
