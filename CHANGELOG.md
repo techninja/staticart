@@ -6,6 +6,12 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.2.2] - 2026-04-13
+
+- More variant images for printful
+- Fix and build out proper categories from Printful
+
+
 ## [0.2.1] - 2026-04-13
 
 - Improve product management scripts
