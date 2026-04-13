@@ -57,6 +57,7 @@ export async function mockups(helpers, apiKey, opts) {
     for (const syncId of syncIds) {
       const variantMockups = allMockups.get(syncId);
       if (!variantMockups) continue;
+      // Apply mockups to generated variants
       for (const variant of product.variants) {
         const paths = variantMockups.get(variant.id);
         if (paths?.length) {
@@ -65,11 +66,22 @@ export async function mockups(helpers, apiKey, opts) {
           updated++;
         }
       }
+      // Propagate to all same-color variants (sizes share mockups)
+      for (const variant of product.variants) {
+        if (variantMockups.has(variant.id)) continue;
+        const donor = product.variants.find(
+          (v) => v.color === variant.color && variantMockups.has(v.id),
+        );
+        if (donor) {
+          variant.images = donor.images;
+          variant.image = donor.image;
+        }
+      }
     }
-    // Rebuild product images from all variant images
+    // Rebuild product images: local mockups only, no stale remote URLs
     const allImgs = product.variants.flatMap((v) => v.images || (v.image ? [v.image] : []));
-    const unique = [...new Set(allImgs)];
-    if (unique.length) product.images = unique;
+    const local = [...new Set(allImgs)].filter((p) => p.startsWith('/'));
+    if (local.length) product.images = local;
   }
 
   if (updated > 0) {
