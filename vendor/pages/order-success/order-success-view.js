@@ -60,7 +60,9 @@ export default define({
       const heading = failed ? t('order.failed') : t('order.confirmed');
       const message = failed
         ? t('order.refunded')
-        : customerName ? t('order.thanksName', { name: customerName }) : t('order.thanks');
+        : customerName
+          ? t('order.thanksName', { name: customerName })
+          : t('order.thanks');
       return html`
         <div class="order-result">
           <app-icon name="${icon}" size="lg"></app-icon>
