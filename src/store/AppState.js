@@ -15,7 +15,13 @@ const AppState = {
   [store.connect]: {
     get: () => {
       const raw = localStorage.getItem('appState');
-      return raw ? JSON.parse(raw) : {};
+      const state = raw ? JSON.parse(raw) : {};
+      if (!state.theme) {
+        state.theme = window.matchMedia?.('(prefers-color-scheme: dark)').matches
+          ? 'dark'
+          : 'light';
+      }
+      return state;
     },
     set: (id, values) => {
       localStorage.setItem('appState', JSON.stringify(values));

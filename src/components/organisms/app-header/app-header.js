@@ -54,12 +54,17 @@ export default define({
           <div class="app-header__actions">
             ${loggedIn &&
             html`
-              <span class="app-header__user">
+              <span class="app-header__user" title="${name || prefs.email}">
                 <app-icon name="user" size="sm"></app-icon>
-                ${name || prefs.email}
+                <span class="app-header__user-name">${name || prefs.email}</span>
               </span>
-              <button class="btn btn-secondary btn-sm" onclick="${handleSignOut}">
-                ${t('nav.signOut')}
+              <button
+                class="btn btn-secondary btn-sm app-header__sign-out"
+                onclick="${handleSignOut}"
+                title="${t('nav.signOut')}"
+              >
+                <app-icon name="log-out" size="sm" class="app-header__sign-out-icon"></app-icon>
+                <span class="app-header__sign-out-label">${t('nav.signOut')}</span>
               </button>
             `}
             <a href="/cart" class="app-header__cart-link">
@@ -67,7 +72,7 @@ export default define({
               <cart-count></cart-count>
             </a>
             <theme-toggle></theme-toggle>
-            <region-select></region-select>
+            ${cfg.shipping?.regionSelector !== false && html`<region-select></region-select>`}
           </div>
         </header>
       `;

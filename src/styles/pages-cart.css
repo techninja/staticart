@@ -15,8 +15,13 @@
   justify-content: space-between;
   align-items: flex-end;
   padding: var(--space-lg) 0;
-  border-top: 1px solid var(--color-border);
   margin-top: var(--space-md);
+}
+
+.cart-view__buttons {
+  display: flex;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
 }
 
 .cart-view__totals {

@@ -1,12 +1,18 @@
 app-header {
   display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
 
   & .app-header {
     display: flex;
     align-items: center;
     gap: var(--space-md);
     padding: var(--space-sm) var(--space-lg);
-    background: var(--color-surface);
+    background: color-mix(in srgb, var(--color-surface) 85%, transparent);
+    backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--color-border);
   }
 
@@ -55,5 +61,33 @@ app-header {
     gap: var(--space-xs);
     font-size: var(--text-sm);
     color: var(--color-text-muted);
+  }
+
+  & .app-header__sign-out {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+  }
+
+  & .app-header__sign-out-icon {
+    display: none;
+  }
+
+  @media (width <= 640px) {
+    & .app-header__user-name {
+      display: none;
+    }
+
+    & .app-header__sign-out-label {
+      display: none;
+    }
+
+    & .app-header__sign-out-icon {
+      display: inline;
+    }
+
+    & region-select {
+      display: none;
+    }
   }
 }

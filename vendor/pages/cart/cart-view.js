@@ -99,18 +99,21 @@ export default define({
           <div class="cart-view__footer">
             <div class="cart-view__totals">
               <span>${t('cart.subtotal')}: ${formatPrice(total)}</span>
-              <span
-                >${t('cart.shipping')}:
-                ${shipping > 0 ? formatPrice(shipping) : t('cart.freeShipping')}</span
-              >
-              <span class="cart-view__shipping-detail">${shippingSummary}</span>
+              ${shipping > 0 && html`<span>${t('cart.shipping')}: ${formatPrice(shipping)}</span>`}
+              ${shippingSummary &&
+              html`<span class="cart-view__shipping-detail">${shippingSummary}</span>`}
               <span class="cart-view__total"
                 >${t('cart.total')}: ${formatPrice(total + shipping)}</span
               >
             </div>
-            <button class="btn btn-primary" onclick="${handleCheckout}" disabled="${checkingOut}">
-              ${checkingOut ? t('cart.processing') : t('cart.checkout')}
-            </button>
+            <div class="cart-view__buttons">
+              <a href="${router.url(CatalogView)}" class="btn btn-secondary"
+                >${t('order.continueShopping')}</a
+              >
+              <button class="btn btn-primary" onclick="${handleCheckout}" disabled="${checkingOut}">
+                ${checkingOut ? t('cart.processing') : t('cart.checkout')}
+              </button>
+            </div>
           </div>
           ${checkoutError && html`<p class="error-message">${checkoutError}</p>`}
         </div>

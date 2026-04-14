@@ -33,7 +33,12 @@ export function estimateShipping(items, region) {
     const amt = shipping.amount || 0;
     return { amount: amt, summary: amt > 0 ? `Flat rate: ${formatPrice(amt)}` : 'Free' };
   }
-  if (shipping.type !== 'tiered') return { amount: 0, summary: 'Free' };
+  if (shipping.type !== 'tiered') {
+    if (shipping.type === 'provider' || shipping.type === 'custom') {
+      return { amount: 0, summary: '' };
+    }
+    return { amount: 0, summary: '' };
+  }
 
   const classes = shipping.classes || {};
   const field = shipping.classField || 'metadata.productType';

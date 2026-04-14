@@ -7,6 +7,7 @@ cart-item {
     gap: var(--space-md);
     padding: var(--space-md) 0;
     border-bottom: 1px solid var(--color-border);
+    flex-wrap: wrap;
   }
 
   & .cart-item__thumb {
@@ -22,6 +23,7 @@ cart-item {
     display: flex;
     flex-direction: column;
     gap: var(--space-xs);
+    min-width: 0;
   }
 
   & .cart-item__name {
@@ -43,5 +45,20 @@ cart-item {
     font-weight: 700;
     min-width: 5rem;
     text-align: right;
+  }
+
+  @media (width <= 640px) {
+    & .cart-item__info {
+      flex-basis: calc(100% - 64px - var(--space-md));
+    }
+
+    & .cart-item__total {
+      min-width: auto;
+      text-align: left;
+    }
+
+    & .cart-item__qty {
+      margin-left: auto;
+    }
   }
 }
