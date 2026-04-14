@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * Cache bust — stamps a version hash on CSS/JS references in index.html.
- * Run after deploy or release to break CDN/browser caches.
+ * Cache bust — stamps a version hash on all asset references in index.html.
+ * Covers CSS/JS in link/script tags, import map entries, and JSON data paths.
  *
  * Usage: node scripts/cache-bust.js [--hash <custom>]
  * Without --hash, uses a short timestamp-based hash.
@@ -29,11 +29,14 @@ const hash = customHash || generateHash();
 const indexPath = resolve(ROOT, 'src/index.html');
 let html = readFileSync(indexPath, 'utf-8');
 
-// Strip existing ?v= params
-html = html.replace(/(\.(css|js))\?v=[a-f0-9]+/g, '$1');
+// Strip existing ?v= params everywhere
+html = html.replace(/(\.(css|js|json))\?v=[a-f0-9]+/g, '$1');
 
-// Add ?v=hash to .css and .js references (href and src attributes)
+// HTML attributes: href="...css/js" and src="...css/js"
 html = html.replace(/(href|src)="([^"]+\.(css|js))"/g, `$1="$2?v=${hash}"`);
+
+// Import map: "key": "/path/to/file.js"
+html = html.replace(/":\s*"(\/[^"]+\.js)"/g, `": "$1?v=${hash}"`);
 
 writeFileSync(indexPath, html);
 console.log(`✓ Cache bust: ?v=${hash} on ${indexPath}`);

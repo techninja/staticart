@@ -10,7 +10,6 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - Tons if tiny tweaks, cache busting, and more!
 
-
 ## [0.2.5] - 2026-04-13
 
 - Fix mobile view size for site
