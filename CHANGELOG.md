@@ -6,10 +6,14 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.2.10] - 2026-04-15
+
+- Improve for unified cache busting
+
+
 ## [0.2.9] - 2026-04-15
 
 - Move to migration, unify css import
-
 
 ## [0.2.8] - 2026-04-15
 
