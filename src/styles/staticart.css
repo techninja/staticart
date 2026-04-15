@@ -1,0 +1,14 @@
+/* StatiCart platform styles — single entry point.
+   Projects link this one file instead of individual stylesheets.
+   Internal file structure can change without breaking downstream. */
+
+@import './reset.css';
+@import './shared.css';
+@import './buttons.css';
+@import './forms.css';
+@import './components.css';
+@import './pages.css';
+@import './pages-product.css';
+@import './pages-cart.css';
+@import './pages-content.css';
+@import './pages-orders.css';

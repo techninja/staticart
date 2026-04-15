@@ -31,6 +31,12 @@ if (existsSync(SRC)) {
     }
     console.log('✓ Synced: platform locales → src/locales/');
   }
+  // Run platform migrations
+  const migrationsPath = resolve(DEST, 'migrations.js');
+  if (existsSync(migrationsPath)) {
+    const { runMigrations } = await import(migrationsPath);
+    runMigrations(ROOT);
+  }
 } else {
   console.warn('⚠ @techninja/staticart vendor dir not found, skipping');
 }

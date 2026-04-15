@@ -16,7 +16,7 @@ const SRC = resolve(ROOT, 'src');
 const DEST = resolve(ROOT, 'vendor');
 
 const DIRS = ['components', 'locales', 'pages', 'router', 'store', 'styles', 'utils'];
-const ROOT_FILES = ['icons.json'];
+const ROOT_FILES = ['icons.json', 'migrations.js'];
 
 // Preserve root-level vendor files before clean
 const preserved = {};
