@@ -60,7 +60,12 @@ export default define({
             <h1>${t('orders.title')}</h1>
             <p>${t('orders.noAccount')}</p>
             <form class="orders-view__login" onsubmit="${handleLogin}">
-              <input type="email" name="email" placeholder="${t('orders.emailPlaceholder')}" required />
+              <input
+                type="email"
+                name="email"
+                placeholder="${t('orders.emailPlaceholder')}"
+                required
+              />
               <button class="btn btn-primary" type="submit">${t('orders.lookup')}</button>
             </form>
             <a href="${router.url(CatalogView)}" class="btn btn-secondary"

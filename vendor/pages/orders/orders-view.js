@@ -33,6 +33,16 @@ async function fetchOrders(host, email) {
   host.loading = false;
 }
 
+/** @param {OrdersViewHost & HTMLElement} host */
+function handleLogin(host, e) {
+  e.preventDefault();
+  const form = /** @type {HTMLFormElement} */ (e.target);
+  const email = new FormData(form).get('email')?.toString().trim();
+  if (!email) return;
+  store.set(host.prefs, { email, displayName: '' });
+  fetchOrders(host, email);
+}
+
 /** @type {import('hybrids').Component<OrdersViewHost>} */
 export default define({
   tag: 'orders-view',
@@ -49,7 +59,11 @@ export default define({
           <div class="orders-view">
             <h1>${t('orders.title')}</h1>
             <p>${t('orders.noAccount')}</p>
-            <a href="${router.url(CatalogView)}" class="btn btn-primary"
+            <form class="orders-view__login" onsubmit="${handleLogin}">
+              <input type="email" name="email" placeholder="${t('orders.emailPlaceholder')}" required />
+              <button class="btn btn-primary" type="submit">${t('orders.lookup')}</button>
+            </form>
+            <a href="${router.url(CatalogView)}" class="btn btn-secondary"
               >${t('orders.startShopping')}</a
             >
           </div>
