@@ -5,6 +5,9 @@
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 
+/**
+ *
+ */
 export function runMigrations(root) {
   migrateStylesheetAggregator(root);
 }
@@ -13,7 +16,7 @@ export function runMigrations(root) {
 function migrateStylesheetAggregator(root) {
   const htmlPath = `${root}/src/index.html`;
   if (!existsSync(htmlPath)) return;
-  let h = readFileSync(htmlPath, 'utf-8');
+  const h = readFileSync(htmlPath, 'utf-8');
   if (h.includes('staticart.css')) return;
   if (!h.includes('vendor/staticart/styles/')) return;
 
