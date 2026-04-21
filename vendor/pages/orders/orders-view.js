@@ -9,6 +9,8 @@ import { formatPrice } from '#utils/formatPrice.js';
 import { t } from '#utils/i18n.js';
 import { getApiBase } from '#utils/storeConfig.js';
 import CatalogView from '#pages/catalog/catalog-view.js';
+import '#molecules/passkey-login/passkey-login.js';
+import { getToken } from '#molecules/passkey-login/passkey-login.js';
 
 /**
  * @typedef {Object} OrdersViewHost
@@ -18,12 +20,16 @@ import CatalogView from '#pages/catalog/catalog-view.js';
  * @property {string} error
  */
 
-/** @param {OrdersViewHost & HTMLElement} host @param {string} email */
-async function fetchOrders(host, email) {
+/** @param {OrdersViewHost & HTMLElement} host */
+async function fetchOrders(host) {
   host.loading = true;
   host.error = '';
   try {
-    const res = await fetch(`${getApiBase()}/orders?email=${encodeURIComponent(email)}`);
+    const token = getToken();
+    const res = await fetch(`${getApiBase()}/orders`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (res.status === 401) { host.error = t('passkey.loginError'); host.loading = false; return; }
     const body = await res.json();
     host.orders = body.orders || [];
     if (host.orders.length === 0) host.error = t('orders.noOrders');
@@ -34,13 +40,8 @@ async function fetchOrders(host, email) {
 }
 
 /** @param {OrdersViewHost & HTMLElement} host */
-function handleLogin(host, e) {
-  e.preventDefault();
-  const form = /** @type {HTMLFormElement} */ (e.target);
-  const email = new FormData(form).get('email')?.toString().trim();
-  if (!email) return;
-  store.set(host.prefs, { email, displayName: '' });
-  fetchOrders(host, email);
+function handleAuthenticated(host) {
+  fetchOrders(host);
 }
 
 /** @type {import('hybrids').Component<OrdersViewHost>} */
@@ -54,20 +55,12 @@ export default define({
   render: {
     value: ({ prefs, orders, loading, error }) => {
       if (!store.ready(prefs)) return html`<p>${t('general.loading')}</p>`;
-      if (!prefs.email) {
+      if (!getToken()) {
         return html`
           <div class="orders-view">
             <h1>${t('orders.title')}</h1>
             <p>${t('orders.noAccount')}</p>
-            <form class="orders-view__login" onsubmit="${handleLogin}">
-              <input
-                type="email"
-                name="email"
-                placeholder="${t('orders.emailPlaceholder')}"
-                required
-              />
-              <button class="btn btn-primary" type="submit">${t('orders.lookup')}</button>
-            </form>
+            <passkey-login onauthenticated="${handleAuthenticated}"></passkey-login>
             <a href="${router.url(CatalogView)}" class="btn btn-secondary"
               >${t('orders.startShopping')}</a
             >
@@ -85,7 +78,7 @@ export default define({
           orders.length === 0 &&
           html`<button
             class="btn btn-primary"
-            onclick="${(host) => fetchOrders(host, prefs.email)}"
+            onclick="${(host) => fetchOrders(host)}"
           >
             ${t('orders.load')}
           </button>`}

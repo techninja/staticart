@@ -10,7 +10,6 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - Improve for unified cache busting
 
-
 ## [0.2.9] - 2026-04-15
 
 - Move to migration, unify css import

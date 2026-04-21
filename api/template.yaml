@@ -14,6 +14,7 @@ Globals:
         STRIPE_WEBHOOK_SECRET: !Ref StripeWebhookSecret
         BUILD_HOOK_URL: !Ref BuildHookUrl
         SITE_ORIGIN: !Ref SiteOrigin
+        JWT_SECRET: !Ref JwtSecret
     Policies:
       - DynamoDBCrudPolicy:
           TableName: !Ref StatiCartTable
@@ -28,6 +29,9 @@ Parameters:
   BuildHookUrl:
     Type: String
     Default: ''
+  JwtSecret:
+    Type: String
+    NoEcho: true
   SiteOrigin:
     Type: String
     Default: '*'
@@ -42,6 +46,7 @@ Resources:
         AllowHeaders:
           - Content-Type
           - Stripe-Signature
+          - Authorization
         AllowMethods:
           - POST
           - GET
@@ -99,6 +104,45 @@ Resources:
             ApiId: !Ref StatiCartApi
             Path: /api/orders
             Method: GET
+
+  AuthChallengeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: auth-challenge.handler
+      CodeUri: api/
+      Events:
+        Post:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref StatiCartApi
+            Path: /api/auth/challenge
+            Method: POST
+
+  AuthRegisterFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: auth-register.handler
+      CodeUri: api/
+      Events:
+        Post:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref StatiCartApi
+            Path: /api/auth/register
+            Method: POST
+
+  AuthVerifyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: auth-verify.handler
+      CodeUri: api/
+      Events:
+        Post:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref StatiCartApi
+            Path: /api/auth/verify
+            Method: POST
 
   SessionFunction:
     Type: AWS::Serverless::Function

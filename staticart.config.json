@@ -12,5 +12,11 @@
   "tax": {
     "automatic": false
   },
+  "auth": {
+    "type": "passkey",
+    "rpId": "localhost",
+    "rpName": "StatiCart Demo Store",
+    "tokenExpiry": "1h"
+  },
   "productFields": {}
 }

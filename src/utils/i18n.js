@@ -43,7 +43,7 @@ const DEFAULTS = {
   'order.continueShopping': 'Continue Shopping',
   'order.backToCart': 'Back to Cart',
   'orders.title': 'Order History',
-  'orders.noAccount': 'Enter your email to view your order history.',
+  'orders.noAccount': 'Sign in with your passkey to view order history.',
   'orders.emailPlaceholder': 'your@email.com',
   'orders.lookup': 'Look Up Orders',
   'orders.noOrders': 'No orders found yet.',
@@ -57,6 +57,13 @@ const DEFAULTS = {
   'product.seriesLabel': 'More in this series',
   'product.relatedLabel': 'You might also like',
   'general.loading': 'Loading…',
+  'passkey.offer': 'Save a passkey to track your orders — one tap, no password.',
+  'passkey.register': 'Save Passkey',
+  'passkey.saved': '✓ Passkey saved! You can view orders anytime.',
+  'passkey.error': 'Something went wrong. You can try again later.',
+  'passkey.login': 'Sign In with Passkey',
+  'passkey.loginError': 'Authentication failed. Please try again.',
+  'passkey.unsupported': 'Passkeys are not supported on this device.',
 };
 
 /** @type {Record<string, string>} */

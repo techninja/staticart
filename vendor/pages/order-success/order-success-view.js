@@ -8,6 +8,7 @@ import CartState, { clearCart } from '#store/CartState.js';
 import UserPrefs, { saveUserInfo } from '#store/UserPrefs.js';
 import { t } from '#utils/i18n.js';
 import '#atoms/app-icon/app-icon.js';
+import '#molecules/passkey-prompt/passkey-prompt.js';
 import { getApiBase } from '#utils/storeConfig.js';
 import CatalogView from '#pages/catalog/catalog-view.js';
 
@@ -54,7 +55,8 @@ export default define({
   },
   [router.connect]: { url: '/order/success', stack: [] },
   render: {
-    value: ({ customerName, orderStatus }) => {
+    value: (host) => {
+      const { customerName, orderStatus, prefs } = host;
       const failed = orderStatus === 'refunded-fulfillment-failed';
       const icon = failed ? 'circle-x' : 'circle-check';
       const heading = failed ? t('order.failed') : t('order.confirmed');
@@ -68,6 +70,7 @@ export default define({
           <app-icon name="${icon}" size="lg"></app-icon>
           <h1>${heading}</h1>
           <p>${message}</p>
+          ${!failed && html`<passkey-prompt email="${store.ready(prefs) ? prefs.email : ''}"></passkey-prompt>`}
           <a href="${router.url(CatalogView)}" class="btn btn-primary"
             >${t('order.continueShopping')}</a
           >

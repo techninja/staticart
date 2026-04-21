@@ -1,19 +1,25 @@
 /**
- * GET /api/orders?email=<hash> — order history lookup by email hash.
+ * GET /api/orders — order history lookup, secured by JWT.
  * @module api/orders
  */
 
-import { ok, badRequest, serverError } from './lib/response.js';
+import { ok, unauthorized, serverError } from './lib/response.js';
 import { queryByEmail } from './lib/dynamo.js';
+import { verifyToken } from './lib/auth.js';
 
 /**
- * @param {{ queryStringParameters: Record<string, string> }} event
+ * @param {{ headers: Record<string, string>, queryStringParameters: Record<string, string> }} event
  */
 export async function handler(event) {
   try {
-    const email = event.queryStringParameters?.email;
-    if (!email) return badRequest('Missing email parameter');
+    const auth = event.headers?.authorization || event.headers?.Authorization || '';
+    const token = auth.startsWith('Bearer ') ? auth.slice(7) : null;
+    if (!token) return unauthorized('Missing token');
 
+    const claims = verifyToken(token);
+    if (!claims?.sub) return unauthorized('Invalid or expired token');
+
+    const email = claims.sub;
     const orders = await queryByEmail(email);
     const summaries = orders.map((o) => ({
       orderId: o.PK.replace('ORDER#', ''),
