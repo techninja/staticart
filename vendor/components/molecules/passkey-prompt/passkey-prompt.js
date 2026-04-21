@@ -7,7 +7,7 @@
 import { html, define } from 'hybrids';
 import { t } from '#utils/i18n.js';
 import { getApiBase, getStoreConfigSync } from '#utils/storeConfig.js';
-import { toB64Url, fromB64Url, setToken, isAuthenticated } from '#utils/passkey.js';
+import { toB64Url, fromB64Url, setToken, isAuthenticated, loginWithEmail } from '#utils/passkey.js';
 
 /**
  * @typedef {Object} PasskeyPromptHost
@@ -18,10 +18,7 @@ import { toB64Url, fromB64Url, setToken, isAuthenticated } from '#utils/passkey.
 
 /** @param {PasskeyPromptHost & HTMLElement} host */
 async function checkExisting(host) {
-  if (isAuthenticated()) {
-    host.status = 'exists';
-    return;
-  }
+  if (isAuthenticated()) { host.status = 'exists'; return; }
   try {
     const res = await fetch(`${getApiBase()}/auth/challenge`, {
       method: 'POST',
@@ -29,10 +26,12 @@ async function checkExisting(host) {
       body: JSON.stringify({ email: host.email }),
     });
     const { allowCredentials } = await res.json();
-    if (allowCredentials?.length) host.status = 'exists';
-  } catch {
-    /* stay idle */
-  }
+    if (!allowCredentials?.length) return;
+    // Passkey exists — authenticate silently
+    host.status = 'prompting';
+    const result = await loginWithEmail(host.email);
+    host.status = result === 'done' ? 'exists' : 'idle';
+  } catch { /* stay idle — offer registration */ }
 }
 
 /** @param {PasskeyPromptHost & HTMLElement} host */

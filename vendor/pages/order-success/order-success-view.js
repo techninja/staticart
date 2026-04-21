@@ -16,7 +16,7 @@ import CatalogView from '#pages/catalog/catalog-view.js';
  * @typedef {Object} OrderSuccessHost
  * @property {any} cart
  * @property {any} prefs
- * @property {boolean} cleared
+ * @property {boolean} ready
  * @property {string} customerName
  * @property {string} orderStatus
  */
@@ -25,17 +25,16 @@ import CatalogView from '#pages/catalog/catalog-view.js';
 async function fetchSession(host) {
   const sessionId = sessionStorage.getItem('stripe_session_id');
   sessionStorage.removeItem('stripe_session_id');
-  if (!sessionId) return;
+  if (!sessionId) { host.ready = true; return; }
   try {
     const res = await fetch(`${getApiBase()}/session/${sessionId}`);
-    if (!res.ok) return;
+    if (!res.ok) { host.ready = true; return; }
     const data = await res.json();
     if (store.ready(host.prefs) && data.email) saveUserInfo(host.prefs, data.name, data.email);
     if (data.name) host.customerName = data.name;
     if (data.orderStatus) host.orderStatus = data.orderStatus;
-  } catch {
-    /* session lookup is best-effort */
-  }
+  } catch { /* best-effort */ }
+  host.ready = true;
 }
 
 /** @type {import('hybrids').Component<OrderSuccessHost>} */
@@ -45,17 +44,19 @@ export default define({
   prefs: store(UserPrefs),
   customerName: '',
   orderStatus: 'paid',
-  cleared: {
+  ready: {
     value: false,
     connect(host, _key, invalidate) {
       if (store.ready(host.cart) && host.cart.items.length > 0) clearCart(host.cart);
       fetchSession(host).then(() => invalidate());
-      host.cleared = true;
     },
   },
   [router.connect]: { url: '/order/success', stack: [] },
   render: {
     value: (host) => {
+      if (!host.ready) {
+        return html`<div class="loading-overlay"><span class="spinner"></span></div>`;
+      }
       const { customerName, orderStatus, prefs } = host;
       const failed = orderStatus === 'refunded-fulfillment-failed';
       const icon = failed ? 'circle-x' : 'circle-check';
