@@ -14,6 +14,12 @@ import { getApiBase } from '#utils/storeConfig.js';
  * @property {'idle'|'prompting'|'done'|'error'|'unsupported'} status
  */
 
+/** @param {ArrayBuffer} buf */
+function toB64Url(buf) {
+  return btoa(String.fromCharCode(...new Uint8Array(buf)))
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
 /** @param {PasskeyPromptHost & HTMLElement} host */
 async function handleRegister(host) {
   host.status = 'prompting';
@@ -50,15 +56,11 @@ async function handleRegister(host) {
     const attestationResponse = /** @type {AuthenticatorAttestationResponse} */ (pkCred.response);
     const attestation = {
       id: pkCred.id,
-      rawId: btoa(String.fromCharCode(...new Uint8Array(pkCred.rawId))),
+      rawId: toB64Url(pkCred.rawId),
       type: pkCred.type,
       response: {
-        clientDataJSON: btoa(
-          String.fromCharCode(...new Uint8Array(attestationResponse.clientDataJSON)),
-        ),
-        attestationObject: btoa(
-          String.fromCharCode(...new Uint8Array(attestationResponse.attestationObject)),
-        ),
+        clientDataJSON: toB64Url(attestationResponse.clientDataJSON),
+        attestationObject: toB64Url(attestationResponse.attestationObject),
       },
     };
 

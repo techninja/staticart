@@ -21,6 +21,12 @@ export function getToken() {
   return sessionStorage.getItem(TOKEN_KEY);
 }
 
+/** @param {ArrayBuffer} buf */
+function toB64Url(buf) {
+  return btoa(String.fromCharCode(...new Uint8Array(buf)))
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
 /** @param {PasskeyLoginHost & HTMLElement} host */
 async function handleLogin(host) {
   const email = host.email?.trim();
@@ -61,16 +67,12 @@ async function handleLogin(host) {
     const assertionResponse = /** @type {AuthenticatorAssertionResponse} */ (pkCred.response);
     const assertion = {
       id: pkCred.id,
-      rawId: btoa(String.fromCharCode(...new Uint8Array(pkCred.rawId))),
+      rawId: toB64Url(pkCred.rawId),
       type: pkCred.type,
       response: {
-        clientDataJSON: btoa(
-          String.fromCharCode(...new Uint8Array(assertionResponse.clientDataJSON)),
-        ),
-        authenticatorData: btoa(
-          String.fromCharCode(...new Uint8Array(assertionResponse.authenticatorData)),
-        ),
-        signature: btoa(String.fromCharCode(...new Uint8Array(assertionResponse.signature))),
+        clientDataJSON: toB64Url(assertionResponse.clientDataJSON),
+        authenticatorData: toB64Url(assertionResponse.authenticatorData),
+        signature: toB64Url(assertionResponse.signature),
       },
     };
 
