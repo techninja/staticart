@@ -6,11 +6,15 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-04-21
+
+- Fix no passkey bypass
+
+
 ## [0.4.0] - 2026-04-21
 
 - Initial auth release (expect lots of fixes)
 - Don't need these
-
 
 ## [0.2.10] - 2026-04-15
 

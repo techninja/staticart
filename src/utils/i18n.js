@@ -63,7 +63,8 @@ const DEFAULTS = {
   'passkey.error': 'Something went wrong. You can try again later.',
   'passkey.login': 'Sign In with Passkey',
   'passkey.loginError': 'Authentication failed. Please try again.',
-  'passkey.noPasskey': 'No passkey found for this email. Complete a purchase first to register one.',
+  'passkey.noPasskey':
+    'No passkey found for this email. Complete a purchase first to register one.',
   'passkey.unsupported': 'Passkeys are not supported on this device.',
 };
 
