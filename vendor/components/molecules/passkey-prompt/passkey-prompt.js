@@ -18,7 +18,10 @@ import { toB64Url, fromB64Url, setToken, isAuthenticated } from '#utils/passkey.
 
 /** @param {PasskeyPromptHost & HTMLElement} host */
 async function checkExisting(host) {
-  if (isAuthenticated()) { host.status = 'exists'; return; }
+  if (isAuthenticated()) {
+    host.status = 'exists';
+    return;
+  }
   try {
     const res = await fetch(`${getApiBase()}/auth/challenge`, {
       method: 'POST',
@@ -27,7 +30,9 @@ async function checkExisting(host) {
     });
     const { allowCredentials } = await res.json();
     if (allowCredentials?.length) host.status = 'exists';
-  } catch { /* stay idle */ }
+  } catch {
+    /* stay idle */
+  }
 }
 
 /** @param {PasskeyPromptHost & HTMLElement} host */
@@ -47,9 +52,20 @@ async function handleRegister(host) {
       publicKey: {
         challenge: fromB64Url(challenge),
         rp: { name: document.title, id: rpId },
-        user: { id: new TextEncoder().encode(host.email), name: host.email, displayName: host.email },
-        pubKeyCredParams: [{ alg: -7, type: 'public-key' }, { alg: -257, type: 'public-key' }],
-        authenticatorSelection: { authenticatorAttachment: 'platform', residentKey: 'preferred', userVerification: 'preferred' },
+        user: {
+          id: new TextEncoder().encode(host.email),
+          name: host.email,
+          displayName: host.email,
+        },
+        pubKeyCredParams: [
+          { alg: -7, type: 'public-key' },
+          { alg: -257, type: 'public-key' },
+        ],
+        authenticatorSelection: {
+          authenticatorAttachment: 'platform',
+          residentKey: 'preferred',
+          userVerification: 'preferred',
+        },
         timeout: 60000,
       },
     });
@@ -57,8 +73,13 @@ async function handleRegister(host) {
     const pkCred = /** @type {PublicKeyCredential} */ (credential);
     const ar = /** @type {AuthenticatorAttestationResponse} */ (pkCred.response);
     const attestation = {
-      id: pkCred.id, rawId: toB64Url(pkCred.rawId), type: pkCred.type,
-      response: { clientDataJSON: toB64Url(ar.clientDataJSON), attestationObject: toB64Url(ar.attestationObject) },
+      id: pkCred.id,
+      rawId: toB64Url(pkCred.rawId),
+      type: pkCred.type,
+      response: {
+        clientDataJSON: toB64Url(ar.clientDataJSON),
+        attestationObject: toB64Url(ar.attestationObject),
+      },
     };
 
     const regRes = await fetch(`${base}/auth/register`, {
@@ -70,7 +91,9 @@ async function handleRegister(host) {
       const body = await regRes.json();
       if (body.token) setToken(body.token);
       host.status = 'done';
-    } else { host.status = 'error'; }
+    } else {
+      host.status = 'error';
+    }
   } catch (e) {
     host.status = e.name === 'NotAllowedError' ? 'idle' : 'error';
   }
@@ -84,10 +107,21 @@ export default define({
   status: {
     value: 'idle',
     connect(host, _key, invalidate) {
-      if (!window.PublicKeyCredential) { host.status = 'unsupported'; return; }
+      if (!window.PublicKeyCredential) {
+        host.status = 'unsupported';
+        return;
+      }
       PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()
-        .then((ok) => { if (!ok) { host.status = 'unsupported'; } else if (host.email) { return checkExisting(host); } })
-        .catch(() => { host.status = 'unsupported'; })
+        .then((ok) => {
+          if (!ok) {
+            host.status = 'unsupported';
+          } else if (host.email) {
+            return checkExisting(host);
+          }
+        })
+        .catch(() => {
+          host.status = 'unsupported';
+        })
         .finally(() => invalidate());
     },
   },
@@ -99,11 +133,14 @@ export default define({
           <p>${status === 'done' ? t('passkey.saved') : t('passkey.alreadySet')}</p>
         </div>`;
       }
-      if (status === 'prompting') return html`<div class="passkey-prompt"><p>${t('general.loading')}</p></div>`;
+      if (status === 'prompting')
+        return html`<div class="passkey-prompt"><p>${t('general.loading')}</p></div>`;
       return html`
         <div class="passkey-prompt">
           <p>${t('passkey.offer')}</p>
-          <button class="btn btn-secondary" onclick="${handleRegister}">${t('passkey.register')}</button>
+          <button class="btn btn-secondary" onclick="${handleRegister}">
+            ${t('passkey.register')}
+          </button>
           ${status === 'error' && html`<p class="error-message">${t('passkey.error')}</p>`}
         </div>
       `;
