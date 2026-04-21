@@ -6,11 +6,15 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.4.7] - 2026-04-21
+
+- Trust JWT, collapse header
+
+
 ## [0.4.6] - 2026-04-21
 
 - Spec refactor
 - Inherit existing auth, allow for fallback
-
 
 ## [0.4.5] - 2026-04-21
 
