@@ -6,7 +6,8 @@
 
 import { html, define } from 'hybrids';
 import { t } from '#utils/i18n.js';
-import { getToken, loginDiscoverable, loginWithEmail } from '#utils/passkey.js';
+import { getToken } from '#utils/passkey.js';
+import { loginDiscoverable, loginWithEmail } from '#utils/passkey-ceremonies.js';
 
 export { getToken };
 

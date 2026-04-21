@@ -25,15 +25,23 @@ import CatalogView from '#pages/catalog/catalog-view.js';
 async function fetchSession(host) {
   const sessionId = sessionStorage.getItem('stripe_session_id');
   sessionStorage.removeItem('stripe_session_id');
-  if (!sessionId) { host.ready = true; return; }
+  if (!sessionId) {
+    host.ready = true;
+    return;
+  }
   try {
     const res = await fetch(`${getApiBase()}/session/${sessionId}`);
-    if (!res.ok) { host.ready = true; return; }
+    if (!res.ok) {
+      host.ready = true;
+      return;
+    }
     const data = await res.json();
     if (store.ready(host.prefs) && data.email) saveUserInfo(host.prefs, data.name, data.email);
     if (data.name) host.customerName = data.name;
     if (data.orderStatus) host.orderStatus = data.orderStatus;
-  } catch { /* best-effort */ }
+  } catch {
+    /* best-effort */
+  }
   host.ready = true;
 }
 

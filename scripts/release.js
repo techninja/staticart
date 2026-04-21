@@ -31,6 +31,15 @@ if (dirty.length > 0) {
   process.exit(1);
 }
 
+// Gate: spec checks must pass before version bump
+console.log('\n🔍 Running spec checks...\n');
+try {
+  run('npm run spec -- check all');
+} catch {
+  console.error('\n❌ Spec checks failed — fix issues before releasing.\n');
+  process.exit(1);
+}
+
 // Bump version
 const pkgPath = resolve(ROOT, 'package.json');
 const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'));
@@ -51,10 +60,6 @@ if (existsSync(syncScript)) {
   console.log('🔄 Syncing vendor...');
   run('node scripts/sync-vendor.js');
 }
-
-// Spec check
-console.log('\n🔍 Running spec checks...\n');
-run('npm run spec -- check all');
 
 // Changelog
 const changelogPath = resolve(ROOT, 'CHANGELOG.md');

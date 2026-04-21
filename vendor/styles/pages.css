@@ -60,3 +60,18 @@ app-router > .app-router {
 }
 
 /* Product detail */
+
+/* Loading overlay */
+
+.loading-overlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40vh;
+}
+
+.loading-overlay .spinner {
+  width: 2em;
+  height: 2em;
+  border-width: 3px;
+}
