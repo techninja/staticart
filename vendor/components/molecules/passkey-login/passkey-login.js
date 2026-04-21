@@ -21,8 +21,11 @@ async function tryDiscoverable(host) {
   host.status = 'prompting';
   try {
     host.status = await loginDiscoverable();
-  } catch { host.status = 'email-needed'; }
-  if (host.status === 'done') host.dispatchEvent(new CustomEvent('authenticated', { bubbles: true }));
+  } catch {
+    host.status = 'email-needed';
+  }
+  if (host.status === 'done')
+    host.dispatchEvent(new CustomEvent('authenticated', { bubbles: true }));
 }
 
 /** @param {PasskeyLoginHost & HTMLElement} host */
@@ -35,13 +38,15 @@ async function handleLogin(host) {
   } catch (e) {
     host.status = e.name === 'NotAllowedError' ? 'idle' : 'error';
   }
-  if (host.status === 'done') host.dispatchEvent(new CustomEvent('authenticated', { bubbles: true }));
+  if (host.status === 'done')
+    host.dispatchEvent(new CustomEvent('authenticated', { bubbles: true }));
 }
 
 /** @param {PasskeyLoginHost & HTMLElement} host @param {Event} e */
 function handleSubmit(host, e) {
   e.preventDefault();
-  host.email = new FormData(/** @type {HTMLFormElement} */ (e.target)).get('email')?.toString() || '';
+  host.email =
+    new FormData(/** @type {HTMLFormElement} */ (e.target)).get('email')?.toString() || '';
   handleLogin(host);
 }
 
@@ -61,22 +66,39 @@ export default define({
   },
   render: {
     value: ({ status }) => {
-      if (status === 'unsupported') return html`<p class="error-message">${t('passkey.unsupported')}</p>`;
+      if (status === 'unsupported')
+        return html`<p class="error-message">${t('passkey.unsupported')}</p>`;
       if (status === 'done') return html``;
-      if (status === 'prompting') return html`<div class="passkey-login"><p>${t('general.loading')}</p></div>`;
-      if (status === 'no-passkey') return html`<div class="passkey-login"><p>${t('passkey.noPasskey')}</p></div>`;
+      if (status === 'prompting')
+        return html`<div class="passkey-login"><p>${t('general.loading')}</p></div>`;
+      if (status === 'no-passkey')
+        return html`<div class="passkey-login"><p>${t('passkey.noPasskey')}</p></div>`;
       if (status === 'idle') {
         return html`
           <div class="passkey-login">
-            <button class="btn btn-primary" onclick="${tryDiscoverable}">${t('passkey.login')}</button>
-            <button class="btn btn-secondary" onclick="${(h) => { h.status = 'email-needed'; }}">${t('passkey.useEmail')}</button>
+            <button class="btn btn-primary" onclick="${tryDiscoverable}">
+              ${t('passkey.login')}
+            </button>
+            <button
+              class="btn btn-secondary"
+              onclick="${(h) => {
+                h.status = 'email-needed';
+              }}"
+            >
+              ${t('passkey.useEmail')}
+            </button>
           </div>
         `;
       }
       return html`
         <div class="passkey-login">
           <form onsubmit="${handleSubmit}">
-            <input type="email" name="email" placeholder="${t('orders.emailPlaceholder')}" required />
+            <input
+              type="email"
+              name="email"
+              placeholder="${t('orders.emailPlaceholder')}"
+              required
+            />
             <button class="btn btn-primary" type="submit">${t('passkey.loginWithEmail')}</button>
           </form>
           ${status === 'error' && html`<p class="error-message">${t('passkey.loginError')}</p>`}

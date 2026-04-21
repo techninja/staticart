@@ -26,23 +26,37 @@ export function clearToken() {
 export function isAuthenticated() {
   const token = getToken();
   if (!token) return false;
-  try { return JSON.parse(atob(token.split('.')[1])).exp > Date.now() / 1000; } catch { return false; }
+  try {
+    return JSON.parse(atob(token.split('.')[1])).exp > Date.now() / 1000;
+  } catch {
+    return false;
+  }
 }
 
 /** @returns {string} */
 export function getTokenEmail() {
-  try { return JSON.parse(atob(getToken()?.split('.')[1] || '')).sub || ''; } catch { return ''; }
+  try {
+    return JSON.parse(atob(getToken()?.split('.')[1] || '')).sub || '';
+  } catch {
+    return '';
+  }
 }
 
 /** @returns {string} */
 export function getTokenName() {
-  try { return JSON.parse(atob(getToken()?.split('.')[1] || '')).name || ''; } catch { return ''; }
+  try {
+    return JSON.parse(atob(getToken()?.split('.')[1] || '')).name || '';
+  } catch {
+    return '';
+  }
 }
 
 /** @param {ArrayBuffer} buf */
 export function toB64Url(buf) {
   return btoa(String.fromCharCode(...new Uint8Array(buf)))
-    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
 }
 
 /** @param {string} str */
@@ -54,7 +68,9 @@ export function fromB64Url(str) {
 export function buildAssertion(pkCred) {
   const ar = /** @type {AuthenticatorAssertionResponse} */ (pkCred.response);
   return {
-    id: pkCred.id, rawId: toB64Url(pkCred.rawId), type: pkCred.type,
+    id: pkCred.id,
+    rawId: toB64Url(pkCred.rawId),
+    type: pkCred.type,
     response: {
       clientDataJSON: toB64Url(ar.clientDataJSON),
       authenticatorData: toB64Url(ar.authenticatorData),
@@ -72,7 +88,10 @@ export async function verifyAssertion(email, assertion) {
     body: JSON.stringify({ email, assertion }),
   });
   const body = await res.json();
-  if (body.token) { setToken(body.token); return body.token; }
+  if (body.token) {
+    setToken(body.token);
+    return body.token;
+  }
   return null;
 }
 
@@ -80,7 +99,12 @@ export async function verifyAssertion(email, assertion) {
 export async function loginDiscoverable() {
   const rpId = getStoreConfigSync().auth?.rpId || location.hostname;
   const credential = await navigator.credentials.get({
-    publicKey: { challenge: crypto.getRandomValues(new Uint8Array(32)), rpId, userVerification: 'preferred', timeout: 60000 },
+    publicKey: {
+      challenge: crypto.getRandomValues(new Uint8Array(32)),
+      rpId,
+      userVerification: 'preferred',
+      timeout: 60000,
+    },
   });
   const assertion = buildAssertion(/** @type {PublicKeyCredential} */ (credential));
   const email = assertion.response.userHandle || '';
@@ -103,11 +127,16 @@ export async function loginWithEmail(email) {
   const rpId = getStoreConfigSync().auth?.rpId || location.hostname;
   const credential = await navigator.credentials.get({
     publicKey: {
-      challenge: fromB64Url(challenge), rpId,
+      challenge: fromB64Url(challenge),
+      rpId,
       allowCredentials: allowCredentials.map((c) => ({ id: fromB64Url(c.id), type: c.type })),
-      userVerification: 'preferred', timeout: 60000,
+      userVerification: 'preferred',
+      timeout: 60000,
     },
   });
-  const token = await verifyAssertion(email, buildAssertion(/** @type {PublicKeyCredential} */ (credential)));
+  const token = await verifyAssertion(
+    email,
+    buildAssertion(/** @type {PublicKeyCredential} */ (credential)),
+  );
   return token ? 'done' : 'error';
 }
