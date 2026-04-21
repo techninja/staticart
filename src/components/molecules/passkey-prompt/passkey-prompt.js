@@ -7,18 +7,13 @@
 import { html, define } from 'hybrids';
 import { t } from '#utils/i18n.js';
 import { getApiBase, getStoreConfigSync } from '#utils/storeConfig.js';
+import { toB64Url, fromB64Url } from '#utils/passkey.js';
 
 /**
  * @typedef {Object} PasskeyPromptHost
  * @property {string} email
  * @property {'idle'|'prompting'|'done'|'error'|'unsupported'} status
  */
-
-/** @param {ArrayBuffer} buf */
-function toB64Url(buf) {
-  return btoa(String.fromCharCode(...new Uint8Array(buf)))
-    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-}
 
 /** @param {PasskeyPromptHost & HTMLElement} host */
 async function handleRegister(host) {
@@ -34,9 +29,7 @@ async function handleRegister(host) {
 
     const credential = await navigator.credentials.create({
       publicKey: {
-        challenge: Uint8Array.from(atob(challenge.replace(/-/g, '+').replace(/_/g, '/')), (c) =>
-          c.charCodeAt(0),
-        ),
+        challenge: fromB64Url(challenge),
         rp: { name: document.title, id: getStoreConfigSync().auth?.rpId || location.hostname },
         user: {
           id: new TextEncoder().encode(host.email),

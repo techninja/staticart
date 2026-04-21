@@ -7,25 +7,15 @@
 import { html, define } from 'hybrids';
 import { t } from '#utils/i18n.js';
 import { getApiBase, getStoreConfigSync } from '#utils/storeConfig.js';
+import { getToken, setToken, toB64Url, fromB64Url } from '#utils/passkey.js';
 
-const TOKEN_KEY = 'staticart-auth-token';
+export { getToken };
 
 /**
  * @typedef {Object} PasskeyLoginHost
  * @property {string} email
  * @property {'idle'|'prompting'|'done'|'error'|'unsupported'|'no-passkey'} status
  */
-
-/** Check if a valid token already exists. */
-export function getToken() {
-  return sessionStorage.getItem(TOKEN_KEY);
-}
-
-/** @param {ArrayBuffer} buf */
-function toB64Url(buf) {
-  return btoa(String.fromCharCode(...new Uint8Array(buf)))
-    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-}
 
 /** @param {PasskeyLoginHost & HTMLElement} host */
 async function handleLogin(host) {
@@ -41,38 +31,28 @@ async function handleLogin(host) {
     });
     const { challenge, allowCredentials } = await res.json();
 
-    if (!allowCredentials.length) {
-      host.status = 'no-passkey';
-      return;
-    }
+    if (!allowCredentials.length) { host.status = 'no-passkey'; return; }
 
     const credential = await navigator.credentials.get({
       publicKey: {
-        challenge: Uint8Array.from(atob(challenge.replace(/-/g, '+').replace(/_/g, '/')), (c) =>
-          c.charCodeAt(0),
-        ),
+        challenge: fromB64Url(challenge),
         rpId: getStoreConfigSync().auth?.rpId || location.hostname,
-        allowCredentials: allowCredentials.map((c) => ({
-          id: Uint8Array.from(atob(c.id.replace(/-/g, '+').replace(/_/g, '/')), (ch) =>
-            ch.charCodeAt(0),
-          ),
-          type: c.type,
-        })),
+        allowCredentials: allowCredentials.map((c) => ({ id: fromB64Url(c.id), type: c.type })),
         userVerification: 'preferred',
         timeout: 60000,
       },
     });
 
     const pkCred = /** @type {PublicKeyCredential} */ (credential);
-    const assertionResponse = /** @type {AuthenticatorAssertionResponse} */ (pkCred.response);
+    const ar = /** @type {AuthenticatorAssertionResponse} */ (pkCred.response);
     const assertion = {
       id: pkCred.id,
       rawId: toB64Url(pkCred.rawId),
       type: pkCred.type,
       response: {
-        clientDataJSON: toB64Url(assertionResponse.clientDataJSON),
-        authenticatorData: toB64Url(assertionResponse.authenticatorData),
-        signature: toB64Url(assertionResponse.signature),
+        clientDataJSON: toB64Url(ar.clientDataJSON),
+        authenticatorData: toB64Url(ar.authenticatorData),
+        signature: toB64Url(ar.signature),
       },
     };
 
@@ -84,7 +64,7 @@ async function handleLogin(host) {
     const body = await verifyRes.json();
 
     if (body.token) {
-      sessionStorage.setItem(TOKEN_KEY, body.token);
+      setToken(body.token);
       host.status = 'done';
       host.dispatchEvent(new CustomEvent('authenticated', { bubbles: true }));
     } else {
@@ -98,8 +78,7 @@ async function handleLogin(host) {
 /** @param {PasskeyLoginHost & HTMLElement} host @param {Event} e */
 function handleSubmit(host, e) {
   e.preventDefault();
-  const form = /** @type {HTMLFormElement} */ (e.target);
-  host.email = new FormData(form).get('email')?.toString() || '';
+  host.email = new FormData(/** @type {HTMLFormElement} */ (e.target)).get('email')?.toString() || '';
   handleLogin(host);
 }
 
@@ -119,25 +98,14 @@ export default define({
   },
   render: {
     value: ({ status }) => {
-      if (status === 'unsupported') {
-        return html`<p class="error-message">${t('passkey.unsupported')}</p>`;
-      }
+      if (status === 'unsupported') return html`<p class="error-message">${t('passkey.unsupported')}</p>`;
       if (status === 'done') return html``;
-      if (status === 'prompting') {
-        return html`<div class="passkey-login"><p>${t('general.loading')}</p></div>`;
-      }
-      if (status === 'no-passkey') {
-        return html`<div class="passkey-login"><p>${t('passkey.noPasskey')}</p></div>`;
-      }
+      if (status === 'prompting') return html`<div class="passkey-login"><p>${t('general.loading')}</p></div>`;
+      if (status === 'no-passkey') return html`<div class="passkey-login"><p>${t('passkey.noPasskey')}</p></div>`;
       return html`
         <div class="passkey-login">
           <form onsubmit="${handleSubmit}">
-            <input
-              type="email"
-              name="email"
-              placeholder="${t('orders.emailPlaceholder')}"
-              required
-            />
+            <input type="email" name="email" placeholder="${t('orders.emailPlaceholder')}" required />
             <button class="btn btn-primary" type="submit">${t('passkey.login')}</button>
           </form>
           ${status === 'error' && html`<p class="error-message">${t('passkey.loginError')}</p>`}
