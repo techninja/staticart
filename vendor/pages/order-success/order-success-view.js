@@ -70,7 +70,8 @@ export default define({
           <app-icon name="${icon}" size="lg"></app-icon>
           <h1>${heading}</h1>
           <p>${message}</p>
-          ${!failed && html`<passkey-prompt email="${store.ready(prefs) ? prefs.email : ''}"></passkey-prompt>`}
+          ${!failed &&
+          html`<passkey-prompt email="${store.ready(prefs) ? prefs.email : ''}"></passkey-prompt>`}
           <a href="${router.url(CatalogView)}" class="btn btn-primary"
             >${t('order.continueShopping')}</a
           >

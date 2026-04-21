@@ -29,7 +29,11 @@ async function fetchOrders(host) {
     const res = await fetch(`${getApiBase()}/orders`, {
       headers: { Authorization: `Bearer ${token}` },
     });
-    if (res.status === 401) { host.error = t('passkey.loginError'); host.loading = false; return; }
+    if (res.status === 401) {
+      host.error = t('passkey.loginError');
+      host.loading = false;
+      return;
+    }
     const body = await res.json();
     host.orders = body.orders || [];
     if (host.orders.length === 0) host.error = t('orders.noOrders');
@@ -76,10 +80,7 @@ export default define({
           ${!loading &&
           !error &&
           orders.length === 0 &&
-          html`<button
-            class="btn btn-primary"
-            onclick="${(host) => fetchOrders(host)}"
-          >
+          html`<button class="btn btn-primary" onclick="${(host) => fetchOrders(host)}">
             ${t('orders.load')}
           </button>`}
           ${Array.isArray(orders) &&

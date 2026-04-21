@@ -28,14 +28,19 @@ async function handleRegister(host) {
 
     const credential = await navigator.credentials.create({
       publicKey: {
-        challenge: Uint8Array.from(atob(challenge.replace(/-/g, '+').replace(/_/g, '/')), (c) => c.charCodeAt(0)),
+        challenge: Uint8Array.from(atob(challenge.replace(/-/g, '+').replace(/_/g, '/')), (c) =>
+          c.charCodeAt(0),
+        ),
         rp: { name: document.title, id: location.hostname },
         user: {
           id: new TextEncoder().encode(host.email),
           name: host.email,
           displayName: host.email,
         },
-        pubKeyCredParams: [{ alg: -7, type: 'public-key' }, { alg: -257, type: 'public-key' }],
+        pubKeyCredParams: [
+          { alg: -7, type: 'public-key' },
+          { alg: -257, type: 'public-key' },
+        ],
         authenticatorSelection: { residentKey: 'preferred', userVerification: 'preferred' },
         timeout: 60000,
       },
@@ -48,8 +53,12 @@ async function handleRegister(host) {
       rawId: btoa(String.fromCharCode(...new Uint8Array(pkCred.rawId))),
       type: pkCred.type,
       response: {
-        clientDataJSON: btoa(String.fromCharCode(...new Uint8Array(attestationResponse.clientDataJSON))),
-        attestationObject: btoa(String.fromCharCode(...new Uint8Array(attestationResponse.attestationObject))),
+        clientDataJSON: btoa(
+          String.fromCharCode(...new Uint8Array(attestationResponse.clientDataJSON)),
+        ),
+        attestationObject: btoa(
+          String.fromCharCode(...new Uint8Array(attestationResponse.attestationObject)),
+        ),
       },
     };
 

@@ -37,10 +37,14 @@ async function handleLogin(host) {
 
     const credential = await navigator.credentials.get({
       publicKey: {
-        challenge: Uint8Array.from(atob(challenge.replace(/-/g, '+').replace(/_/g, '/')), (c) => c.charCodeAt(0)),
+        challenge: Uint8Array.from(atob(challenge.replace(/-/g, '+').replace(/_/g, '/')), (c) =>
+          c.charCodeAt(0),
+        ),
         rpId: location.hostname,
         allowCredentials: allowCredentials.map((c) => ({
-          id: Uint8Array.from(atob(c.id.replace(/-/g, '+').replace(/_/g, '/')), (ch) => ch.charCodeAt(0)),
+          id: Uint8Array.from(atob(c.id.replace(/-/g, '+').replace(/_/g, '/')), (ch) =>
+            ch.charCodeAt(0),
+          ),
           type: c.type,
         })),
         userVerification: 'preferred',
@@ -55,8 +59,12 @@ async function handleLogin(host) {
       rawId: btoa(String.fromCharCode(...new Uint8Array(pkCred.rawId))),
       type: pkCred.type,
       response: {
-        clientDataJSON: btoa(String.fromCharCode(...new Uint8Array(assertionResponse.clientDataJSON))),
-        authenticatorData: btoa(String.fromCharCode(...new Uint8Array(assertionResponse.authenticatorData))),
+        clientDataJSON: btoa(
+          String.fromCharCode(...new Uint8Array(assertionResponse.clientDataJSON)),
+        ),
+        authenticatorData: btoa(
+          String.fromCharCode(...new Uint8Array(assertionResponse.authenticatorData)),
+        ),
         signature: btoa(String.fromCharCode(...new Uint8Array(assertionResponse.signature))),
       },
     };
@@ -114,7 +122,12 @@ export default define({
       return html`
         <div class="passkey-login">
           <form onsubmit="${handleSubmit}">
-            <input type="email" name="email" placeholder="${t('orders.emailPlaceholder')}" required />
+            <input
+              type="email"
+              name="email"
+              placeholder="${t('orders.emailPlaceholder')}"
+              required
+            />
             <button class="btn btn-primary" type="submit">${t('passkey.login')}</button>
           </form>
           ${status === 'error' && html`<p class="error-message">${t('passkey.loginError')}</p>`}
