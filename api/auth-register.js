@@ -6,6 +6,7 @@
 import { ok, badRequest, serverError } from './lib/response.js';
 import { putItem, getItem } from './lib/dynamo.js';
 import { getConfig } from './lib/config.js';
+import { signToken } from './lib/auth.js';
 import { verifyRegistrationResponse } from '@simplewebauthn/server';
 
 /** @param {{ body: string }} event */
@@ -45,7 +46,7 @@ export async function handler(event) {
       lastUsed: new Date().toISOString(),
     });
 
-    return ok({ success: true });
+    return ok({ success: true, token: signToken(email) });
   } catch (e) {
     console.error('Register error:', e);
     return serverError('Registration failed');

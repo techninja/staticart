@@ -7,7 +7,7 @@
 import { html, define } from 'hybrids';
 import { t } from '#utils/i18n.js';
 import { getApiBase, getStoreConfigSync } from '#utils/storeConfig.js';
-import { toB64Url, fromB64Url } from '#utils/passkey.js';
+import { toB64Url, fromB64Url, setToken } from '#utils/passkey.js';
 
 /**
  * @typedef {Object} PasskeyPromptHost
@@ -63,7 +63,13 @@ async function handleRegister(host) {
       body: JSON.stringify({ email: host.email, attestation, challenge }),
     });
 
-    host.status = regRes.ok ? 'done' : 'error';
+    if (regRes.ok) {
+      const body = await regRes.json();
+      if (body.token) setToken(body.token);
+      host.status = 'done';
+    } else {
+      host.status = 'error';
+    }
   } catch (e) {
     host.status = e.name === 'NotAllowedError' ? 'idle' : 'error';
   }
