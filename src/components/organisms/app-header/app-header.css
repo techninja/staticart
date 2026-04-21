@@ -5,6 +5,7 @@ app-header {
   left: 0;
   right: 0;
   z-index: 100;
+  overflow: hidden;
 
   & .app-header {
     display: flex;
@@ -53,6 +54,7 @@ app-header {
   & .app-header__cart-link {
     text-decoration: none;
     color: inherit;
+    position: relative;
   }
 
   & .app-header__user {
@@ -63,29 +65,38 @@ app-header {
     color: var(--color-text-muted);
   }
 
-  & .app-header__sign-out {
+  & .app-header__sign-out,
+  & .app-header__sign-in {
     display: inline-flex;
     align-items: center;
-    gap: var(--space-xs);
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: var(--color-text);
+
+    &:hover {
+      color: var(--color-primary);
+    }
   }
 
-  & .app-header__sign-out-icon {
-    display: none;
+  & .app-header__link--active {
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -100%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--color-primary);
+    }
   }
 
   @media (width <= 640px) {
-    & .app-header__user-name {
-      display: none;
-    }
-
-    & .app-header__sign-out-label {
-      display: none;
-    }
-
-    & .app-header__sign-out-icon {
-      display: inline;
-    }
-
     & region-select {
       display: none;
     }

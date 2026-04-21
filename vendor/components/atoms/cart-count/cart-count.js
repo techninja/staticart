@@ -10,9 +10,10 @@ export default define({
   tag: 'cart-count',
   cart: store(CartState),
   render: {
-    value: ({ cart }) => html`
-      <span class="cart-count"> ${store.ready(cart) ? cartCount(cart) : 0} </span>
-    `,
+    value: ({ cart }) => {
+      const count = store.ready(cart) ? cartCount(cart) : 0;
+      return html`<span class="cart-count${count > 0 ? ' cart-count--active' : ''}">${count}</span>`;
+    },
     shadow: false,
   },
 });

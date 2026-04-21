@@ -40,6 +40,13 @@ const ICON_MAP = {
   'alert-triangle': 'alert-triangle',
   image: 'image',
   'log-out': 'log-out',
+  'user-x': 'user-x',
+  'user-key': 'user-key',
+  'mail-check': 'mail-check',
+  store: 'store',
+  shirt: 'shirt',
+  'wallet-cards': 'wallet-cards',
+  'shopping-bag': 'shopping-bag',
 };
 
 /**

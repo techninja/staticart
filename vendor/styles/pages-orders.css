@@ -5,6 +5,30 @@
   margin: 0 auto;
 }
 
+/* Passkey login */
+
+.passkey-login__options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  max-width: 320px;
+  margin: var(--space-lg) 0;
+}
+
+.passkey-login__email-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  max-width: 320px;
+  margin: var(--space-lg) 0;
+}
+
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
 .orders-view__form {
   display: flex;
   gap: var(--space-sm);

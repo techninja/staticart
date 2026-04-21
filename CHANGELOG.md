@@ -10,7 +10,6 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - Update icon for logout, passkey helper script
 
-
 ## [0.4.9] - 2026-04-21
 
 - Refactor for spec release

@@ -71,8 +71,8 @@ export default define({
             <h1>${t('orders.title')}</h1>
             <p>${t('orders.noAccount')}</p>
             <passkey-login onauthenticated="${handleAuthenticated}"></passkey-login>
-            <a href="${router.url(CatalogView)}" class="btn btn-secondary"
-              >${t('orders.startShopping')}</a
+            <a href="${router.url(CatalogView)}" class="btn btn-secondary btn-icon">
+              <app-icon name="store" size="sm"></app-icon> ${t('orders.startShopping')}</a
             >
           </div>
         `;

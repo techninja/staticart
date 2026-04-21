@@ -26,6 +26,12 @@ function handleSignOut(host) {
   if (store.ready(host.prefs)) store.set(host.prefs, { displayName: '', email: '' });
 }
 
+/** @param {string} href */
+function linkClass(href) {
+  const active = location.pathname === href || (href !== '/' && location.pathname.startsWith(href));
+  return `app-header__link${active ? ' app-header__link--active' : ''}`;
+}
+
 /** @type {import('hybrids').Component<AppHeaderHost>} */
 export default define({
   tag: 'app-header',
@@ -33,12 +39,21 @@ export default define({
   authTick: {
     value: 0,
     connect(host, _key, invalidate) {
-      const handler = () => {
-        host.authTick++;
-        invalidate();
-      };
+      const handler = () => { host.authTick++; invalidate(); };
       addEventListener('staticart:auth-changed', handler);
-      return () => removeEventListener('staticart:auth-changed', handler);
+      addEventListener('popstate', handler);
+      // Re-render on nav clicks (URL changes after click)
+      const clickHandler = (e) => {
+        if (/** @type {HTMLElement} */ (e.target).closest('.app-header__nav')) {
+          requestAnimationFrame(handler);
+        }
+      };
+      host.addEventListener('click', clickHandler);
+      return () => {
+        removeEventListener('staticart:auth-changed', handler);
+        removeEventListener('popstate', handler);
+        host.removeEventListener('click', clickHandler);
+      };
     },
   },
   render: {
@@ -60,21 +75,26 @@ export default define({
               : html`<span class="app-header__name">${store_cfg.name}</span>`}
           </a>
           <nav class="app-header__nav">
-            <a href="${router.url(CatalogView)}" class="app-header__link">${t('nav.shop')}</a>
-            ${navLinks.map((l) => html`<a href="${l.url}" class="app-header__link">${l.label}</a>`)}
-            <a href="/orders" class="app-header__link">${t('nav.orders')}</a>
+            <a href="${router.url(CatalogView)}" class="${linkClass('/')}">${t('nav.shop')}</a>
+            ${navLinks.map((l) => html`<a href="${l.url}" class="${linkClass(l.url)}">${l.label}</a>`)}
+            <a href="/orders" class="${linkClass('/orders')}">${t('nav.orders')}</a>
           </nav>
           <div class="app-header__actions">
-            ${loggedIn &&
-            html`
-              <button
-                class="app-header__sign-out"
-                onclick="${handleSignOut}"
-                title="${name} — ${t('nav.signOut')}"
-              >
-                <app-icon name="log-out" size="sm"></app-icon>
-              </button>
-            `}
+            ${loggedIn
+              ? html`
+                  <button
+                    class="app-header__sign-out"
+                    onclick="${handleSignOut}"
+                    title="${name} — ${t('nav.signOut')}"
+                  >
+                    <app-icon name="user-x" size="md"></app-icon>
+                  </button>
+                `
+              : html`
+                  <a href="/orders" class="app-header__sign-in" title="${t('nav.signIn')}">
+                    <app-icon name="user" size="md"></app-icon>
+                  </a>
+                `}
             <a href="/cart" class="app-header__cart-link">
               <app-icon name="cart" size="md"></app-icon>
               <cart-count></cart-count>
