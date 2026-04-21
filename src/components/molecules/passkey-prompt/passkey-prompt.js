@@ -18,12 +18,17 @@ import { registerPasskey, hasPasskey, loginWithEmail } from '#utils/passkey-cere
 
 /** @param {PasskeyPromptHost & HTMLElement} host */
 async function checkExisting(host) {
-  if (isAuthenticated()) { host.status = 'exists'; return; }
+  if (isAuthenticated()) {
+    host.status = 'exists';
+    return;
+  }
   try {
-    if (!await hasPasskey(host.email)) return;
+    if (!(await hasPasskey(host.email))) return;
     host.status = 'prompting';
     host.status = (await loginWithEmail(host.email)) === 'done' ? 'exists' : 'idle';
-  } catch { /* stay idle */ }
+  } catch {
+    /* stay idle */
+  }
 }
 
 /** @param {PasskeyPromptHost & HTMLElement} host */
@@ -44,10 +49,21 @@ export default define({
   status: {
     value: 'idle',
     connect(host, _key, invalidate) {
-      if (!window.PublicKeyCredential) { host.status = 'unsupported'; return; }
+      if (!window.PublicKeyCredential) {
+        host.status = 'unsupported';
+        return;
+      }
       PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()
-        .then((ok) => { if (!ok) { host.status = 'unsupported'; } else if (host.email) { return checkExisting(host); } })
-        .catch(() => { host.status = 'unsupported'; })
+        .then((ok) => {
+          if (!ok) {
+            host.status = 'unsupported';
+          } else if (host.email) {
+            return checkExisting(host);
+          }
+        })
+        .catch(() => {
+          host.status = 'unsupported';
+        })
         .finally(() => invalidate());
     },
   },
@@ -59,11 +75,14 @@ export default define({
           <p>${status === 'done' ? t('passkey.saved') : t('passkey.alreadySet')}</p>
         </div>`;
       }
-      if (status === 'prompting') return html`<div class="passkey-prompt"><p>${t('general.loading')}</p></div>`;
+      if (status === 'prompting')
+        return html`<div class="passkey-prompt"><p>${t('general.loading')}</p></div>`;
       return html`
         <div class="passkey-prompt">
           <p>${t('passkey.offer')}</p>
-          <button class="btn btn-secondary" onclick="${handleRegister}">${t('passkey.register')}</button>
+          <button class="btn btn-secondary" onclick="${handleRegister}">
+            ${t('passkey.register')}
+          </button>
           ${status === 'error' && html`<p class="error-message">${t('passkey.error')}</p>`}
         </div>
       `;

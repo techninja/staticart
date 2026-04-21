@@ -24,23 +24,37 @@ export function clearToken() {
 export function isAuthenticated() {
   const token = getToken();
   if (!token) return false;
-  try { return JSON.parse(atob(token.split('.')[1])).exp > Date.now() / 1000; } catch { return false; }
+  try {
+    return JSON.parse(atob(token.split('.')[1])).exp > Date.now() / 1000;
+  } catch {
+    return false;
+  }
 }
 
 /** @returns {string} */
 export function getTokenEmail() {
-  try { return JSON.parse(atob(getToken()?.split('.')[1] || '')).sub || ''; } catch { return ''; }
+  try {
+    return JSON.parse(atob(getToken()?.split('.')[1] || '')).sub || '';
+  } catch {
+    return '';
+  }
 }
 
 /** @returns {string} */
 export function getTokenName() {
-  try { return JSON.parse(atob(getToken()?.split('.')[1] || '')).name || ''; } catch { return ''; }
+  try {
+    return JSON.parse(atob(getToken()?.split('.')[1] || '')).name || '';
+  } catch {
+    return '';
+  }
 }
 
 /** @param {ArrayBuffer} buf */
 export function toB64Url(buf) {
   return btoa(String.fromCharCode(...new Uint8Array(buf)))
-    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
 }
 
 /** @param {string} str */

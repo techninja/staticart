@@ -6,6 +6,12 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.4.9] - 2026-04-21
+
+- Refactor for spec release
+- Fix login state and add loader
+
+
 ## [0.4.7] - 2026-04-21
 
 - Trust JWT, collapse header

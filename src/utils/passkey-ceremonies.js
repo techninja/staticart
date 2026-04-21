@@ -10,7 +10,9 @@ import { toB64Url, fromB64Url, setToken } from '#utils/passkey.js';
 function buildAssertion(pkCred) {
   const ar = /** @type {AuthenticatorAssertionResponse} */ (pkCred.response);
   return {
-    id: pkCred.id, rawId: toB64Url(pkCred.rawId), type: pkCred.type,
+    id: pkCred.id,
+    rawId: toB64Url(pkCred.rawId),
+    type: pkCred.type,
     response: {
       clientDataJSON: toB64Url(ar.clientDataJSON),
       authenticatorData: toB64Url(ar.authenticatorData),
@@ -28,7 +30,10 @@ async function verifyAssertion(email, assertion) {
     body: JSON.stringify({ email, assertion }),
   });
   const body = await res.json();
-  if (body.token) { setToken(body.token); return body.token; }
+  if (body.token) {
+    setToken(body.token);
+    return body.token;
+  }
   return null;
 }
 
@@ -40,7 +45,12 @@ function getRpId() {
 /** Try discoverable credential (no email). @returns {Promise<'done'|'email-needed'>} */
 export async function loginDiscoverable() {
   const credential = await navigator.credentials.get({
-    publicKey: { challenge: crypto.getRandomValues(new Uint8Array(32)), rpId: getRpId(), userVerification: 'preferred', timeout: 60000 },
+    publicKey: {
+      challenge: crypto.getRandomValues(new Uint8Array(32)),
+      rpId: getRpId(),
+      userVerification: 'preferred',
+      timeout: 60000,
+    },
   });
   const assertion = buildAssertion(/** @type {PublicKeyCredential} */ (credential));
   const email = assertion.response.userHandle || '';
@@ -60,12 +70,19 @@ export async function loginWithEmail(email) {
 
   const credential = await navigator.credentials.get({
     publicKey: {
-      challenge: fromB64Url(challenge), rpId: getRpId(),
+      challenge: fromB64Url(challenge),
+      rpId: getRpId(),
       allowCredentials: allowCredentials.map((c) => ({ id: fromB64Url(c.id), type: c.type })),
-      userVerification: 'preferred', timeout: 60000,
+      userVerification: 'preferred',
+      timeout: 60000,
     },
   });
-  return (await verifyAssertion(email, buildAssertion(/** @type {PublicKeyCredential} */ (credential)))) ? 'done' : 'error';
+  return (await verifyAssertion(
+    email,
+    buildAssertion(/** @type {PublicKeyCredential} */ (credential)),
+  ))
+    ? 'done'
+    : 'error';
 }
 
 /** @param {string} email @param {string} name @returns {Promise<'done'|'error'>} */
@@ -83,8 +100,15 @@ export async function registerPasskey(email, name) {
       challenge: fromB64Url(challenge),
       rp: { name: document.title, id: getRpId() },
       user: { id: new TextEncoder().encode(email), name: email, displayName: email },
-      pubKeyCredParams: [{ alg: -7, type: 'public-key' }, { alg: -257, type: 'public-key' }],
-      authenticatorSelection: { authenticatorAttachment: 'platform', residentKey: 'preferred', userVerification: 'preferred' },
+      pubKeyCredParams: [
+        { alg: -7, type: 'public-key' },
+        { alg: -257, type: 'public-key' },
+      ],
+      authenticatorSelection: {
+        authenticatorAttachment: 'platform',
+        residentKey: 'preferred',
+        userVerification: 'preferred',
+      },
       timeout: 60000,
     },
   });
@@ -92,8 +116,13 @@ export async function registerPasskey(email, name) {
   const pkCred = /** @type {PublicKeyCredential} */ (credential);
   const ar = /** @type {AuthenticatorAttestationResponse} */ (pkCred.response);
   const attestation = {
-    id: pkCred.id, rawId: toB64Url(pkCred.rawId), type: pkCred.type,
-    response: { clientDataJSON: toB64Url(ar.clientDataJSON), attestationObject: toB64Url(ar.attestationObject) },
+    id: pkCred.id,
+    rawId: toB64Url(pkCred.rawId),
+    type: pkCred.type,
+    response: {
+      clientDataJSON: toB64Url(ar.clientDataJSON),
+      attestationObject: toB64Url(ar.attestationObject),
+    },
   };
 
   const regRes = await fetch(`${base}/auth/register`, {
