@@ -40,7 +40,11 @@ async function handleRegister(host) {
           { alg: -7, type: 'public-key' },
           { alg: -257, type: 'public-key' },
         ],
-        authenticatorSelection: { authenticatorAttachment: 'platform', residentKey: 'preferred', userVerification: 'preferred' },
+        authenticatorSelection: {
+          authenticatorAttachment: 'platform',
+          residentKey: 'preferred',
+          userVerification: 'preferred',
+        },
         timeout: 60000,
       },
     });
