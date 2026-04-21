@@ -31,7 +31,10 @@ async function handleLogin(host) {
     });
     const { challenge, allowCredentials } = await res.json();
 
-    if (!allowCredentials.length) { host.status = 'no-passkey'; return; }
+    if (!allowCredentials.length) {
+      host.status = 'no-passkey';
+      return;
+    }
 
     const credential = await navigator.credentials.get({
       publicKey: {
@@ -78,7 +81,8 @@ async function handleLogin(host) {
 /** @param {PasskeyLoginHost & HTMLElement} host @param {Event} e */
 function handleSubmit(host, e) {
   e.preventDefault();
-  host.email = new FormData(/** @type {HTMLFormElement} */ (e.target)).get('email')?.toString() || '';
+  host.email =
+    new FormData(/** @type {HTMLFormElement} */ (e.target)).get('email')?.toString() || '';
   handleLogin(host);
 }
 
@@ -98,14 +102,22 @@ export default define({
   },
   render: {
     value: ({ status }) => {
-      if (status === 'unsupported') return html`<p class="error-message">${t('passkey.unsupported')}</p>`;
+      if (status === 'unsupported')
+        return html`<p class="error-message">${t('passkey.unsupported')}</p>`;
       if (status === 'done') return html``;
-      if (status === 'prompting') return html`<div class="passkey-login"><p>${t('general.loading')}</p></div>`;
-      if (status === 'no-passkey') return html`<div class="passkey-login"><p>${t('passkey.noPasskey')}</p></div>`;
+      if (status === 'prompting')
+        return html`<div class="passkey-login"><p>${t('general.loading')}</p></div>`;
+      if (status === 'no-passkey')
+        return html`<div class="passkey-login"><p>${t('passkey.noPasskey')}</p></div>`;
       return html`
         <div class="passkey-login">
           <form onsubmit="${handleSubmit}">
-            <input type="email" name="email" placeholder="${t('orders.emailPlaceholder')}" required />
+            <input
+              type="email"
+              name="email"
+              placeholder="${t('orders.emailPlaceholder')}"
+              required
+            />
             <button class="btn btn-primary" type="submit">${t('passkey.login')}</button>
           </form>
           ${status === 'error' && html`<p class="error-message">${t('passkey.loginError')}</p>`}

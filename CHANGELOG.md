@@ -6,6 +6,13 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.4.3] - 2026-04-21
+
+- Spec refactor
+- rpID from config
+- Correct base64 handling
+
+
 ## [0.4.1] - 2026-04-21
 
 - Fix no passkey bypass
