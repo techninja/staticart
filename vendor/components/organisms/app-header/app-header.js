@@ -31,9 +31,8 @@ export default define({
   prefs: store(UserPrefs),
   render: {
     value: ({ prefs }) => {
-      const authed = isAuthenticated();
-      const loggedIn = authed || (store.ready(prefs) && prefs.email);
-      const name = (store.ready(prefs) && prefs.displayName) || getTokenName() || getTokenEmail();
+      const loggedIn = isAuthenticated();
+      const name = getTokenName() || getTokenEmail();
       const cfg = getStoreConfigSync();
       const store_cfg = cfg.store || {};
       const navLinks = cfg.nav?.links || [];
@@ -56,17 +55,12 @@ export default define({
           <div class="app-header__actions">
             ${loggedIn &&
             html`
-              <span class="app-header__user" title="${name}">
-                <app-icon name="user" size="sm"></app-icon>
-                <span class="app-header__user-name">${name}</span>
-              </span>
               <button
-                class="btn btn-secondary btn-sm app-header__sign-out"
+                class="app-header__sign-out"
                 onclick="${handleSignOut}"
-                title="${t('nav.signOut')}"
+                title="${name} — ${t('nav.signOut')}"
               >
-                <app-icon name="log-out" size="sm" class="app-header__sign-out-icon"></app-icon>
-                <span class="app-header__sign-out-label">${t('nav.signOut')}</span>
+                <app-icon name="log-out" size="sm"></app-icon>
               </button>
             `}
             <a href="/cart" class="app-header__cart-link">

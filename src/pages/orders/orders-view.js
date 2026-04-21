@@ -77,8 +77,7 @@ export default define({
           </div>
         `;
       }
-      const displayName =
-        (store.ready(prefs) && prefs.displayName) || getTokenName() || getTokenEmail();
+      const displayName = getTokenName() || getTokenEmail();
       return html`
         <div class="orders-view">
           <h1>${t('orders.title')}</h1>
