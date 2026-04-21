@@ -47,8 +47,15 @@ export function getTokenEmail() {
 export function getTokenName() {
   const token = getToken();
   if (!token) return '';
-  try { return JSON.parse(atob(token.split('.')[1])).name || ''; } catch { return ''; }
+  try {
+    return JSON.parse(atob(token.split('.')[1])).name || '';
+  } catch {
+    return '';
+  }
 }
+/**
+ *
+ */
 export function toB64Url(buf) {
   return btoa(String.fromCharCode(...new Uint8Array(buf)))
     .replace(/\+/g, '-')
