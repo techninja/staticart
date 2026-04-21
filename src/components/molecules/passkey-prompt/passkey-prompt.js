@@ -1,20 +1,39 @@
 /**
  * Passkey prompt — post-purchase passkey registration.
- * Shown on the success page. Calls /api/auth/challenge then navigator.credentials.create().
+ * Shown on the success page. Checks for existing credentials first.
  * @module components/molecules/passkey-prompt
  */
 
 import { html, define } from 'hybrids';
 import { t } from '#utils/i18n.js';
 import { getApiBase, getStoreConfigSync } from '#utils/storeConfig.js';
-import { toB64Url, fromB64Url, setToken } from '#utils/passkey.js';
+import { toB64Url, fromB64Url, setToken, isAuthenticated } from '#utils/passkey.js';
 
 /**
  * @typedef {Object} PasskeyPromptHost
  * @property {string} email
  * @property {string} name
- * @property {'idle'|'prompting'|'done'|'error'|'unsupported'} status
+ * @property {'idle'|'prompting'|'done'|'error'|'unsupported'|'exists'} status
  */
+
+/** @param {PasskeyPromptHost & HTMLElement} host */
+async function checkExisting(host) {
+  if (isAuthenticated()) {
+    host.status = 'exists';
+    return;
+  }
+  try {
+    const res = await fetch(`${getApiBase()}/auth/challenge`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: host.email }),
+    });
+    const { allowCredentials } = await res.json();
+    if (allowCredentials?.length) host.status = 'exists';
+  } catch {
+    /* stay idle */
+  }
+}
 
 /** @param {PasskeyPromptHost & HTMLElement} host */
 async function handleRegister(host) {
@@ -27,11 +46,12 @@ async function handleRegister(host) {
       body: JSON.stringify({ email: host.email }),
     });
     const { challenge } = await res.json();
+    const rpId = getStoreConfigSync().auth?.rpId || location.hostname;
 
     const credential = await navigator.credentials.create({
       publicKey: {
         challenge: fromB64Url(challenge),
-        rp: { name: document.title, id: getStoreConfigSync().auth?.rpId || location.hostname },
+        rp: { name: document.title, id: rpId },
         user: {
           id: new TextEncoder().encode(host.email),
           name: host.email,
@@ -51,14 +71,14 @@ async function handleRegister(host) {
     });
 
     const pkCred = /** @type {PublicKeyCredential} */ (credential);
-    const attestationResponse = /** @type {AuthenticatorAttestationResponse} */ (pkCred.response);
+    const ar = /** @type {AuthenticatorAttestationResponse} */ (pkCred.response);
     const attestation = {
       id: pkCred.id,
       rawId: toB64Url(pkCred.rawId),
       type: pkCred.type,
       response: {
-        clientDataJSON: toB64Url(attestationResponse.clientDataJSON),
-        attestationObject: toB64Url(attestationResponse.attestationObject),
+        clientDataJSON: toB64Url(ar.clientDataJSON),
+        attestationObject: toB64Url(ar.attestationObject),
       },
     };
 
@@ -67,7 +87,6 @@ async function handleRegister(host) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: host.email, name: host.name, attestation, challenge }),
     });
-
     if (regRes.ok) {
       const body = await regRes.json();
       if (body.token) setToken(body.token);
@@ -94,7 +113,11 @@ export default define({
       }
       PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()
         .then((ok) => {
-          if (!ok) host.status = 'unsupported';
+          if (!ok) {
+            host.status = 'unsupported';
+          } else if (host.email) {
+            return checkExisting(host);
+          }
         })
         .catch(() => {
           host.status = 'unsupported';
@@ -105,16 +128,13 @@ export default define({
   render: {
     value: ({ email, status }) => {
       if (!email || status === 'unsupported') return html``;
-      if (status === 'done') {
+      if (status === 'done' || status === 'exists') {
         return html`<div class="passkey-prompt passkey-prompt--done">
-          <p>${t('passkey.saved')}</p>
+          <p>${status === 'done' ? t('passkey.saved') : t('passkey.alreadySet')}</p>
         </div>`;
       }
-      if (status === 'prompting') {
-        return html`<div class="passkey-prompt">
-          <p>${t('general.loading')}</p>
-        </div>`;
-      }
+      if (status === 'prompting')
+        return html`<div class="passkey-prompt"><p>${t('general.loading')}</p></div>`;
       return html`
         <div class="passkey-prompt">
           <p>${t('passkey.offer')}</p>

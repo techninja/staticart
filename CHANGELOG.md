@@ -11,7 +11,6 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Run name through token to complete state
 - Passkey handling, better user handling
 
-
 ## [0.4.4] - 2026-04-21
 
 - Better login handling

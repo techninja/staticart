@@ -61,8 +61,11 @@ const DEFAULTS = {
   'passkey.offer': 'Save a passkey to track your orders — one tap, no password.',
   'passkey.register': 'Save Passkey',
   'passkey.saved': '✓ Passkey saved! You can view orders anytime.',
+  'passkey.alreadySet': '✓ Passkey already set up — you can view orders anytime.',
   'passkey.error': 'Something went wrong. You can try again later.',
   'passkey.login': 'Sign In with Passkey',
+  'passkey.useEmail': 'Use email instead',
+  'passkey.loginWithEmail': 'Sign In',
   'passkey.loginError': 'Authentication failed. Please try again.',
   'passkey.noPasskey':
     'No passkey found for this email. Complete a purchase first to register one.',
