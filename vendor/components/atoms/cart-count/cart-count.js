@@ -12,7 +12,9 @@ export default define({
   render: {
     value: ({ cart }) => {
       const count = store.ready(cart) ? cartCount(cart) : 0;
-      return html`<span class="cart-count${count > 0 ? ' cart-count--active' : ''}">${count}</span>`;
+      return html`<span class="cart-count${count > 0 ? ' cart-count--active' : ''}"
+        >${count}</span
+      >`;
     },
     shadow: false,
   },

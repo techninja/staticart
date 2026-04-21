@@ -39,7 +39,10 @@ export default define({
   authTick: {
     value: 0,
     connect(host, _key, invalidate) {
-      const handler = () => { host.authTick++; invalidate(); };
+      const handler = () => {
+        host.authTick++;
+        invalidate();
+      };
       addEventListener('staticart:auth-changed', handler);
       addEventListener('popstate', handler);
       // Watch for route changes via DOM mutations in <main>
@@ -77,7 +80,9 @@ export default define({
           </a>
           <nav class="app-header__nav">
             <a href="${router.url(CatalogView)}" class="${linkClass('/')}">${t('nav.shop')}</a>
-            ${navLinks.map((l) => html`<a href="${l.url}" class="${linkClass(l.url)}">${l.label}</a>`)}
+            ${navLinks.map(
+              (l) => html`<a href="${l.url}" class="${linkClass(l.url)}">${l.label}</a>`,
+            )}
             <a href="/orders" class="${linkClass('/orders')}">${t('nav.orders')}</a>
           </nav>
           <div class="app-header__actions">
