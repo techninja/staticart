@@ -33,7 +33,10 @@ export default define({
   authTick: {
     value: 0,
     connect(host, _key, invalidate) {
-      const handler = () => { host.authTick++; invalidate(); };
+      const handler = () => {
+        host.authTick++;
+        invalidate();
+      };
       addEventListener('staticart:auth-changed', handler);
       return () => removeEventListener('staticart:auth-changed', handler);
     },
