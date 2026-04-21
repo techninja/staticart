@@ -17,6 +17,7 @@ import CatalogView from '#pages/catalog/catalog-view.js';
 /**
  * @typedef {Object} AppHeaderHost
  * @property {any} prefs
+ * @property {number} authTick
  */
 
 /** @param {AppHeaderHost & HTMLElement} host */
@@ -29,6 +30,14 @@ function handleSignOut(host) {
 export default define({
   tag: 'app-header',
   prefs: store(UserPrefs),
+  authTick: {
+    value: 0,
+    connect(host, _key, invalidate) {
+      const handler = () => { host.authTick++; invalidate(); };
+      addEventListener('staticart:auth-changed', handler);
+      return () => removeEventListener('staticart:auth-changed', handler);
+    },
+  },
   render: {
     value: ({ prefs }) => {
       const loggedIn = isAuthenticated();

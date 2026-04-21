@@ -13,11 +13,13 @@ export function getToken() {
 /** @param {string} token */
 export function setToken(token) {
   sessionStorage.setItem(TOKEN_KEY, token);
+  dispatchEvent(new CustomEvent('staticart:auth-changed'));
 }
 
 /** Clear the auth token (sign out). */
 export function clearToken() {
   sessionStorage.removeItem(TOKEN_KEY);
+  dispatchEvent(new CustomEvent('staticart:auth-changed'));
 }
 
 /** Check if the user has a valid (non-expired) token. */
