@@ -42,17 +42,18 @@ export default define({
       const handler = () => { host.authTick++; invalidate(); };
       addEventListener('staticart:auth-changed', handler);
       addEventListener('popstate', handler);
-      // Re-render on nav clicks (URL changes after click)
-      const clickHandler = (e) => {
-        if (/** @type {HTMLElement} */ (e.target).closest('.app-header__nav')) {
-          requestAnimationFrame(handler);
-        }
+      // Watch for route changes via DOM mutations in <main>
+      const observer = new MutationObserver(handler);
+      const startObserving = () => {
+        const main = document.querySelector('.app-main');
+        if (main) observer.observe(main, { childList: true });
+        else requestAnimationFrame(startObserving);
       };
-      host.addEventListener('click', clickHandler);
+      startObserving();
       return () => {
         removeEventListener('staticart:auth-changed', handler);
         removeEventListener('popstate', handler);
-        host.removeEventListener('click', clickHandler);
+        observer.disconnect();
       };
     },
   },
