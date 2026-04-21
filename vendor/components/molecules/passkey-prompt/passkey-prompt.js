@@ -12,6 +12,7 @@ import { toB64Url, fromB64Url, setToken } from '#utils/passkey.js';
 /**
  * @typedef {Object} PasskeyPromptHost
  * @property {string} email
+ * @property {string} name
  * @property {'idle'|'prompting'|'done'|'error'|'unsupported'} status
  */
 
@@ -64,7 +65,7 @@ async function handleRegister(host) {
     const regRes = await fetch(`${base}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: host.email, attestation, challenge }),
+      body: JSON.stringify({ email: host.email, name: host.name, attestation, challenge }),
     });
 
     if (regRes.ok) {
@@ -83,13 +84,21 @@ async function handleRegister(host) {
 export default define({
   tag: 'passkey-prompt',
   email: '',
+  name: '',
   status: {
     value: 'idle',
     connect(host, _key, invalidate) {
-      if (!window.PublicKeyCredential) { host.status = 'unsupported'; return; }
+      if (!window.PublicKeyCredential) {
+        host.status = 'unsupported';
+        return;
+      }
       PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()
-        .then((ok) => { if (!ok) host.status = 'unsupported'; })
-        .catch(() => { host.status = 'unsupported'; })
+        .then((ok) => {
+          if (!ok) host.status = 'unsupported';
+        })
+        .catch(() => {
+          host.status = 'unsupported';
+        })
         .finally(() => invalidate());
     },
   },

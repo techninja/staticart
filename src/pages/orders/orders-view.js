@@ -8,7 +8,7 @@ import UserPrefs from '#store/UserPrefs.js';
 import { formatPrice } from '#utils/formatPrice.js';
 import { t } from '#utils/i18n.js';
 import { getApiBase } from '#utils/storeConfig.js';
-import { isAuthenticated, getToken, getTokenEmail } from '#utils/passkey.js';
+import { isAuthenticated, getToken, getTokenEmail, getTokenName } from '#utils/passkey.js';
 import CatalogView from '#pages/catalog/catalog-view.js';
 import '#molecules/passkey-login/passkey-login.js';
 
@@ -77,7 +77,7 @@ export default define({
           </div>
         `;
       }
-      const displayName = (store.ready(prefs) && prefs.displayName) || getTokenEmail();
+      const displayName = (store.ready(prefs) && prefs.displayName) || getTokenName() || getTokenEmail();
       return html`
         <div class="orders-view">
           <h1>${t('orders.title')}</h1>

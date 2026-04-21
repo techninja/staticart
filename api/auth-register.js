@@ -12,7 +12,7 @@ import { verifyRegistrationResponse } from '@simplewebauthn/server';
 /** @param {{ body: string }} event */
 export async function handler(event) {
   try {
-    const { email, attestation, challenge } = JSON.parse(event.body || '{}');
+    const { email, name, attestation, challenge } = JSON.parse(event.body || '{}');
     if (!email || !attestation) return badRequest('Missing email or attestation');
 
     const cfg = getConfig();
@@ -42,11 +42,12 @@ export async function handler(event) {
       SK: `PASSKEY#${credential.id}`,
       publicKey: Buffer.from(credential.publicKey).toString('base64url'),
       counter: credential.counter,
+      displayName: name || '',
       createdAt: new Date().toISOString(),
       lastUsed: new Date().toISOString(),
     });
 
-    return ok({ success: true, token: signToken(email) });
+    return ok({ success: true, token: signToken(email, name) });
   } catch (e) {
     console.error('Register error:', e);
     return serverError('Registration failed');

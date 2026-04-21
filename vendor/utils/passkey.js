@@ -27,17 +27,28 @@ export function isAuthenticated() {
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
     return payload.exp > Date.now() / 1000;
-  } catch { return false; }
+  } catch {
+    return false;
+  }
 }
 
 /** Extract email from the stored token. @returns {string} */
 export function getTokenEmail() {
   const token = getToken();
   if (!token) return '';
-  try { return JSON.parse(atob(token.split('.')[1])).sub || ''; } catch { return ''; }
+  try {
+    return JSON.parse(atob(token.split('.')[1])).sub || '';
+  } catch {
+    return '';
+  }
 }
 
-/** @param {ArrayBuffer} buf */
+/** Extract display name from the stored token. @returns {string} */
+export function getTokenName() {
+  const token = getToken();
+  if (!token) return '';
+  try { return JSON.parse(atob(token.split('.')[1])).name || ''; } catch { return ''; }
+}
 export function toB64Url(buf) {
   return btoa(String.fromCharCode(...new Uint8Array(buf)))
     .replace(/\+/g, '-')

@@ -5,7 +5,7 @@
 
 import { html, define, store, router } from 'hybrids';
 import UserPrefs from '#store/UserPrefs.js';
-import { isAuthenticated, clearToken, getTokenEmail } from '#utils/passkey.js';
+import { isAuthenticated, clearToken, getTokenEmail, getTokenName } from '#utils/passkey.js';
 import { t } from '#utils/i18n.js';
 import { getStoreConfigSync } from '#utils/storeConfig.js';
 import '#atoms/cart-count/cart-count.js';
@@ -33,7 +33,7 @@ export default define({
     value: ({ prefs }) => {
       const authed = isAuthenticated();
       const loggedIn = authed || (store.ready(prefs) && prefs.email);
-      const name = store.ready(prefs) && prefs.displayName ? prefs.displayName : getTokenEmail();
+      const name = (store.ready(prefs) && prefs.displayName) || getTokenName() || getTokenEmail();
       const cfg = getStoreConfigSync();
       const store_cfg = cfg.store || {};
       const navLinks = cfg.nav?.links || [];

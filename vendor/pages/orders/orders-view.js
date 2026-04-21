@@ -8,7 +8,7 @@ import UserPrefs from '#store/UserPrefs.js';
 import { formatPrice } from '#utils/formatPrice.js';
 import { t } from '#utils/i18n.js';
 import { getApiBase } from '#utils/storeConfig.js';
-import { isAuthenticated, getToken, getTokenEmail } from '#utils/passkey.js';
+import { isAuthenticated, getToken, getTokenEmail, getTokenName } from '#utils/passkey.js';
 import CatalogView from '#pages/catalog/catalog-view.js';
 import '#molecules/passkey-login/passkey-login.js';
 
@@ -28,10 +28,16 @@ async function fetchOrders(host) {
     const res = await fetch(`${getApiBase()}/orders`, {
       headers: { Authorization: `Bearer ${getToken()}` },
     });
-    if (res.status === 401) { host.error = t('passkey.loginError'); host.loading = false; return; }
+    if (res.status === 401) {
+      host.error = t('passkey.loginError');
+      host.loading = false;
+      return;
+    }
     const body = await res.json();
     const orders = body.orders || [];
-    host.orders = orders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    host.orders = orders.sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
     if (!host.orders.length) host.error = t('orders.noOrders');
   } catch {
     host.error = 'Failed to load orders.';
@@ -71,7 +77,7 @@ export default define({
           </div>
         `;
       }
-      const displayName = (store.ready(prefs) && prefs.displayName) || getTokenEmail();
+      const displayName = (store.ready(prefs) && prefs.displayName) || getTokenName() || getTokenEmail();
       return html`
         <div class="orders-view">
           <h1>${t('orders.title')}</h1>

@@ -20,9 +20,11 @@ function b64urlDecode(str) {
 }
 
 /** Sign a JWT with HMAC-SHA256. */
-export function signToken(email) {
+export function signToken(email, name) {
   const header = b64url(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-  const payload = b64url(JSON.stringify({ sub: email, iat: Math.floor(Date.now() / 1000), exp: Math.floor(Date.now() / 1000) + TOKEN_EXPIRY }));
+  const claims = { sub: email, iat: Math.floor(Date.now() / 1000), exp: Math.floor(Date.now() / 1000) + TOKEN_EXPIRY };
+  if (name) claims.name = name;
+  const payload = b64url(JSON.stringify(claims));
   const sig = b64url(createHmac('sha256', SECRET).update(`${header}.${payload}`).digest());
   return `${header}.${payload}.${sig}`;
 }

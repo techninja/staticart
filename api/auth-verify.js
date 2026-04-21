@@ -44,7 +44,7 @@ export async function handler(event) {
       lastUsed: new Date().toISOString(),
     });
 
-    return ok({ token: signToken(email) });
+    return ok({ token: signToken(email, stored.displayName) });
   } catch (e) {
     console.error('Verify error:', e);
     return serverError('Verification failed');
