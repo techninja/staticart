@@ -13,7 +13,7 @@ const TOKEN_KEY = 'staticart-auth-token';
 /**
  * @typedef {Object} PasskeyLoginHost
  * @property {string} email
- * @property {'idle'|'prompting'|'done'|'error'|'unsupported'} status
+ * @property {'idle'|'prompting'|'done'|'error'|'unsupported'|'no-passkey'} status
  */
 
 /** Check if a valid token already exists. */
@@ -34,6 +34,11 @@ async function handleLogin(host) {
       body: JSON.stringify({ email }),
     });
     const { challenge, allowCredentials } = await res.json();
+
+    if (!allowCredentials.length) {
+      host.status = 'no-passkey';
+      return;
+    }
 
     const credential = await navigator.credentials.get({
       publicKey: {
@@ -118,6 +123,9 @@ export default define({
       if (status === 'done') return html``;
       if (status === 'prompting') {
         return html`<div class="passkey-login"><p>${t('general.loading')}</p></div>`;
+      }
+      if (status === 'no-passkey') {
+        return html`<div class="passkey-login"><p>${t('passkey.noPasskey')}</p></div>`;
       }
       return html`
         <div class="passkey-login">
