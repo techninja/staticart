@@ -5,6 +5,7 @@
 
 import { html, define, store, router } from 'hybrids';
 import UserPrefs from '#store/UserPrefs.js';
+import { isAuthenticated, clearToken, getTokenEmail } from '#utils/passkey.js';
 import { t } from '#utils/i18n.js';
 import { getStoreConfigSync } from '#utils/storeConfig.js';
 import '#atoms/cart-count/cart-count.js';
@@ -20,8 +21,8 @@ import CatalogView from '#pages/catalog/catalog-view.js';
 
 /** @param {AppHeaderHost & HTMLElement} host */
 function handleSignOut(host) {
-  if (!store.ready(host.prefs)) return;
-  store.set(host.prefs, { displayName: '', email: '' });
+  clearToken();
+  if (store.ready(host.prefs)) store.set(host.prefs, { displayName: '', email: '' });
 }
 
 /** @type {import('hybrids').Component<AppHeaderHost>} */
@@ -30,8 +31,9 @@ export default define({
   prefs: store(UserPrefs),
   render: {
     value: ({ prefs }) => {
-      const loggedIn = store.ready(prefs) && prefs.email;
-      const name = store.ready(prefs) ? prefs.displayName : '';
+      const authed = isAuthenticated();
+      const loggedIn = authed || (store.ready(prefs) && prefs.email);
+      const name = store.ready(prefs) && prefs.displayName ? prefs.displayName : getTokenEmail();
       const cfg = getStoreConfigSync();
       const store_cfg = cfg.store || {};
       const navLinks = cfg.nav?.links || [];
@@ -49,14 +51,14 @@ export default define({
           <nav class="app-header__nav">
             <a href="${router.url(CatalogView)}" class="app-header__link">${t('nav.shop')}</a>
             ${navLinks.map((l) => html`<a href="${l.url}" class="app-header__link">${l.label}</a>`)}
-            ${loggedIn && html`<a href="/orders" class="app-header__link">${t('nav.orders')}</a>`}
+            <a href="/orders" class="app-header__link">${t('nav.orders')}</a>
           </nav>
           <div class="app-header__actions">
             ${loggedIn &&
             html`
-              <span class="app-header__user" title="${name || prefs.email}">
+              <span class="app-header__user" title="${name}">
                 <app-icon name="user" size="sm"></app-icon>
-                <span class="app-header__user-name">${name || prefs.email}</span>
+                <span class="app-header__user-name">${name}</span>
               </span>
               <button
                 class="btn btn-secondary btn-sm app-header__sign-out"

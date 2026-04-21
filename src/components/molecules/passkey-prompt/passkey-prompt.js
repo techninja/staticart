@@ -85,8 +85,19 @@ export default define({
   email: '',
   status: {
     value: 'idle',
-    connect(host) {
-      if (!window.PublicKeyCredential) host.status = 'unsupported';
+    connect(host, _key, invalidate) {
+      if (!window.PublicKeyCredential) {
+        host.status = 'unsupported';
+        return;
+      }
+      PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()
+        .then((ok) => {
+          if (!ok) host.status = 'unsupported';
+        })
+        .catch(() => {
+          host.status = 'unsupported';
+        })
+        .finally(() => invalidate());
     },
   },
   render: {

@@ -11,7 +11,6 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Better login handling
 - Force platform
 
-
 ## [0.4.3] - 2026-04-21
 
 - Spec refactor

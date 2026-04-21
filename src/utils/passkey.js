@@ -1,5 +1,5 @@
 /**
- * Passkey helpers — token storage and base64url encoding.
+ * Passkey helpers — token storage, auth state, and base64url encoding.
  * @module utils/passkey
  */
 
@@ -13,6 +13,34 @@ export function getToken() {
 /** @param {string} token */
 export function setToken(token) {
   sessionStorage.setItem(TOKEN_KEY, token);
+}
+
+/** Clear the auth token (sign out). */
+export function clearToken() {
+  sessionStorage.removeItem(TOKEN_KEY);
+}
+
+/** Check if the user has a valid (non-expired) token. */
+export function isAuthenticated() {
+  const token = getToken();
+  if (!token) return false;
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.exp > Date.now() / 1000;
+  } catch {
+    return false;
+  }
+}
+
+/** Extract email from the stored token. @returns {string} */
+export function getTokenEmail() {
+  const token = getToken();
+  if (!token) return '';
+  try {
+    return JSON.parse(atob(token.split('.')[1])).sub || '';
+  } catch {
+    return '';
+  }
 }
 
 /** @param {ArrayBuffer} buf */

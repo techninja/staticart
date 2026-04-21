@@ -47,6 +47,7 @@ const DEFAULTS = {
   'orders.emailPlaceholder': 'your@email.com',
   'orders.lookup': 'Look Up Orders',
   'orders.noOrders': 'No orders found yet.',
+  'orders.ordersFor': 'Orders for {name}',
   'orders.load': 'Load Orders',
   'orders.startShopping': 'Start Shopping',
   'catalog.title': 'Shop',
