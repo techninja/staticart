@@ -6,7 +6,7 @@
 
 import { html, define } from 'hybrids';
 import { t } from '#utils/i18n.js';
-import { getApiBase } from '#utils/storeConfig.js';
+import { getApiBase, getStoreConfigSync } from '#utils/storeConfig.js';
 
 /**
  * @typedef {Object} PasskeyPromptHost
@@ -37,7 +37,7 @@ async function handleRegister(host) {
         challenge: Uint8Array.from(atob(challenge.replace(/-/g, '+').replace(/_/g, '/')), (c) =>
           c.charCodeAt(0),
         ),
-        rp: { name: document.title, id: location.hostname },
+        rp: { name: document.title, id: getStoreConfigSync().auth?.rpId || location.hostname },
         user: {
           id: new TextEncoder().encode(host.email),
           name: host.email,

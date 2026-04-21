@@ -6,7 +6,7 @@
 
 import { html, define } from 'hybrids';
 import { t } from '#utils/i18n.js';
-import { getApiBase } from '#utils/storeConfig.js';
+import { getApiBase, getStoreConfigSync } from '#utils/storeConfig.js';
 
 const TOKEN_KEY = 'staticart-auth-token';
 
@@ -51,7 +51,7 @@ async function handleLogin(host) {
         challenge: Uint8Array.from(atob(challenge.replace(/-/g, '+').replace(/_/g, '/')), (c) =>
           c.charCodeAt(0),
         ),
-        rpId: location.hostname,
+        rpId: getStoreConfigSync().auth?.rpId || location.hostname,
         allowCredentials: allowCredentials.map((c) => ({
           id: Uint8Array.from(atob(c.id.replace(/-/g, '+').replace(/_/g, '/')), (ch) =>
             ch.charCodeAt(0),
