@@ -95,7 +95,7 @@ export default define({
                 currency="${p.currency}"
                 image="${p.images[0] || ''}"
                 stock="${p.stock}"
-                detailUrl="${`/product/${p.sku}`}"
+                detailUrl="${`/shop/product/${p.sku}`}"
                 variantsJson="${JSON.stringify(p.variants || [])}"
               ></product-card>
             `.key(p.sku),

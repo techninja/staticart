@@ -10,7 +10,7 @@ import { setLocale } from '#utils/formatPrice.js';
 import { loadLocale } from '#utils/i18n.js';
 import '#organisms/app-header/app-header.js';
 import '#organisms/app-footer/app-footer.js';
-import CatalogView from '#pages/catalog/catalog-view.js';
+import HomeView from '#pages/home/home-view.js';
 
 let isBack = false;
 window.addEventListener('popstate', () => {
@@ -19,7 +19,7 @@ window.addEventListener('popstate', () => {
 
 export default define({
   tag: 'app-router',
-  stack: router(CatalogView, { url: '/' }),
+  stack: router(HomeView, { url: '/' }),
   configLoaded: {
     value: false,
     connect(host, _key, invalidate) {
@@ -34,17 +34,19 @@ export default define({
     },
   },
   render: {
-    value: ({ stack, configLoaded }) => html`
-      <div class="app-router">
-        ${configLoaded
-          ? html`
-              <app-header></app-header>
-              <main class="app-main">${stack}</main>
-              <app-footer></app-footer>
-            `
-          : html``}
-      </div>
-    `,
+    value: ({ stack, configLoaded }) => {
+      return html`
+        <div class="app-router">
+          ${configLoaded
+            ? html`
+                <app-header current-path="${globalThis.location.pathname}"></app-header>
+                <main class="app-main">${stack}</main>
+                <app-footer></app-footer>
+              `
+            : html``}
+        </div>
+      `;
+    },
     shadow: false,
     observe: (host, val, last) => {
       if (!last) return;

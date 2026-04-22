@@ -10,7 +10,11 @@ import { renderMarkdown } from '#utils/renderMarkdown.js';
 import { setPageMeta } from '#utils/setPageMeta.js';
 import { t } from '#utils/i18n.js';
 import '#atoms/app-icon/app-icon.js';
-import CatalogView from '#pages/catalog/catalog-view.js';
+import '#molecules/product-feature/product-feature.js';
+import '#molecules/product-showcase/product-showcase.js';
+import '#molecules/product-hero/product-hero.js';
+import '#molecules/content-callout/content-callout.js';
+import HomeView from '#pages/home/home-view.js';
 
 /** @param {string} slug @returns {Promise<{meta: any, html: string}|null>} */
 async function loadPage(slug) {
@@ -47,7 +51,7 @@ export default define({
         return html`
           <div class="content-page">
             <h1>Page not found</h1>
-            <a href="${router.url(CatalogView)}" class="btn btn-primary">
+            <a href="${router.url(HomeView)}" class="btn btn-primary">
               <app-icon name="arrow-left" size="sm"></app-icon> ${t('product.back')}
             </a>
           </div>
@@ -56,7 +60,7 @@ export default define({
       setPageMeta(page.meta.title || '');
       return html`
         <div class="content-page">
-          <a href="${router.url(CatalogView)}" class="content-page__back">
+          <a href="${router.url(HomeView)}" class="content-page__back">
             <app-icon name="arrow-left" size="sm"></app-icon> ${t('product.back')}
           </a>
           ${page.meta.title ? html`<h1>${page.meta.title}</h1>` : html``}

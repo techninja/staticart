@@ -47,6 +47,20 @@ const ICON_MAP = {
   shirt: 'shirt',
   'wallet-cards': 'wallet-cards',
   'shopping-bag': 'shopping-bag',
+  zap: 'zap',
+  rocket: 'rocket',
+  'code-2': 'code',
+  terminal: 'terminal',
+  layers: 'layers',
+  server: 'server',
+  database: 'database',
+  'shield-check': 'shield-check',
+  'git-branch': 'git-branch',
+  sparkles: 'sparkles',
+  'hand-heart': 'hand-heart',
+  'party-popper': 'party-popper',
+  gem: 'gem',
+  infinity: 'infinity',
 };
 
 /**

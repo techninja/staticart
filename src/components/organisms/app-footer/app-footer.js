@@ -27,7 +27,10 @@ export default define({
             html`<nav class="app-footer__links">
               ${links.map((l) => html`<a href="${l.url}">${l.label}</a>`)}
             </nav>`}
-            ${footer.text && html`<span class="app-footer__bottom">${footer.text}</span>`}
+            ${html`<span class="app-footer__bottom"
+              >© ${new Date().getFullYear()}
+              ${cfg.store?.name || ''}${footer.text ? ` · ${footer.text}` : ''}</span
+            >`}
           </div>
         </footer>
       `;

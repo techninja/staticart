@@ -20,8 +20,8 @@ export async function requestCheckout(items, region, shippingSummary) {
       items,
       region: region || 'US',
       shippingSummary: shippingSummary || '',
-      successUrl: `${origin}/order/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancelUrl: `${origin}/order/cancelled`,
+      successUrl: `${origin}/shop/order/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancelUrl: `${origin}/shop/order/cancelled`,
     }),
   });
   const body = await res.json();

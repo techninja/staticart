@@ -76,6 +76,11 @@
   height: 1.5em;
 }
 
+.icon-xl {
+  width: 2.5em;
+  height: 2.5em;
+}
+
 /* --- Screen Reader Only --- */
 
 .sr-only {

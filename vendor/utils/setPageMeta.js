@@ -10,8 +10,14 @@ import { getStoreConfigSync } from '#utils/storeConfig.js';
  *
  */
 export function setPageMeta(title, description) {
-  const name = getStoreConfigSync()?.store?.name || 'StatiCart';
-  document.title = title ? `${title} — ${name}` : name;
+  const cfg = getStoreConfigSync()?.store || {};
+  const name = cfg.name || 'StatiCart';
+  const tagline = cfg.tagline || '';
+  if (!title || title === name) {
+    document.title = tagline ? `${name} — ${tagline}` : name;
+  } else {
+    document.title = `${title} — ${name}`;
+  }
   if (description) {
     let meta = document.querySelector('meta[name="description"]');
     if (!meta) {

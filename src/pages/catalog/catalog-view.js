@@ -8,13 +8,6 @@ import { t } from '#utils/i18n.js';
 import Product from '#store/Product.js';
 import '#organisms/product-grid/product-grid.js';
 import { setPageMeta } from '#utils/setPageMeta.js';
-import ProductDetailView from '#pages/product-detail/product-detail-view.js';
-import CartView from '#pages/cart/cart-view.js';
-import OrderSuccessView from '#pages/order-success/order-success-view.js';
-import OrderCancelledView from '#pages/order-cancelled/order-cancelled-view.js';
-import OrdersView from '#pages/orders/orders-view.js';
-import ContentPageView from '#pages/content/content-page-view.js';
-import NotFoundView from '#pages/not-found/not-found-view.js';
 
 /** @param {any[]} products @returns {string[]} */
 function extractCategories(products) {
@@ -64,16 +57,8 @@ export default define({
   searchQuery: '',
   products: /** @type {any} */ (store([Product], { id: () => ({}) })),
   [router.connect]: {
-    url: '/',
-    stack: [
-      ProductDetailView,
-      CartView,
-      OrderSuccessView,
-      OrderCancelledView,
-      OrdersView,
-      ContentPageView,
-      NotFoundView,
-    ],
+    url: '/shop',
+    stack: [],
   },
   render: {
     value: ({ activeCategory, searchQuery, products }) => {

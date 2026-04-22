@@ -12,7 +12,6 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - So much stuff - Nav dot indicator (large clipped circle, your CSS) - MutationObserver on .app-main for route change detection (replaces the broken pushState/click approach) - Cart badge at 20px with 12px font - User icons at md size matching cart - user-x / user icons styled consistently - New icons in the build map (user-key, mail-check, store, shirt, wallet-cards, shopping-bag) - Login page layout with icons on buttons - Release script spec-gates before version bump
 - Icons, cleanup, spec
 
-
 ## [0.4.10] - 2026-04-21
 
 - Update icon for logout, passkey helper script

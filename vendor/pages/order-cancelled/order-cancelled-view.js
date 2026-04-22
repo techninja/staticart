@@ -10,7 +10,7 @@ import CartView from '#pages/cart/cart-view.js';
 
 export default define({
   tag: 'order-cancelled-view',
-  [router.connect]: { url: '/order/cancelled', stack: [] },
+  [router.connect]: { url: '/shop/order/cancelled', stack: [] },
   render: {
     value: () => html`
       <div class="order-result">

@@ -59,7 +59,7 @@ export default define({
       fetchSession(host).then(() => invalidate());
     },
   },
-  [router.connect]: { url: '/order/success', stack: [] },
+  [router.connect]: { url: '/shop/order/success', stack: [] },
   render: {
     value: (host) => {
       if (!host.ready) {

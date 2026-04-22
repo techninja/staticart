@@ -50,7 +50,7 @@ export default define({
   products: /** @type {any} */ (store([Product], { id: () => ({}) })),
   checkoutError: '',
   checkingOut: false,
-  [router.connect]: { url: '/cart', stack: [] },
+  [router.connect]: { url: '/shop/cart', stack: [] },
   render: {
     value: ({ cart, products, appState, checkoutError, checkingOut }) => {
       const ready = [cart, products, appState].every((s) => /** @type {any} */ (store).ready(s));

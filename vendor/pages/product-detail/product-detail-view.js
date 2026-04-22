@@ -57,7 +57,7 @@ export default define({
     },
   },
   cart: store(CartState),
-  [router.connect]: { url: '/product/:sku', multiple: true, stack: [] },
+  [router.connect]: { url: '/shop/product/:sku', multiple: true, stack: [] },
   render: {
     value: (host) => {
       const { product, config, selectedVariant, qty, addedLabel, activeImage } = host;
