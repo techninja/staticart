@@ -13,9 +13,9 @@
 export function mergeByBaseName(products) {
   const groups = new Map();
   for (const p of products) {
-    const catId = p.metadata?.printfulCategoryId || p.sku;
-    if (!groups.has(catId)) groups.set(catId, []);
-    groups.get(catId).push(p);
+    const catProdId = p.metadata?.printfulCatalogProductId || p.sku;
+    if (!groups.has(catProdId)) groups.set(catProdId, []);
+    groups.get(catProdId).push(p);
   }
   const merged = [];
   for (const group of groups.values()) {
@@ -46,7 +46,7 @@ function assignDimensions(product) {
 function mergeGroup(group) {
   const base = { ...group[0] };
   base.name = base.name.replace(/\s*[—–-]\s*[^—–-]+$/, '') || base.name;
-  base.sku = `pf-${base.metadata.printfulCategoryId}`;
+  base.sku = `pf-${base.metadata.printfulCatalogProductId}`;
   base.description = base.name;
   const allImages = new Set();
   const allVariants = [];
@@ -81,7 +81,7 @@ export function enrichOutOfStock(products, catalogVariants, projectCatalog) {
     if (entry.colors) entry.colors.forEach((c) => wantedColors.get(entry.catalogId).add(c));
   }
   for (const p of products) {
-    const catId = p.metadata?.printfulCategoryId;
+    const catId = p.metadata?.printfulCatalogProductId;
     const catVars = catalogVariants.get(catId);
     const wanted = wantedColors.get(catId);
     if (!catVars || !wanted) continue;

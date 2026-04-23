@@ -28,10 +28,13 @@ export async function sync(helpers, apiKey, config) {
   const client = helpers.createClient(apiKey);
   const categories = await helpers.loadCategories(client);
   const remote = await client.call('GET', '/store/products');
+  console.log(`  Syncing ${remote.length} products (rate-limited, ~${Math.ceil(remote.length * 7 / 60)}min)...`);
   const catCache = new Map();
   const catVariants = new Map();
   const products = [];
-  for (const sp of remote) {
+  for (let i = 0; i < remote.length; i++) {
+    const sp = remote[i];
+    process.stdout.write(`  [${i + 1}/${remote.length}] ${sp.name}...`);
     const detail = await client.call('GET', `/store/products/${sp.id}`);
     const catalogId = detail.sync_variants[0]?.product?.product_id;
     if (catalogId && !catCache.has(catalogId)) {
@@ -42,9 +45,11 @@ export async function sync(helpers, apiKey, config) {
     products.push(
       helpers.toProduct(detail.sync_product, detail.sync_variants, {
         categoryId: catCache.get(catalogId) || 0,
+        catalogProductId: catalogId,
         categories,
       }),
     );
+    console.log(' ✓');
   }
   const merged = helpers.mergeByBaseName(products);
   const catPath = r(`src/data/${config?.fulfillment?.provider || 'printful'}-catalog.json`);

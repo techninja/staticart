@@ -19,7 +19,10 @@ export function createClient(key) {
   async function call(method, path, body) {
     const now = Date.now();
     const wait = Math.max(0, MIN_INTERVAL - (now - lastCall));
-    if (wait > 0) await new Promise((r) => setTimeout(r, wait));
+    if (wait > 0) {
+      process.stdout.write(` (${Math.ceil(wait / 1000)}s)`);
+      await new Promise((r) => setTimeout(r, wait));
+    }
     lastCall = Date.now();
 
     for (let attempt = 0; attempt < 3; attempt++) {
@@ -54,21 +57,36 @@ export async function getVariants(client, productId, colors, sizes) {
   );
 }
 
+/**
+ * Resolve catalog entry files config to Printful file objects.
+ * Legacy: { placement: "front" } or new: { files: [{ placement, url?, position? }] }
+ */
+function resolveFiles(product, logoFileId) {
+  return (product.files || [{ placement: product.placement || 'front' }]).map((f) => {
+    const file = { type: f.placement };
+    if (f.url) file.url = f.url; else file.id = logoFileId;
+    if (f.position) file.position = f.position;
+    return file;
+  });
+}
+
+/** Resolve thread color options from catalog entry. */
+function resolveOptions(product) {
+  if (!product.threadColor) return [];
+  const placements = product.files
+    ? product.files.map((f) => f.placement) : [product.placement || 'front'];
+  const keys = new Set();
+  for (const p of placements) { keys.add(`thread_colors${p.replace('embroidery', '')}`); keys.add('thread_colors'); }
+  return [...keys].map((id) => ({ id, value: product.threadColor }));
+}
+
 /** Build Printful sync_variants payload from catalog variants. */
 export function buildSyncVariants(variants, product, logoFileId) {
+  const files = resolveFiles(product, logoFileId);
+  const options = resolveOptions(product);
   return variants.map((v) => {
-    const sv = {
-      variant_id: v.id,
-      retail_price: product.retail.toFixed(2),
-      files: [{ type: product.placement, id: logoFileId }],
-    };
-    if (product.threadColor) {
-      const suffix = product.placement.replace('embroidery', '');
-      sv.options = [`thread_colors${suffix}`, 'thread_colors'].map((id) => ({
-        id,
-        value: product.threadColor,
-      }));
-    }
+    const sv = { variant_id: v.id, retail_price: product.retail.toFixed(2), files };
+    if (options.length) sv.options = options;
     return sv;
   });
 }
@@ -118,13 +136,15 @@ export async function pickMockupStyles(client, catalogProductId) {
   const groups = pf.option_groups || [];
   const opts = pf.options || [];
   const styles = [];
-  if (groups.includes('Ghost'))
-    styles.push({ option_groups: ['Ghost'], options: ['Front', 'Back'] });
+  const hasRight = opts.includes('Right');
+  if (groups.includes('Ghost')) styles.push({ option_groups: ['Ghost'], options: ['Front'] });
   else if (groups.includes('Default')) {
-    const viewOpts = opts.filter((o) => /handle|front|left|right/i.test(o));
-    styles.push({ option_groups: ['Default'], ...(viewOpts.length ? { options: viewOpts } : {}) });
-  } else if (groups.includes('Flat')) styles.push({ option_groups: ['Flat'] });
+    const vo = hasRight ? ['Right'] : opts.filter((o) => /front/i.test(o)).slice(0, 1);
+    styles.push({ option_groups: ['Default'], ...(vo.length ? { options: vo } : {}) });
+  } else if (groups.includes('Flat'))
+    styles.push({ option_groups: ['Flat'], ...(hasRight ? { options: ['Right'] } : {}) });
   if (groups.includes("Men's")) styles.push({ option_groups: ["Men's"], options: ['Front'] });
-  else if (groups.includes('Lifestyle')) styles.push({ option_groups: ['Lifestyle'] });
+  else if (groups.includes('Lifestyle'))
+    styles.push({ option_groups: ['Lifestyle'], ...(hasRight ? { options: ['Right'] } : {}) });
   return styles;
 }

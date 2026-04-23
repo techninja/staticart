@@ -29,6 +29,8 @@ export async function mockups(helpers, apiKey, opts) {
   }
   const productsPath = r('src/data/products.json');
   const products = existsSync(productsPath) ? JSON.parse(readFileSync(productsPath, 'utf-8')) : [];
+  const catalogPath = r('src/data/printful-catalog.json');
+  const catalog = existsSync(catalogPath) ? JSON.parse(readFileSync(catalogPath, 'utf-8')) : [];
 
   /** @type {Map<number, Map<string, string[]>>} storeProductId → variantId → paths */
   const allMockups = new Map();
@@ -46,7 +48,8 @@ export async function mockups(helpers, apiKey, opts) {
       console.log('    No mockup styles available');
       continue;
     }
-    const variantMockups = await generateMockups(client, detail, styles);
+    const catalogEntry = catalog.find((c) => c.name === sp.name);
+    const variantMockups = await generateMockups(client, detail, styles, catalogEntry);
     allMockups.set(sp.id, variantMockups);
   }
 

@@ -76,18 +76,12 @@ async function runTask(client, productId, variantId, style, logoUrl, pos) {
   const imgs = [];
   for (const m of result.mockups || []) {
     if (m.mockup_url) imgs.push({ url: m.mockup_url, label: 'main' });
-    for (const e of m.extra || []) {
-      const l = e.title.toLowerCase();
-      if (['front', 'back', 'handle on left', 'handle on right'].includes(l)) {
-        imgs.push({ url: e.url, label: l.replace(/\s+/g, '-') });
-      }
-    }
   }
   return imgs;
 }
 
 /** Generate mockups for a store product (one per color, style-aware). */
-export async function generateMockups(client, storeProduct, styles) {
+export async function generateMockups(client, storeProduct, styles, catalogEntry) {
   const sv = storeProduct.sync_variants[0];
   if (!sv) return new Map();
   const catalogId = sv.product.product_id;
@@ -96,6 +90,9 @@ export async function generateMockups(client, storeProduct, styles) {
     console.warn('  No logo file');
     return new Map();
   }
+  const catFiles = catalogEntry?.files || [];
+  const logoUrl = catFiles[0]?.url || logoFile.url || logoFile.preview_url;
+  const catPosition = catFiles[0]?.position;
 
   const tplData = await client.call('GET', `/mockup-generator/templates/${catalogId}`);
   const results = new Map();
@@ -107,7 +104,9 @@ export async function generateMockups(client, storeProduct, styles) {
     if (!mapping?.templates[0]) continue;
     const tpl = tplData.templates.find((t) => t.template_id === mapping.templates[0].template_id);
     if (!tpl) continue;
-    const pos = calcPosition(tpl, logoFile, mapping.templates[0].placement);
+    const pos = catPosition
+      ? { placement: mapping.templates[0].placement, ...catPosition }
+      : calcPosition(tpl, logoFile, mapping.templates[0].placement);
     console.log(`  📸 variant ${variant.id}...`);
     const dir = resolve(ASSETS, String(storeProduct.sync_product.id));
     const paths = [];
@@ -115,12 +114,7 @@ export async function generateMockups(client, storeProduct, styles) {
       try {
         const tag = (style.option_groups?.[0] || 'default').toLowerCase().replace(/[\s']/g, '-');
         const imgs = await runTask(
-          client,
-          catalogId,
-          variant.product.variant_id,
-          style,
-          logoFile.preview_url,
-          pos,
+          client, catalogId, variant.product.variant_id, style, logoUrl, pos,
         );
         for (const img of imgs) {
           const fname = `${variant.id}-${tag}-${img.label}.jpg`;

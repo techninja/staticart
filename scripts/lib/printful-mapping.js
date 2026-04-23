@@ -17,19 +17,25 @@ const CATEGORY_MAP = {
   'Drinkware & coasters': 'drinkware',
   Stationery: 'stickers',
   'Wall art': 'prints',
+  'Tech accessories': 'accessories',
+  'Laptop cases': 'accessories',
 };
 
 /** Printful category title → StatiCart tags. */
 const TAG_MAP = {
   'T-shirts': ['tee', 'clothing'],
   Hoodies: ['hoodie', 'clothing'],
+  Sweatshirts: ['sweatshirt', 'clothing'],
   Beanies: ['beanie', 'hat'],
   'Bucket hats': ['hat'],
   'Dad hats / baseball caps': ['hat'],
   'Tote bags': ['tote', 'bag'],
   Mugs: ['drinkware', 'mug'],
+  'Water bottles': ['drinkware', 'bottle'],
   Stickers: ['sticker'],
+  'Sticker sheets': ['sticker'],
   Posters: ['print', 'wall-art'],
+  'Laptop cases': ['laptop', 'tech'],
 };
 
 /** @param {any} client */
@@ -112,7 +118,7 @@ export function toProduct(syncProduct, syncVariants, ctx) {
     stock: -1,
     active: true,
     variants,
-    metadata: { printfulSyncProductId: syncProduct.id, printfulCategoryId: categoryId },
+    metadata: { printfulSyncProductId: syncProduct.id, printfulCategoryId: categoryId, printfulCatalogProductId: ctx?.catalogProductId || 0 },
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
