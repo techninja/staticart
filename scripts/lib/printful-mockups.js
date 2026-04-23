@@ -5,77 +5,12 @@
  * @module scripts/lib/printful-mockups
  */
 
-import { writeFileSync, mkdirSync, existsSync, rmSync, readdirSync } from 'node:fs';
+import { existsSync, rmSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { download, uniqueColorVariants, calcPosition, runTask } from './mockup-helpers.js';
 
 const ROOT = process.cwd();
 const ASSETS = resolve(ROOT, 'src/assets/products');
-const sleep = (/** @type {number} */ ms) => new Promise((r) => setTimeout(r, ms));
-
-/** @param {string} url @param {string} dest */
-async function download(url, dest) {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Download failed: ${res.status}`);
-  mkdirSync(dirname(dest), { recursive: true });
-  writeFileSync(dest, Buffer.from(await res.arrayBuffer()));
-}
-
-/** Pick one variant per unique color. */
-function uniqueColorVariants(variants) {
-  const seen = new Set();
-  return variants.filter((v) => {
-    const key = v.product?.name?.split('/')?.slice(0, -1).join('/').trim() || v.id;
-    return !seen.has(key) && seen.add(key);
-  });
-}
-
-/** Fit logo into print area, or fill if file matches print area aspect ratio. */
-function calcPosition(tpl, logoFile, placement) {
-  const pw = tpl.print_area_width;
-  const ph = tpl.print_area_height;
-  const lw = logoFile.width || 602;
-  const lh = logoFile.height || 490;
-  const areaRatio = pw / ph;
-  const logoRatio = lw / lh;
-  if (Math.abs(logoRatio - areaRatio) / areaRatio < 0.1) {
-    return { placement, area_width: pw, area_height: ph, width: pw, height: ph, top: 0, left: 0 };
-  }
-  let w = Math.round(pw * 0.5);
-  let h = Math.round(w / logoRatio);
-  if (h > ph * 0.8) {
-    h = Math.round(ph * 0.8);
-    w = Math.round(h * logoRatio);
-  }
-  return {
-    placement,
-    area_width: pw,
-    area_height: ph,
-    width: w,
-    height: h,
-    top: Math.round((ph - h) / 2),
-    left: Math.round((pw - w) / 2),
-  };
-}
-
-/** Run a mockup task, poll for result, return image URLs with style tag. */
-async function runTask(client, productId, variantId, style, logoUrl, pos) {
-  const task = await client.call('POST', `/mockup-generator/create-task/${productId}`, {
-    variant_ids: [variantId],
-    ...style,
-    format: 'jpg',
-    files: [{ placement: pos.placement, image_url: logoUrl, position: pos }],
-  });
-  await sleep(6000);
-  let result = await client.call('GET', `/mockup-generator/task?task_key=${task.task_key}`);
-  if (result.status === 'pending') {
-    await sleep(6000);
-    result = await client.call('GET', `/mockup-generator/task?task_key=${task.task_key}`);
-  }
-  if (result.status !== 'completed') return [];
-  return (result.mockups || [])
-    .filter((m) => m.mockup_url)
-    .map((m) => ({ url: m.mockup_url, label: 'main' }));
-}
 
 /**
  * Generate mockups for a store product (one per color, style-tagged).
@@ -97,7 +32,6 @@ export async function generateMockups(client, storeProduct, styles, catalogEntry
   const catFiles = catalogEntry?.files || [];
   const logoUrl = catFiles[0]?.url || logoFile.url || logoFile.preview_url;
   const catPosition = catFiles[0]?.position;
-
   const tplData = await client.call('GET', `/mockup-generator/templates/${catalogId}`);
   const results = new Map();
 
@@ -118,7 +52,12 @@ export async function generateMockups(client, storeProduct, styles, catalogEntry
       try {
         const tag = (style.option_groups?.[0] || 'default').toLowerCase().replace(/[\s']/g, '-');
         const imgs = await runTask(
-          client, catalogId, variant.product.variant_id, style, logoUrl, pos,
+          client,
+          catalogId,
+          variant.product.variant_id,
+          style,
+          logoUrl,
+          pos,
         );
         for (const img of imgs) {
           const fname = `${variant.id}-${tag}-${img.label}.jpg`;

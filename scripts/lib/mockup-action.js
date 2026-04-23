@@ -7,7 +7,12 @@
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { generateMockups, hasMockups, clearMockups, loadExistingMockups } from './printful-mockups.js';
+import {
+  generateMockups,
+  hasMockups,
+  clearMockups,
+  loadExistingMockups,
+} from './printful-mockups.js';
 
 const ROOT = process.cwd();
 const r = (/** @type {string} */ p) => resolve(ROOT, p);
@@ -66,7 +71,11 @@ export async function mockups(helpers, apiKey, opts) {
     const mapping = syncIdMap.get(sp.id);
     const heroStyle = mapping?.entry?.heroStyle || 'default';
     const variantMockups = await generateMockups(
-      client, detail, styles, mapping?.pfEntry, heroStyle,
+      client,
+      detail,
+      styles,
+      mapping?.pfEntry,
+      heroStyle,
     );
     allMockups.set(sp.id, variantMockups);
   }
@@ -75,9 +84,7 @@ export async function mockups(helpers, apiKey, opts) {
   let updated = 0;
   for (const product of products) {
     const syncIds = product.metadata?.printfulSyncProductIds || [];
-    const catEntry = catalogProducts.find(
-      (e) => `${catalog.skuPrefix}-${e.sku}` === product.sku,
-    );
+    const catEntry = catalogProducts.find((e) => `${catalog.skuPrefix}-${e.sku}` === product.sku);
     const heroStyle = catEntry?.heroStyle || 'default';
 
     for (const syncId of syncIds) {

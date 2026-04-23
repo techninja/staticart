@@ -11,7 +11,6 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Spec match refactor
 - Product management script learnings and improvements
 
-
 ## [0.4.12] - 2026-04-22
 
 - Linting and vendor
