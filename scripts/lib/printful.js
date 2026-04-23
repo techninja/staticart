@@ -1,12 +1,11 @@
 /**
  * Printful API client and variant helpers for product management scripts.
- * Product mapping lives in printful-mapping.js.
  * @module scripts/lib/printful
  */
 
-export { toProduct, loadCategories } from './printful-mapping.js';
+export { loadCategories } from './printful-mapping.js';
 export { buildSyncVariants } from './printful-variants.js';
-export { mergeByBaseName, enrichOutOfStock } from './product-merge.js';
+export { enrichOutOfStock } from './product-merge.js';
 
 const API = 'https://api.printful.com';
 const MIN_INTERVAL = 6000;

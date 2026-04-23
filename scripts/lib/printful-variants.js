@@ -7,10 +7,10 @@
 
 /**
  * Resolve catalog entry files config to Printful file objects.
- * Legacy: { placement: "front" } or new: { files: [{ placement, url?, position? }] }
+ * Supports: { placement } or { files: [{ placement, url?, position? }] }
  */
-function resolveFiles(product, logoFileId) {
-  return (product.files || [{ placement: product.placement || 'front' }]).map((f) => {
+function resolveFiles(entry, logoFileId) {
+  return (entry.files || [{ placement: entry.placement || 'front' }]).map((f) => {
     const file = { type: f.placement };
     if (f.url) file.url = f.url;
     else file.id = logoFileId;
@@ -20,25 +20,31 @@ function resolveFiles(product, logoFileId) {
 }
 
 /** Resolve thread color options from catalog entry. */
-function resolveOptions(product) {
-  if (!product.threadColor) return [];
-  const placements = product.files
-    ? product.files.map((f) => f.placement)
-    : [product.placement || 'front'];
+function resolveOptions(entry) {
+  if (!entry.threadColor) return [];
+  const placements = entry.files
+    ? entry.files.map((f) => f.placement)
+    : [entry.placement || 'front'];
   const keys = new Set();
   for (const p of placements) {
     keys.add(`thread_colors${p.replace('embroidery', '')}`);
     keys.add('thread_colors');
   }
-  return [...keys].map((id) => ({ id, value: product.threadColor }));
+  return [...keys].map((id) => ({ id, value: entry.threadColor }));
 }
 
-/** Build Printful sync_variants payload from catalog variants. */
-export function buildSyncVariants(variants, product, logoFileId) {
-  const files = resolveFiles(product, logoFileId);
-  const options = resolveOptions(product);
+/**
+ * Build Printful sync_variants payload from catalog variants.
+ * @param {any[]} variants - filtered Printful catalog variants
+ * @param {any} entry - printful sub-entry from unified catalog
+ * @param {number} logoFileId
+ * @param {number} retail - resolved retail price (entry-level or product-level)
+ */
+export function buildSyncVariants(variants, entry, logoFileId, retail) {
+  const files = resolveFiles(entry, logoFileId);
+  const options = resolveOptions(entry);
   return variants.map((v) => {
-    const sv = { variant_id: v.id, retail_price: product.retail.toFixed(2), files };
+    const sv = { variant_id: v.id, retail_price: retail.toFixed(2), files };
     if (options.length) sv.options = options;
     return sv;
   });

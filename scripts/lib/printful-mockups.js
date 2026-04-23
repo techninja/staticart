@@ -1,14 +1,14 @@
 /**
  * Printful mockup generation — multi-angle product images per color variant.
  * Downloads temporary S3 URLs to local assets for static hosting.
+ * Images are tagged with their style (ghost, lifestyle, flat, default) in filenames.
  * @module scripts/lib/printful-mockups
  */
 
-import { writeFileSync, mkdirSync, existsSync, rmSync } from 'node:fs';
-import { resolve, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { writeFileSync, mkdirSync, existsSync, rmSync, readdirSync } from 'node:fs';
+import { resolve } from 'node:path';
 
-const ROOT = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
+const ROOT = process.cwd();
 const ASSETS = resolve(ROOT, 'src/assets/products');
 const sleep = (/** @type {number} */ ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -37,7 +37,6 @@ function calcPosition(tpl, logoFile, placement) {
   const lh = logoFile.height || 490;
   const areaRatio = pw / ph;
   const logoRatio = lw / lh;
-  // Pre-composited file: aspect ratio within 10% of print area → fill
   if (Math.abs(logoRatio - areaRatio) / areaRatio < 0.1) {
     return { placement, area_width: pw, area_height: ph, width: pw, height: ph, top: 0, left: 0 };
   }
@@ -58,7 +57,7 @@ function calcPosition(tpl, logoFile, placement) {
   };
 }
 
-/** Run a mockup task, poll for result, return image URLs. */
+/** Run a mockup task, poll for result, return image URLs with style tag. */
 async function runTask(client, productId, variantId, style, logoUrl, pos) {
   const task = await client.call('POST', `/mockup-generator/create-task/${productId}`, {
     variant_ids: [variantId],
@@ -73,15 +72,20 @@ async function runTask(client, productId, variantId, style, logoUrl, pos) {
     result = await client.call('GET', `/mockup-generator/task?task_key=${task.task_key}`);
   }
   if (result.status !== 'completed') return [];
-  const imgs = [];
-  for (const m of result.mockups || []) {
-    if (m.mockup_url) imgs.push({ url: m.mockup_url, label: 'main' });
-  }
-  return imgs;
+  return (result.mockups || [])
+    .filter((m) => m.mockup_url)
+    .map((m) => ({ url: m.mockup_url, label: 'main' }));
 }
 
-/** Generate mockups for a store product (one per color, style-aware). */
-export async function generateMockups(client, storeProduct, styles, catalogEntry) {
+/**
+ * Generate mockups for a store product (one per color, style-tagged).
+ * @param {any} client
+ * @param {any} storeProduct
+ * @param {any[]} styles
+ * @param {any} [catalogEntry] - printful sub-entry from unified catalog
+ * @param {string} [heroStyle] - from unified catalog
+ */
+export async function generateMockups(client, storeProduct, styles, catalogEntry, heroStyle) {
   const sv = storeProduct.sync_variants[0];
   if (!sv) return new Map();
   const catalogId = sv.product.product_id;
@@ -114,18 +118,13 @@ export async function generateMockups(client, storeProduct, styles, catalogEntry
       try {
         const tag = (style.option_groups?.[0] || 'default').toLowerCase().replace(/[\s']/g, '-');
         const imgs = await runTask(
-          client,
-          catalogId,
-          variant.product.variant_id,
-          style,
-          logoUrl,
-          pos,
+          client, catalogId, variant.product.variant_id, style, logoUrl, pos,
         );
         for (const img of imgs) {
           const fname = `${variant.id}-${tag}-${img.label}.jpg`;
           await download(img.url, resolve(dir, fname));
           paths.push(`/assets/products/${storeProduct.sync_product.id}/${fname}`);
-          console.log(`    ✓ ${fname}`);
+          console.log(`    ✓ ${fname} [${tag}]`);
         }
       } catch (e) {
         console.warn(`  Style failed: ${e.message}`);
@@ -139,6 +138,21 @@ export async function generateMockups(client, storeProduct, styles, catalogEntry
 /** Check if mockups exist for a store product. */
 export function hasMockups(id) {
   return existsSync(resolve(ASSETS, String(id)));
+}
+
+/** Load existing mockup paths from disk into variantId → paths map. */
+export function loadExistingMockups(id) {
+  const dir = resolve(ASSETS, String(id));
+  const results = new Map();
+  if (!existsSync(dir)) return results;
+  for (const fname of readdirSync(dir)) {
+    if (!fname.endsWith('.jpg')) continue;
+    const variantId = fname.split('-')[0];
+    const p = `/assets/products/${id}/${fname}`;
+    if (!results.has(variantId)) results.set(variantId, []);
+    results.get(variantId).push(p);
+  }
+  return results;
 }
 
 /** Delete all generated mockups. */

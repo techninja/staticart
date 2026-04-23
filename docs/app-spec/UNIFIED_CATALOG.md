@@ -17,7 +17,7 @@ products that get merged after sync.
 
 ### Catalog Format
 
-`src/data/printful-catalog.json` becomes the store's product authority:
+`src/data/printful-catalog.json` is the store's product authority:
 
 ```json
 {
@@ -78,16 +78,16 @@ products that get merged after sync.
 
 ```
 {prefix}-{product}          → SM-TEE (product level)
-{prefix}-{product}-{variant} → SM-TEE-BLK-M (variant level)
+{prefix}-{product}-{id}     → SM-TEE-5278789275 (variant level, Printful variant ID)
 ```
 
 - `skuPrefix` — store-level, configured once (e.g. "SM" for StatiCart Merch)
 - `sku` — product-level, stable, human-readable
-- Variant SKU suffix — auto-generated from color + size abbreviations
+- Variant SKU suffix — Printful variant ID or external_id
 
-### Key Changes from Current Format
+### Key Changes from Previous Format
 
-| Current | New |
+| Before | After |
 |---|---|
 | One catalog entry per Printful sync product | One catalog entry per logical product |
 | SKU assigned by Printful (`pf-24`, hex IDs) | SKU defined by store (`SM-TEE`) |
@@ -95,57 +95,23 @@ products that get merged after sync.
 | Category/tags guessed from Printful categories | Category/tags defined in catalog |
 | `heroStyle` doesn't exist | Controls flat vs lifestyle for product cards |
 | `retail` price per catalog entry | `retail` at product level, override per variant |
+| Scripts copied into project `scripts/lib/` | Scripts resolve from `@techninja/staticart` package |
 
 ### heroStyle
 
-Controls which mockup image is used as the product card hero:
+Controls which mockup image is used as the product card hero.
+The mockup generator tags images with their style in filenames
+(e.g. `5278789275-ghost-main.jpg`). Hero selection cascades:
 
-- `"flat"` — ghost/flat product shot (default for accessories, stickers)
-- `"lifestyle"` — model/lifestyle shot (default for apparel)
-- `"default"` — whatever Printful's Default style returns
+- `"lifestyle"` → prefers `men-s`, then `lifestyle`
+- `"flat"` → prefers `flat`, then `ghost`, then `default`
+- `"default"` → prefers `default`, then `flat`, then `ghost`
 
-The mockup generator tags images with their style. The sync step
-picks the hero based on this field.
+Falls back to first available image if no style matches.
 
-## Scripts Impact
+### printful-store.json
 
-### `products.js create`
-
-- Iterates `products[].printful[]` entries
-- Creates one Printful sync product per `printful` entry
-- Stores mapping: `{ "SM-TEE": { "Black": 429395114, "White": 429395115 } }`
-- Uses `skuPrefix + sku` as the external_id on Printful
-
-### `products.js sync`
-
-- No more `mergeByBaseName` — grouping is defined in catalog
-- For each catalog product, fetches all its Printful sync products
-- Builds one `products.json` entry per catalog product
-- Variants come from all Printful entries combined
-- SKU is `SM-TEE`, variant SKUs are `SM-TEE-BLK-M`
-- Category, tags, description from catalog (not guessed)
-
-### `products.js mockups`
-
-- Generates mockups per Printful sync product (per color)
-- Tags each image with style (flat/lifestyle/ghost)
-- `heroStyle` from catalog determines which image becomes the
-  product-level hero and variant default
-
-### `product-merge.js`
-
-- Removed or drastically simplified
-- No more guessing — catalog defines the grouping
-
-### `printful-mapping.js`
-
-- `toProduct` still maps Printful data to StatiCart shape
-- But category/tags/description come from catalog, not Printful
-- SKU comes from catalog, not Printful
-
-### `printful-store.json`
-
-New shape:
+Maps stable SKUs to Printful sync product IDs per variant label:
 
 ```json
 {
@@ -153,20 +119,63 @@ New shape:
   "products": {
     "SM-TEE": {
       "Black": 429395114,
-      "White": 429395115,
-      "Navy": 429395116
+      "White": 427825828,
+      "Navy": 427825829
     },
     "SM-MUG": {
-      "11oz": 429395120,
-      "15oz": 429395121
+      "11oz": 427825832,
+      "15oz": 427825833
     }
   }
 }
 ```
 
+## Scripts
+
+All scripts in `scripts/lib/` are platform-owned and resolve from the
+`@techninja/staticart` npm package at runtime. Projects do not maintain
+local copies. The entry point `scripts/products.js` uses `resolveLib()`
+to find scripts in the package first, falling back to local `./lib/`
+for development within the staticart repo.
+
+### `products.js create`
+
+- Iterates `products[].printful[]` entries
+- Creates one Printful sync product per `printful` entry
+- Stores mapping in `printful-store.json`
+- Uses `skuPrefix + sku` as the `external_id` on Printful
+- Resolves `retail` from variant entry, falling back to product level
+
+### `products.js sync`
+
+- Reads catalog and store mapping, no Printful category guessing
+- For each catalog product, fetches all its Printful sync products
+- Builds one `products.json` entry per catalog product
+- Variants come from all Printful entries combined
+- Category, tags, description, heroStyle from catalog
+- Runs `enrichOutOfStock` for wanted colors not in stock
+
+### `products.js mockups`
+
+- Generates mockups per Printful sync product (per color)
+- Tags each image with style in filename (`{variantId}-{style}-main.jpg`)
+- Loads existing mockups from disk when skipping (no re-download needed)
+- `heroStyle` from catalog determines hero via cascade
+- Sets `heroImage` on each product for card display
+
+### Module Changes
+
+- `product-merge.js` — `mergeByBaseName` removed. Only `enrichOutOfStock`
+  remains, adapted for the unified catalog format.
+- `printful-mapping.js` — `toProduct`, `resolveCategory`, `resolveTags`
+  removed. Only `loadCategories` remains.
+- `printful-variants.js` — `buildSyncVariants` accepts a printful
+  sub-entry + separate `retail` param for per-variant price override.
+- `printful.js` — barrel re-exports updated to match.
+
 ## Migration
 
-Existing merch-staticart catalog entries map to new format:
+Existing merch-staticart catalog entries mapped to new format:
 
 | Current entries | New product | Variants |
 |---|---|---|
@@ -184,14 +193,4 @@ Existing merch-staticart catalog entries map to new format:
 | 1× Tote Bag | SM-TOTE | 1 variant |
 | 1× Laptop Sleeve | SM-SLEEVE | 2 sizes |
 
-13 logical products, matching current merged count.
-
-## Implementation Order
-
-1. New catalog format + migration of merch-staticart catalog
-2. Update `create` to read new format
-3. Update `printful-store.json` shape
-4. Update `sync` to build products from catalog groupings (kill merge)
-5. Update `mockups` to tag with style + respect `heroStyle`
-6. Update `printful-mapping.js` to use catalog metadata
-7. Remove `product-merge.js` (or reduce to variant dimension logic only)
+13 logical products from 19 Printful sync products.

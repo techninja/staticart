@@ -2,6 +2,7 @@
 /**
  * Product manager — interactive menu + CLI subcommands.
  * Discovers provider from staticart.config.json, delegates to provider helpers.
+ * Lib scripts resolve from @techninja/staticart package, with local fallback.
  *
  * Interactive: node scripts/products.js
  * CLI:        node scripts/products.js sync|create|delete|browse|status [args]
@@ -10,16 +11,27 @@
  * @module scripts/products
  */
 
-import { readFileSync, existsSync } from 'node:fs';
-import { resolve, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { createInterface } from 'node:readline';
-import * as actions from './lib/product-actions.js';
-import { browse as browseAction } from './lib/browse-action.js';
-import { mockups as mockupsAction } from './lib/mockup-action.js';
+import { createRequire } from 'node:module';
 
-const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
+const ROOT = process.cwd();
 const r = (/** @type {string} */ p) => resolve(ROOT, p);
+const require = createRequire(import.meta.url);
+
+/** Resolve a script from the platform package, fall back to local. */
+function resolveLib(name) {
+  try {
+    return require.resolve(`@techninja/staticart/scripts/lib/${name}`);
+  } catch {
+    return new URL(`./lib/${name}`, import.meta.url).pathname;
+  }
+}
+
+const actions = await import(resolveLib('product-actions.js'));
+const { mockups: mockupsAction } = await import(resolveLib('mockup-action.js'));
+const { browse: browseAction } = await import(resolveLib('browse-action.js'));
 
 /** @param {string} prompt @returns {Promise<string>} */
 function ask(prompt) {
@@ -98,12 +110,7 @@ async function main() {
     console.error('No fulfillment.provider in staticart.config.json');
     process.exit(1);
   }
-  const helpersPath = r(`scripts/lib/${name}.js`);
-  if (!existsSync(helpersPath)) {
-    console.error(`Not found: scripts/lib/${name}.js`);
-    process.exit(1);
-  }
-  const helpers = await import(helpersPath);
+  const helpers = await import(resolveLib(`${name}.js`));
   const envKey = `${name.toUpperCase()}_API_KEY`;
   const apiKey = process.env[envKey];
   if (!apiKey) {
