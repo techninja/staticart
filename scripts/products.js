@@ -15,6 +15,7 @@ import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createInterface } from 'node:readline';
 import * as actions from './lib/product-actions.js';
+import { browse as browseAction } from './lib/browse-action.js';
 import { mockups as mockupsAction } from './lib/mockup-action.js';
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
@@ -66,7 +67,7 @@ async function run(helpers, apiKey, config) {
         filter,
       });
     }
-    if (action === 'browse') return actions.browse(helpers, apiKey, args[0], args[1]);
+    if (action === 'browse') return browseAction(helpers, apiKey, args[0], args[1]);
     return actions[action](helpers, apiKey);
   }
 
@@ -83,7 +84,7 @@ async function run(helpers, apiKey, config) {
   if (selected.action === 'create') return actions.create(helpers, apiKey, config);
   if (selected.action === 'sync') return actions.sync(helpers, apiKey, config);
   if (selected.action === 'mockups') return mockupsAction(helpers, apiKey);
-  if (selected.action === 'browse') return actions.browse(helpers, apiKey);
+  if (selected.action === 'browse') return browseAction(helpers, apiKey);
   return actions[selected.action](helpers, apiKey);
 }
 

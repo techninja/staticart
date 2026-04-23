@@ -114,7 +114,12 @@ export async function generateMockups(client, storeProduct, styles, catalogEntry
       try {
         const tag = (style.option_groups?.[0] || 'default').toLowerCase().replace(/[\s']/g, '-');
         const imgs = await runTask(
-          client, catalogId, variant.product.variant_id, style, logoUrl, pos,
+          client,
+          catalogId,
+          variant.product.variant_id,
+          style,
+          logoUrl,
+          pos,
         );
         for (const img of imgs) {
           const fname = `${variant.id}-${tag}-${img.label}.jpg`;

@@ -5,6 +5,7 @@
  */
 
 export { toProduct, loadCategories } from './printful-mapping.js';
+export { buildSyncVariants } from './printful-variants.js';
 export { mergeByBaseName, enrichOutOfStock } from './product-merge.js';
 
 const API = 'https://api.printful.com';
@@ -57,56 +58,14 @@ export async function getVariants(client, productId, colors, sizes) {
   );
 }
 
-/**
- * Resolve catalog entry files config to Printful file objects.
- * Legacy: { placement: "front" } or new: { files: [{ placement, url?, position? }] }
- */
-function resolveFiles(product, logoFileId) {
-  return (product.files || [{ placement: product.placement || 'front' }]).map((f) => {
-    const file = { type: f.placement };
-    if (f.url) file.url = f.url; else file.id = logoFileId;
-    if (f.position) file.position = f.position;
-    return file;
-  });
-}
-
-/** Resolve thread color options from catalog entry. */
-function resolveOptions(product) {
-  if (!product.threadColor) return [];
-  const placements = product.files
-    ? product.files.map((f) => f.placement) : [product.placement || 'front'];
-  const keys = new Set();
-  for (const p of placements) { keys.add(`thread_colors${p.replace('embroidery', '')}`); keys.add('thread_colors'); }
-  return [...keys].map((id) => ({ id, value: product.threadColor }));
-}
-
-/** Build Printful sync_variants payload from catalog variants. */
-export function buildSyncVariants(variants, product, logoFileId) {
-  const files = resolveFiles(product, logoFileId);
-  const options = resolveOptions(product);
-  return variants.map((v) => {
-    const sv = { variant_id: v.id, retail_price: product.retail.toFixed(2), files };
-    if (options.length) sv.options = options;
-    return sv;
-  });
-}
-
-/**
- * Search the Printful product catalog by keyword.
- * @param {any} client
- * @param {string} query
- */
+/** Search the Printful product catalog by keyword. */
 export async function browseCatalog(client, query) {
   const all = await client.call('GET', '/products');
   const q = query.toLowerCase();
   return all.filter((p) => p.title.toLowerCase().includes(q));
 }
 
-/**
- * Get detailed variant info for a catalog product.
- * @param {any} client
- * @param {number} productId
- */
+/** Get detailed variant info for a catalog product. */
 export async function inspectProduct(client, productId) {
   const data = await client.call('GET', `/products/${productId}`);
   const p = data.product;
@@ -125,12 +84,7 @@ export async function inspectProduct(client, productId) {
   };
 }
 
-/**
- * Pick best mockup styles (option_groups) for a catalog product.
- * @param {any} client
- * @param {number} catalogProductId
- * @returns {Promise<any[]>}
- */
+/** Pick best mockup styles for a catalog product. */
 export async function pickMockupStyles(client, catalogProductId) {
   const pf = await client.call('GET', `/mockup-generator/printfiles/${catalogProductId}`);
   const groups = pf.option_groups || [];

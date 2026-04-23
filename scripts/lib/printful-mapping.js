@@ -70,7 +70,7 @@ export function resolveTags(categoryId, categories) {
  * Map a Printful sync product + variants to StatiCart product shape.
  * @param {any} syncProduct
  * @param {any[]} syncVariants
- * @param {{ categoryId?: number, categories?: Map<number, any> }} [ctx]
+ * @param {{ categoryId?: number, catalogProductId?: number, categories?: Map<number, any> }} [ctx]
  */
 export function toProduct(syncProduct, syncVariants, ctx) {
   const first = syncVariants[0];
@@ -118,7 +118,11 @@ export function toProduct(syncProduct, syncVariants, ctx) {
     stock: -1,
     active: true,
     variants,
-    metadata: { printfulSyncProductId: syncProduct.id, printfulCategoryId: categoryId, printfulCatalogProductId: ctx?.catalogProductId || 0 },
+    metadata: {
+      printfulSyncProductId: syncProduct.id,
+      printfulCategoryId: categoryId,
+      printfulCatalogProductId: ctx?.catalogProductId || 0,
+    },
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
