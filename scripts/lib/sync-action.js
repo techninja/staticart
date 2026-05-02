@@ -59,7 +59,9 @@ export async function sync(helpers, apiKey, config) {
           .split('/')
           .map((s) => s.trim())
           .filter(Boolean);
-        const color = pfEntry.colors?.[0] || '';
+        const baseColor = pfEntry.colors?.[0] || '';
+        const useLabel = entry.printful.length > 1;
+        const color = useLabel ? pfEntry.label : baseColor;
         const size = parts.length > 1 ? parts[parts.length - 1] : parts[0] || '';
         allVariants.push({
           id: String(v.id),

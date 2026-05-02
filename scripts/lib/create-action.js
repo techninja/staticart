@@ -56,7 +56,7 @@ export async function create(helpers, apiKey, config) {
       const sv = helpers.buildSyncVariants(variants, pfEntry, logoFileId, retail);
       const name = entry.printful.length > 1 ? `${entry.name} — ${pfEntry.label}` : entry.name;
       const result = await client.call('POST', '/store/products', {
-        sync_product: { name, external_id: fullSku },
+        sync_product: { name, external_id: `${fullSku}-${pfEntry.label}` },
         sync_variants: sv,
       });
       storeProducts[fullSku][pfEntry.label] = result.id;

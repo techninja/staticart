@@ -20,8 +20,8 @@ export async function download(url, dest) {
 export function uniqueColorVariants(variants) {
   const seen = new Set();
   return variants.filter((v) => {
-    const key = v.product?.name?.split('/')?.slice(0, -1).join('/').trim() || v.id;
-    return !seen.has(key) && seen.add(key);
+    const color = v.product?.name?.replace(/\s*\([^)]+\)\s*$/, '') || v.id;
+    return !seen.has(color) && seen.add(color);
   });
 }
 
@@ -54,12 +54,17 @@ export function calcPosition(tpl, logoFile, placement) {
 }
 
 /** Run a mockup task, poll for result, return image URLs. */
-export async function runTask(client, productId, variantId, style, logoUrl, pos) {
+export async function runTask(client, productId, variantId, style, files) {
+  const taskFiles = files.map((f) => {
+    const entry = { placement: f.placement, image_url: f.image_url };
+    if (f.position?.area_width) entry.position = f.position;
+    return entry;
+  });
   const task = await client.call('POST', `/mockup-generator/create-task/${productId}`, {
     variant_ids: [variantId],
     ...style,
-    format: 'jpg',
-    files: [{ placement: pos.placement, image_url: logoUrl, position: pos }],
+    format: 'png',
+    files: taskFiles,
   });
   await sleep(6000);
   let result = await client.call('GET', `/mockup-generator/task?task_key=${task.task_key}`);

@@ -50,6 +50,7 @@ export default define({
   page: {
     value: /** @type {any} */ (undefined),
     connect(host, _key, invalidate) {
+      host.fallback = false;
       loadHome(host).then(() => invalidate());
     },
   },

@@ -26,12 +26,21 @@ export function createClient(key) {
     lastCall = Date.now();
 
     for (let attempt = 0; attempt < 3; attempt++) {
-      const res = await fetch(`${API}${path}`, {
-        method,
-        headers,
-        body: body ? JSON.stringify(body) : undefined,
-      });
-      const data = await res.json();
+      let res, data;
+      try {
+        res = await fetch(`${API}${path}`, {
+          method,
+          headers,
+          body: body ? JSON.stringify(body) : undefined,
+        });
+        data = await res.json();
+      } catch (e) {
+        const wait = 15 * (attempt + 1);
+        console.warn(`  ⏳ ${e.cause?.code || 'Network error'}, retrying in ${wait}s...`);
+        await new Promise((r) => setTimeout(r, wait * 1000));
+        lastCall = Date.now();
+        continue;
+      }
       if (data.code === 429 || (data.error?.message || '').includes('too many requests')) {
         const retry = parseInt(res.headers.get('retry-after') || '60', 10);
         console.warn(`  ⏳ Rate limited, waiting ${retry}s...`);
@@ -42,7 +51,7 @@ export function createClient(key) {
       if (data.code !== 200) throw new Error(`${path}: ${data.error?.message}`);
       return data.result;
     }
-    throw new Error(`${path}: rate limited after 3 retries`);
+    throw new Error(`${path}: failed after 3 retries`);
   }
 
   return { call };
@@ -89,15 +98,27 @@ export async function pickMockupStyles(client, catalogProductId) {
   const groups = pf.option_groups || [];
   const opts = pf.options || [];
   const styles = [];
-  const hasRight = opts.includes('Right');
+  const frontOpt = opts.find((o) => /^front$/i.test(o));
+  const rightOpt = opts.find((o) => /^right$/i.test(o));
+  // Product shot: Ghost > Default > Flat
+  // Ghost products (apparel) use Front; non-Ghost (drinkware etc) use Right for side view
   if (groups.includes('Ghost')) styles.push({ option_groups: ['Ghost'], options: ['Front'] });
   else if (groups.includes('Default')) {
-    const vo = hasRight ? ['Right'] : opts.filter((o) => /front/i.test(o)).slice(0, 1);
-    styles.push({ option_groups: ['Default'], ...(vo.length ? { options: vo } : {}) });
-  } else if (groups.includes('Flat'))
-    styles.push({ option_groups: ['Flat'], ...(hasRight ? { options: ['Right'] } : {}) });
-  if (groups.includes("Men's")) styles.push({ option_groups: ["Men's"], options: ['Front'] });
-  else if (groups.includes('Lifestyle'))
-    styles.push({ option_groups: ['Lifestyle'], ...(hasRight ? { options: ['Right'] } : {}) });
+    const vo = rightOpt || frontOpt;
+    styles.push({ option_groups: ['Default'], ...(vo ? { options: [vo] } : {}) });
+  } else if (groups.includes('Flat')) {
+    const vo = rightOpt || frontOpt;
+    styles.push({ option_groups: ['Flat'], ...(vo ? { options: [vo] } : {}) });
+  }
+  // On-model/lifestyle shot: prefer Right for non-Ghost products, Front for apparel
+  const onModel = groups.find((g) => /^(men's|women's)(\s+\d+)?$/i.test(g))
+    || groups.find((g) => /^(men's|women's)\s+lifestyle/i.test(g))
+    || groups.find((g) => /^lifestyle$/i.test(g))
+    || groups.find((g) => /lifestyle|on model/i.test(g));
+  if (onModel) {
+    const hasGhost = groups.includes('Ghost');
+    const lifeOpt = hasGhost ? frontOpt : (rightOpt || frontOpt);
+    styles.push({ option_groups: [onModel], ...(lifeOpt ? { options: [lifeOpt] } : {}) });
+  }
   return styles;
 }

@@ -21,16 +21,20 @@ function resolveFiles(entry, logoFileId) {
 
 /** Resolve thread color options from catalog entry. */
 function resolveOptions(entry) {
-  if (!entry.threadColor) return [];
-  const placements = entry.files
-    ? entry.files.map((f) => f.placement)
-    : [entry.placement || 'front'];
-  const keys = new Set();
-  for (const p of placements) {
-    keys.add(`thread_colors${p.replace('embroidery', '')}`);
-    keys.add('thread_colors');
+  const opts = [];
+  if (entry.threadColor) {
+    const placements = entry.files
+      ? entry.files.map((f) => f.placement)
+      : [entry.placement || 'front'];
+    const keys = new Set();
+    for (const p of placements) {
+      keys.add(`thread_colors${p.replace('embroidery', '')}`);
+      keys.add('thread_colors');
+    }
+    opts.push(...[...keys].map((id) => ({ id, value: entry.threadColor })));
   }
-  return [...keys].map((id) => ({ id, value: entry.threadColor }));
+  if (entry.options) opts.push(...entry.options);
+  return opts;
 }
 
 /**

@@ -135,7 +135,7 @@ export async function mockups(helpers, apiKey, opts) {
 function pickHero(paths, heroStyle) {
   if (!paths.length) return '';
   const styles = {
-    lifestyle: ['men-s', 'lifestyle'],
+    lifestyle: ['on-model', 'lifestyle', 'men-s', 'women'],
     flat: ['flat', 'ghost', 'default'],
     default: ['default', 'flat', 'ghost'],
   };

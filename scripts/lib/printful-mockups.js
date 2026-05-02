@@ -25,42 +25,109 @@ export async function generateMockups(client, storeProduct, styles, catalogEntry
   if (!sv) return new Map();
   const catalogId = sv.product.product_id;
   const logoFile = sv.files.find((f) => f.type !== 'preview');
-  if (!logoFile?.preview_url) {
+  const catFiles = catalogEntry?.files || [];
+  const defaultUrl = catFiles[0]?.url || logoFile?.url || logoFile?.preview_url;
+  if (!defaultUrl) {
     console.warn('  No logo file');
     return new Map();
   }
-  const catFiles = catalogEntry?.files || [];
-  const logoUrl = catFiles[0]?.url || logoFile.url || logoFile.preview_url;
-  const catPosition = catFiles[0]?.position;
   const tplData = await client.call('GET', `/mockup-generator/templates/${catalogId}`);
   const results = new Map();
+
+  // Build a placement → print area lookup from template data
+  const printAreas = new Map();
+  for (const tpl of tplData.templates) {
+    for (const pp of tpl.print_area_top !== undefined ? [tpl] : []) {
+      // Each template has placement info via variant_mapping
+    }
+    // Templates may cover multiple placements; index by template_id
+    printAreas.set(tpl.template_id, tpl);
+  }
 
   for (const variant of uniqueColorVariants(storeProduct.sync_variants)) {
     const mapping = tplData.variant_mapping.find(
       (m) => m.variant_id === variant.product.variant_id,
     );
     if (!mapping?.templates[0]) continue;
-    const tpl = tplData.templates.find((t) => t.template_id === mapping.templates[0].template_id);
-    if (!tpl) continue;
-    const pos = catPosition
-      ? { placement: mapping.templates[0].placement, ...catPosition }
-      : calcPosition(tpl, logoFile, mapping.templates[0].placement);
-    console.log(`  📸 variant ${variant.id}...`);
+
+    // Build placement → template lookup for this variant
+    const placementTpls = new Map();
+    for (const mt of mapping.templates) {
+      const tpl = tplData.templates.find((t) => t.template_id === mt.template_id);
+      if (tpl) placementTpls.set(mt.placement, tpl);
+    }
+
+    // Build files array from ALL catalog files
+    // Resolve catalog placement names to template placements (e.g. default↔front)
+    const tplNames = new Set(placementTpls.keys());
+    const resolvePl = (p) =>
+      tplNames.has(p) ? p
+      : p === 'default' && tplNames.has('front') ? 'front'
+      : p === 'front' && tplNames.has('default') ? 'default'
+      : p;
+    const files = [];
+    if (catFiles.length) {
+      for (const cf of catFiles) {
+        const pl = resolvePl(cf.placement || 'default');
+        const url = cf.url || defaultUrl;
+        const tpl = placementTpls.get(pl) || placementTpls.values().next().value;
+        if (!tpl) continue;
+        if (cf.position) {
+          // Scale logo proportionally: preserve its width fraction and aspect ratio
+          const pw = tpl.print_area_width;
+          const ph = tpl.print_area_height;
+          const w = Math.round(pw * (cf.position.width / cf.position.area_width));
+          const h = Math.round(w * (cf.position.height / cf.position.width));
+          files.push({
+            placement: pl,
+            image_url: url,
+            position: {
+              placement: pl,
+              area_width: pw,
+              area_height: ph,
+              width: w,
+              height: h,
+              top: Math.round((ph - h) / 2),
+              left: Math.round((pw - w) / 2),
+            },
+          });
+        } else if (cf.url) {
+          // Fill print area at native dimensions
+          const pw = tpl.print_area_width;
+          const ph = tpl.print_area_height;
+          files.push({
+            placement: pl,
+            image_url: url,
+            position: {
+              placement: pl,
+              area_width: pw,
+              area_height: ph,
+              width: pw,
+              height: ph,
+              top: 0,
+              left: 0,
+            },
+          });
+        }
+      }
+    }
+    // Fallback: single file with calcPosition
+    if (!files.length) {
+      const tpl = placementTpls.values().next().value;
+      const pl = mapping.templates[0].placement;
+      const pos = calcPosition(tpl, logoFile, pl);
+      files.push({ placement: pl, image_url: defaultUrl, position: pos });
+    }
+
+    console.log(`  📸 variant ${variant.id} (${files.length} placement(s))...`);
     const dir = resolve(ASSETS, String(storeProduct.sync_product.id));
     const paths = [];
     for (const style of styles) {
       try {
         const tag = (style.option_groups?.[0] || 'default').toLowerCase().replace(/[\s']/g, '-');
-        const imgs = await runTask(
-          client,
-          catalogId,
-          variant.product.variant_id,
-          style,
-          logoUrl,
-          pos,
-        );
+        const imgs = await runTask(client, catalogId, variant.product.variant_id, style, files);
         for (const img of imgs) {
-          const fname = `${variant.id}-${tag}-${img.label}.jpg`;
+          const fname = `${variant.id}-${tag}-${img.label}.png`;
           await download(img.url, resolve(dir, fname));
           paths.push(`/assets/products/${storeProduct.sync_product.id}/${fname}`);
           console.log(`    ✓ ${fname} [${tag}]`);
@@ -85,7 +152,7 @@ export function loadExistingMockups(id) {
   const results = new Map();
   if (!existsSync(dir)) return results;
   for (const fname of readdirSync(dir)) {
-    if (!fname.endsWith('.jpg')) continue;
+    if (!fname.endsWith('.png') && !fname.endsWith('.jpg')) continue;
     const variantId = fname.split('-')[0];
     const p = `/assets/products/${id}/${fname}`;
     if (!results.has(variantId)) results.set(variantId, []);
