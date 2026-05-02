@@ -24,8 +24,15 @@ function logoPosition(pl, tpl, catPos) {
   const ph = tpl.print_area_height;
   const w = Math.round(pw * (catPos.width / catPos.area_width));
   const h = Math.round(w * (catPos.height / catPos.width));
-  return { placement: pl, area_width: pw, area_height: ph, width: w, height: h,
-    top: Math.round((ph - h) / 2), left: Math.round((pw - w) / 2) };
+  return {
+    placement: pl,
+    area_width: pw,
+    area_height: ph,
+    width: w,
+    height: h,
+    top: Math.round((ph - h) / 2),
+    left: Math.round((pw - w) / 2),
+  };
 }
 
 /** Build a full-coverage position filling the template's print area. */
@@ -53,7 +60,11 @@ export function buildMockupFiles(catFiles, defaultUrl, placementTpls, mapping, l
       const url = cf.url || defaultUrl;
       const tpl = placementTpls.get(pl) || placementTpls.values().next().value;
       if (!tpl) continue;
-      const position = cf.position ? logoPosition(pl, tpl, cf.position) : cf.url ? fillPosition(pl, tpl) : null;
+      const position = cf.position
+        ? logoPosition(pl, tpl, cf.position)
+        : cf.url
+          ? fillPosition(pl, tpl)
+          : null;
       if (position) files.push({ placement: pl, image_url: url, position });
     }
   }
