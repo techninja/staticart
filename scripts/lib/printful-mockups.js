@@ -7,7 +7,8 @@
 
 import { existsSync, rmSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { download, uniqueColorVariants, calcPosition, runTask } from './mockup-helpers.js';
+import { download, uniqueColorVariants, runTask } from './mockup-helpers.js';
+import { buildMockupFiles } from './mockup-positions.js';
 
 const ROOT = process.cwd();
 const ASSETS = resolve(ROOT, 'src/assets/products');
@@ -34,91 +35,19 @@ export async function generateMockups(client, storeProduct, styles, catalogEntry
   const tplData = await client.call('GET', `/mockup-generator/templates/${catalogId}`);
   const results = new Map();
 
-  // Build a placement → print area lookup from template data
-  const printAreas = new Map();
-  for (const tpl of tplData.templates) {
-    for (const pp of tpl.print_area_top !== undefined ? [tpl] : []) {
-      // Each template has placement info via variant_mapping
-    }
-    // Templates may cover multiple placements; index by template_id
-    printAreas.set(tpl.template_id, tpl);
-  }
-
   for (const variant of uniqueColorVariants(storeProduct.sync_variants)) {
     const mapping = tplData.variant_mapping.find(
       (m) => m.variant_id === variant.product.variant_id,
     );
     if (!mapping?.templates[0]) continue;
 
-    // Build placement → template lookup for this variant
     const placementTpls = new Map();
     for (const mt of mapping.templates) {
       const tpl = tplData.templates.find((t) => t.template_id === mt.template_id);
       if (tpl) placementTpls.set(mt.placement, tpl);
     }
 
-    // Build files array from ALL catalog files
-    // Resolve catalog placement names to template placements (e.g. default↔front)
-    const tplNames = new Set(placementTpls.keys());
-    const resolvePl = (p) =>
-      tplNames.has(p) ? p
-      : p === 'default' && tplNames.has('front') ? 'front'
-      : p === 'front' && tplNames.has('default') ? 'default'
-      : p;
-    const files = [];
-    if (catFiles.length) {
-      for (const cf of catFiles) {
-        const pl = resolvePl(cf.placement || 'default');
-        const url = cf.url || defaultUrl;
-        const tpl = placementTpls.get(pl) || placementTpls.values().next().value;
-        if (!tpl) continue;
-        if (cf.position) {
-          // Scale logo proportionally: preserve its width fraction and aspect ratio
-          const pw = tpl.print_area_width;
-          const ph = tpl.print_area_height;
-          const w = Math.round(pw * (cf.position.width / cf.position.area_width));
-          const h = Math.round(w * (cf.position.height / cf.position.width));
-          files.push({
-            placement: pl,
-            image_url: url,
-            position: {
-              placement: pl,
-              area_width: pw,
-              area_height: ph,
-              width: w,
-              height: h,
-              top: Math.round((ph - h) / 2),
-              left: Math.round((pw - w) / 2),
-            },
-          });
-        } else if (cf.url) {
-          // Fill print area at native dimensions
-          const pw = tpl.print_area_width;
-          const ph = tpl.print_area_height;
-          files.push({
-            placement: pl,
-            image_url: url,
-            position: {
-              placement: pl,
-              area_width: pw,
-              area_height: ph,
-              width: pw,
-              height: ph,
-              top: 0,
-              left: 0,
-            },
-          });
-        }
-      }
-    }
-    // Fallback: single file with calcPosition
-    if (!files.length) {
-      const tpl = placementTpls.values().next().value;
-      const pl = mapping.templates[0].placement;
-      const pos = calcPosition(tpl, logoFile, pl);
-      files.push({ placement: pl, image_url: defaultUrl, position: pos });
-    }
-
+    const files = buildMockupFiles(catFiles, defaultUrl, placementTpls, mapping, logoFile);
     console.log(`  📸 variant ${variant.id} (${files.length} placement(s))...`);
     const dir = resolve(ASSETS, String(storeProduct.sync_product.id));
     const paths = [];

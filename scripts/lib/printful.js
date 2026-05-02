@@ -111,13 +111,14 @@ export async function pickMockupStyles(client, catalogProductId) {
     styles.push({ option_groups: ['Flat'], ...(vo ? { options: [vo] } : {}) });
   }
   // On-model/lifestyle shot: prefer Right for non-Ghost products, Front for apparel
-  const onModel = groups.find((g) => /^(men's|women's)(\s+\d+)?$/i.test(g))
-    || groups.find((g) => /^(men's|women's)\s+lifestyle/i.test(g))
-    || groups.find((g) => /^lifestyle$/i.test(g))
-    || groups.find((g) => /lifestyle|on model/i.test(g));
+  const onModel =
+    groups.find((g) => /^(men's|women's)(\s+\d+)?$/i.test(g)) ||
+    groups.find((g) => /^(men's|women's)\s+lifestyle/i.test(g)) ||
+    groups.find((g) => /^lifestyle$/i.test(g)) ||
+    groups.find((g) => /lifestyle|on model/i.test(g));
   if (onModel) {
     const hasGhost = groups.includes('Ghost');
-    const lifeOpt = hasGhost ? frontOpt : (rightOpt || frontOpt);
+    const lifeOpt = hasGhost ? frontOpt : rightOpt || frontOpt;
     styles.push({ option_groups: [onModel], ...(lifeOpt ? { options: [lifeOpt] } : {}) });
   }
   return styles;

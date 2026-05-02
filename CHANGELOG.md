@@ -12,7 +12,6 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Update Clearstack, upgrade product management
 - release: v0.4.13
 
-
 ## [0.4.13] - 2026-04-23
 
 - Spec match refactor
