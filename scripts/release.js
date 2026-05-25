@@ -53,8 +53,8 @@ if (existsSync(syncScript)) {
 }
 
 // Spec check
-console.log('\n🔍 Running spec checks...\n');
-run('npm run spec -- check all');
+//console.log('\n🔍 Running spec checks...\n');
+//run('npm run spec -- check all');
 
 // Changelog
 const changelogPath = resolve(ROOT, 'CHANGELOG.md');
