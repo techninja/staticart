@@ -11,11 +11,17 @@ const router = Router();
 const ROOT = process.cwd();
 const PRODUCTS_PATH = resolve(ROOT, 'src/data/products.json');
 
+/**
+ *
+ */
 function readProducts() {
   if (!existsSync(PRODUCTS_PATH)) return [];
   return JSON.parse(readFileSync(PRODUCTS_PATH, 'utf-8'));
 }
 
+/**
+ *
+ */
 function writeProducts(data) {
   writeFileSync(PRODUCTS_PATH, JSON.stringify(data, null, 2) + '\n');
 }

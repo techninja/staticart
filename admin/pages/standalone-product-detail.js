@@ -5,6 +5,9 @@
 
 import { html, define, router } from 'hybrids';
 
+/**
+ *
+ */
 async function loadProduct(host) {
   if (!host.sku) return;
   try {
@@ -13,11 +16,17 @@ async function loadProduct(host) {
   } catch (e) { console.error(e); }
 }
 
+/**
+ *
+ */
 function setField(host, e) {
   const { name, value } = e.target;
   host.product = { ...host.product, [name]: name === 'price' ? parseFloat(value) || 0 : value };
 }
 
+/**
+ *
+ */
 async function saveProduct(host) {
   const { sku, ...body } = host.product;
   await fetch(`/admin/api/standalone/products/${sku}`, {
@@ -28,6 +37,9 @@ async function saveProduct(host) {
   setTimeout(() => { host.saved = false; }, 2000);
 }
 
+/**
+ *
+ */
 function addVariant(host) {
   const label = prompt('Variant label (e.g. "Black / M"):');
   if (!label) return;
@@ -35,6 +47,9 @@ function addVariant(host) {
   host.product = { ...host.product, variants };
 }
 
+/**
+ *
+ */
 function removeVariant(host, e) {
   const idx = parseInt(e.currentTarget.dataset.idx);
   const variants = [...host.product.variants];
@@ -42,6 +57,9 @@ function removeVariant(host, e) {
   host.product = { ...host.product, variants };
 }
 
+/**
+ *
+ */
 function setVariantField(host, e) {
   const idx = parseInt(e.target.dataset.idx);
   const field = e.target.dataset.field;
@@ -50,6 +68,9 @@ function setVariantField(host, e) {
   host.product = { ...host.product, variants };
 }
 
+/**
+ *
+ */
 function addVariantImage(host, e) {
   const idx = parseInt(e.currentTarget.dataset.idx);
   const url = prompt('Image URL:');
@@ -59,6 +80,9 @@ function addVariantImage(host, e) {
   host.product = { ...host.product, variants };
 }
 
+/**
+ *
+ */
 function removeVariantImage(host, e) {
   const idx = parseInt(e.currentTarget.dataset.idx);
   const imgIdx = parseInt(e.currentTarget.dataset.img);
@@ -69,6 +93,9 @@ function removeVariantImage(host, e) {
   host.product = { ...host.product, variants };
 }
 
+/**
+ *
+ */
 function variantRow(v, i) {
   return html`<div class="variant-row">
     <input data-idx="${i}" data-field="label" value="${v.label}" oninput="${setVariantField}" placeholder="Label" />

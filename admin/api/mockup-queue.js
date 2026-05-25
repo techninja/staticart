@@ -17,15 +17,30 @@ const queue = [];
 let processing = false;
 const taskStatus = new Map();
 
+/**
+ *
+ */
 function setStatus(id, status) {
   taskStatus.set(id, status);
   broadcast('mockup:status', { id, ...status });
 }
 
+/**
+ *
+ */
 export function getTaskStatus(taskId) { return taskStatus.get(taskId); }
+/**
+ *
+ */
 export function getAllTaskStatus() { return Object.fromEntries(taskStatus); }
+/**
+ *
+ */
 export function getQueueLength() { return queue.length; }
 
+/**
+ *
+ */
 export function enqueueMockup(task) {
   const id = `${task.sku}:${task.configName}:${task.variantId || task.color || 'all'}`;
   setStatus(id, { status: 'queued', position: queue.length });
@@ -34,6 +49,9 @@ export function enqueueMockup(task) {
   return id;
 }
 
+/**
+ *
+ */
 async function processNext() {
   if (processing || !queue.length) return;
   processing = true;
@@ -53,6 +71,9 @@ async function processNext() {
   if (queue.length) setTimeout(processNext, 1000);
 }
 
+/**
+ *
+ */
 function matchPfEntry(catEntry, storeProductId, store) {
   if (!catEntry?.printful?.length) return null;
   if (catEntry.printful.length === 1) return catEntry.printful[0];
@@ -67,6 +88,9 @@ function matchPfEntry(catEntry, storeProductId, store) {
   return catEntry.printful[0];
 }
 
+/**
+ *
+ */
 async function generateOne(task) {
   const { client } = await getProvider();
   const catEntry = loadCatalogEntry(task.sku);

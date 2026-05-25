@@ -8,6 +8,9 @@ const listeners = new Map();
 let ws = null;
 let reconnectTimer = null;
 
+/**
+ *
+ */
 function connect() {
   const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
   ws = new WebSocket(`${proto}//${location.host}/admin/ws`);
@@ -25,6 +28,9 @@ function connect() {
   ws.onerror = () => ws.close();
 }
 
+/**
+ *
+ */
 export function subscribe(type, fn) {
   if (!listeners.has(type)) listeners.set(type, new Set());
   listeners.get(type).add(fn);
@@ -32,6 +38,9 @@ export function subscribe(type, fn) {
   return () => { listeners.get(type)?.delete(fn); };
 }
 
+/**
+ *
+ */
 export function unsubscribe(type, fn) {
   listeners.get(type)?.delete(fn);
 }

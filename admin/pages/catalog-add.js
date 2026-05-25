@@ -10,6 +10,9 @@ import { stepBasics } from './catalog-add-basics.js';
 import './catalog-add-variants.js';
 import './catalog-add-placements.js';
 
+/**
+ *
+ */
 async function loadInspect(host) {
   const id = host.id;
   if (!id) return;
@@ -32,16 +35,37 @@ async function loadInspect(host) {
   host.loading = false;
 }
 
+/**
+ *
+ */
 function isAllOver(inspect) {
   return inspect.colors.length <= 1 || (inspect.techniques || []).some((t) => /all.over/i.test(t));
 }
 
+/**
+ *
+ */
 function handleNext(host) { host.step = Math.min(host.step + 1, 4); }
+/**
+ *
+ */
 function handleBack(host) { host.step = Math.max(host.step - 1, 1); }
+/**
+ *
+ */
 function onPatterns(host, e) { host.selectedPatterns = e.detail; }
+/**
+ *
+ */
 function onColors(host, e) { host.selectedColors = e.detail; }
+/**
+ *
+ */
 function onSizes(host, e) { host.selectedSizes = e.detail; }
 
+/**
+ *
+ */
 function productWidget(d) {
   const p = d.pricing;
   return html`<div class="product-widget">
@@ -55,6 +79,9 @@ function productWidget(d) {
   </div>`;
 }
 
+/**
+ *
+ */
 function reviewStep(host) {
   const entry = buildEntry(host);
   return html`<div class="review">

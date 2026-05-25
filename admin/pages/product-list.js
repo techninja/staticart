@@ -7,6 +7,9 @@
 import { html, define, router } from 'hybrids';
 import ProductDetailView from './product-detail.js';
 
+/**
+ *
+ */
 async function loadProducts(host) {
   try {
     const [productsRes, catalogRes, stateRes] = await Promise.all([
@@ -31,8 +34,14 @@ async function loadProducts(host) {
   } catch (e) { console.error('Product load error:', e); }
 }
 
+/**
+ *
+ */
 function formatPrice(cents) { return `$${(cents / 100).toFixed(2)}`; }
 
+/**
+ *
+ */
 function productCard(item) {
   const p = item.product;
   const e = item.entry;

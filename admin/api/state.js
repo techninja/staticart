@@ -11,6 +11,9 @@ import { getProductStates } from './product-state.js';
 const router = Router();
 const ROOT = process.cwd();
 
+/**
+ *
+ */
 function loadCatalogAndStore() {
   const cfg = JSON.parse(readFileSync(resolve(ROOT, 'staticart.config.json'), 'utf-8'));
   const provider = cfg.fulfillment?.provider || 'printful';

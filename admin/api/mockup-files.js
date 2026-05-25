@@ -9,6 +9,9 @@ import { createHash } from 'node:crypto';
 
 const ROOT = process.cwd();
 
+/**
+ *
+ */
 export function loadCatalogEntry(sku) {
   const cfg = JSON.parse(readFileSync(resolve(ROOT, 'staticart.config.json'), 'utf-8'));
   const provider = cfg.fulfillment?.provider || 'printful';
@@ -18,6 +21,9 @@ export function loadCatalogEntry(sku) {
   return catalog.products.find((p) => p.sku === sku) || null;
 }
 
+/**
+ *
+ */
 export function loadStore() {
   const cfg = JSON.parse(readFileSync(resolve(ROOT, 'staticart.config.json'), 'utf-8'));
   const provider = cfg.fulfillment?.provider || 'printful';
@@ -25,6 +31,9 @@ export function loadStore() {
   return existsSync(storePath) ? JSON.parse(readFileSync(storePath, 'utf-8')) : {};
 }
 
+/**
+ *
+ */
 export function getFileStrategy(pfEntry) {
   if (pfEntry?.threadColor) return 'embroidery';
   if (pfEntry?.files?.some((f) => f.url)) return 'allover';
@@ -46,6 +55,9 @@ export function cleanStale(dir, validHashes) {
   }
 }
 
+/**
+ *
+ */
 export function buildFiles(strategy, pfEntry, tplData, variantId, logoUrl) {
   const mapping = tplData.variant_mapping?.find((m) => m.variant_id === variantId)
     || tplData.variant_mapping?.[0];

@@ -12,6 +12,9 @@ import StockManagerView from './stock-manager.js';
 import OrderListView from './order-list.js';
 import StandaloneProductListView from './standalone-product-list.js';
 
+/**
+ *
+ */
 async function detectMode(host) {
   try {
     const res = await fetch('/admin/api/mode');
@@ -19,6 +22,9 @@ async function detectMode(host) {
   } catch { host.mode = 'provider'; }
 }
 
+/**
+ *
+ */
 function navItem(View, label) {
   const href = router.url(View);
   const active = location.pathname === href.pathname;

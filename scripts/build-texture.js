@@ -26,18 +26,32 @@ mkdirSync(resolve(ROOT, 'src/assets/prints/renders'), { recursive: true });
 const args = process.argv.slice(2);
 const hasFlag = (name) => args.includes(`--${name}`);
 
+/**
+ *
+ */
 function ask(prompt) {
   const rl = createInterface({ input: process.stdin, output: process.stdout });
-  return new Promise((res) => rl.question(prompt, (a) => { rl.close(); res(a.trim()); }));
+  return new Promise((res) =>
+    rl.question(prompt, (a) => {
+      rl.close();
+      res(a.trim());
+    }),
+  );
 }
 
+/**
+ *
+ */
 async function main() {
   const cmd = args.find((a) => !a.startsWith('--'));
   const png = hasFlag('png');
 
   if (cmd === 'all') {
     const names = buildOrder(listPatterns());
-    if (!names.length) { console.log('No patterns found in src/assets/prints/patterns/'); return; }
+    if (!names.length) {
+      console.log('No patterns found in src/assets/prints/patterns/');
+      return;
+    }
     console.log(`Building ${names.length} pattern(s)...\n`);
     for (const name of names) logAndRender(generateFromDef(resolvePatternPath(name)), png);
     return;
@@ -52,8 +66,11 @@ async function main() {
       watch(resolvePatternPath(cmd), () => {
         clearTimeout(timer);
         timer = setTimeout(() => {
-          try { logAndRender(generateFromDef(resolvePatternPath(cmd)), png); }
-          catch (e) { console.error(`✗ ${e.message}`); }
+          try {
+            logAndRender(generateFromDef(resolvePatternPath(cmd)), png);
+          } catch (e) {
+            console.error(`✗ ${e.message}`);
+          }
         }, 100);
       });
     }
@@ -61,18 +78,26 @@ async function main() {
   }
 
   const patterns = listPatterns();
-  if (!patterns.length) { console.log('No patterns in src/assets/prints/patterns/'); return; }
+  if (!patterns.length) {
+    console.log('No patterns in src/assets/prints/patterns/');
+    return;
+  }
   console.log('\nAvailable patterns:\n');
   patterns.forEach((p, i) => console.log(`  ${i + 1}) ${p}`));
   console.log(`  a) Build all\n  q) Quit\n`);
   const choice = await ask('? ');
   if (choice === 'q') return;
   if (choice === 'a') {
-    for (const name of buildOrder(patterns)) logAndRender(generateFromDef(resolvePatternPath(name)), png);
+    for (const name of buildOrder(patterns))
+      logAndRender(generateFromDef(resolvePatternPath(name)), png);
     return;
   }
   const idx = parseInt(choice) - 1;
-  if (idx >= 0 && idx < patterns.length) logAndRender(generateFromDef(resolvePatternPath(patterns[idx])), png);
+  if (idx >= 0 && idx < patterns.length)
+    logAndRender(generateFromDef(resolvePatternPath(patterns[idx])), png);
 }
 
-main().catch((e) => { console.error(e); process.exit(1); });
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

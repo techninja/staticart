@@ -1,0 +1,16 @@
+{
+  "/": {
+    "title": "{store.name}",
+    "description": "Shop our collection. 99% static, privacy-first e-commerce."
+  },
+  "/shop/cart": {
+    "title": "Cart | {store.name}",
+    "description": "Review your cart and checkout."
+  },
+  "/shop/product/:sku": {
+    "title": "{sku.name} | {store.name}",
+    "description": "{sku.description}",
+    "image": "{sku.images.0}",
+    "data": "src/data/products.json"
+  }
+}

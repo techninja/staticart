@@ -11,7 +11,6 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Spec refactor
 - Printful integration and product management work
 
-
 ## [0.4.14] - 2026-04-23
 
 - Finish refactor for shared script

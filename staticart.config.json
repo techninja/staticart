@@ -1,6 +1,7 @@
 {
   "store": {
     "name": "StatiCart Demo Store",
+    "url": "https://staticart.org",
     "logo": "/assets/staticart_logo.svg",
     "locale": "en-US",
     "currency": "USD"

@@ -8,6 +8,9 @@ import { html, define, router } from 'hybrids';
 import '../components/mockup-styles.js';
 import { subscribe } from '../components/admin-events.js';
 
+/**
+ *
+ */
 async function loadProduct(host) {
   if (!host.sku) return;
   try {
@@ -30,8 +33,14 @@ async function loadProduct(host) {
   } catch (e) { console.error(e); }
 }
 
+/**
+ *
+ */
 function selectColor(host, e) { host.selectedColor = e.currentTarget.dataset.color; }
 
+/**
+ *
+ */
 async function applyHero(host, e) {
   const sku = e.currentTarget.dataset.sku;
   const res = await fetch(`/admin/api/mockups/apply/${sku}`, { method: 'POST' });
@@ -40,6 +49,9 @@ async function applyHero(host, e) {
   else alert(`Error: ${data.error}`);
 }
 
+/**
+ *
+ */
 async function cleanMockups(host, e) {
   const sku = e.currentTarget.dataset.sku;
   const res = await fetch(`/admin/api/mockups/clean/${sku}`, { method: 'POST' });
@@ -48,6 +60,9 @@ async function cleanMockups(host, e) {
   else alert(`Error: ${data.error}`);
 }
 
+/**
+ *
+ */
 function driftBadge(ps) {
   if (!ps.created) return html`<span class="badge pending">not created</span>`;
   if (ps.syncDirty && ps.mockupDirty) return html`<span class="badge warn">config changed</span>`;
@@ -56,6 +71,9 @@ function driftBadge(ps) {
   return html`<span class="badge ok">up to date</span>`;
 }
 
+/**
+ *
+ */
 function entryInfo(entry, ps, sku) {
   const hasHero = entry.mockupStyles?.some((s) => s.hero);
   return html`<div class="detail-card">
@@ -72,6 +90,9 @@ function entryInfo(entry, ps, sku) {
   </div>`;
 }
 
+/**
+ *
+ */
 function colorSelector(colors, selected, product) {
   if (colors.length <= 1) return html``;
   return html`<div class="color-selector">

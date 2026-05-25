@@ -6,10 +6,16 @@
 
 import { html, define, dispatch } from 'hybrids';
 
+/**
+ *
+ */
 function emitChange(host, prop) {
   dispatch(host, `${prop}change`, { detail: host[prop], bubbles: true });
 }
 
+/**
+ *
+ */
 function toggleColor(host, e) {
   const c = [...host.selectedcolors];
   const i = c.indexOf(e.target.value);
@@ -18,6 +24,9 @@ function toggleColor(host, e) {
   emitChange(host, 'selectedcolors');
 }
 
+/**
+ *
+ */
 function toggleSize(host, e) {
   const c = [...host.selectedsizes];
   const i = c.indexOf(e.target.value);
@@ -26,6 +35,9 @@ function toggleSize(host, e) {
   emitChange(host, 'selectedsizes');
 }
 
+/**
+ *
+ */
 function togglePattern(host, e) {
   const c = [...host.selectedpatterns];
   const i = c.indexOf(e.target.value);
@@ -34,16 +46,37 @@ function togglePattern(host, e) {
   emitChange(host, 'selectedpatterns');
 }
 
+/**
+ *
+ */
 function allColors(host) { host.selectedcolors = [...host.inspect.colors]; emitChange(host, 'selectedcolors'); }
+/**
+ *
+ */
 function noColors(host) { host.selectedcolors = []; emitChange(host, 'selectedcolors'); }
+/**
+ *
+ */
 function allSizes(host) { host.selectedsizes = [...host.inspect.sizes]; emitChange(host, 'selectedsizes'); }
+/**
+ *
+ */
 function noSizes(host) { host.selectedsizes = []; emitChange(host, 'selectedsizes'); }
+/**
+ *
+ */
 function allPatterns(host) {
   host.selectedpatterns = host.assets.filter((a) => a.path.startsWith('renders/') && a.name.endsWith('.png')).map((a) => a.path);
   emitChange(host, 'selectedpatterns');
 }
+/**
+ *
+ */
 function noPatterns(host) { host.selectedpatterns = []; emitChange(host, 'selectedpatterns'); }
 
+/**
+ *
+ */
 function checkboxes(items, selected, handler) {
   return html`<div class="checkbox-grid">
     ${items.map((v) => html`<label class="checkbox-item">

@@ -5,6 +5,9 @@
 
 import { html, define, router } from 'hybrids';
 
+/**
+ *
+ */
 async function loadProducts(host) {
   try {
     const res = await fetch('/admin/api/standalone/products');
@@ -12,11 +15,17 @@ async function loadProducts(host) {
   } catch (e) { console.error(e); }
 }
 
+/**
+ *
+ */
 function openDetail(host, e) {
   const sku = e.currentTarget.dataset.sku;
   router.resolve(e, { url: `/admin/standalone/product/${sku}` });
 }
 
+/**
+ *
+ */
 async function addProduct(host) {
   const sku = prompt('SKU (e.g. WIDGET):');
   if (!sku) return;
@@ -29,6 +38,9 @@ async function addProduct(host) {
   if (res.ok) host.products = [...host.products, await res.json()];
 }
 
+/**
+ *
+ */
 async function deleteProduct(host, e) {
   e.stopPropagation();
   const sku = e.currentTarget.dataset.sku;

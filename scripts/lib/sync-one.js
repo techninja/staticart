@@ -25,7 +25,8 @@ export async function syncOne(helpers, apiKey, config, sku, log = console.log) {
   if (!entry) throw new Error(`SKU ${sku} not in catalog`);
 
   const store = existsSync(r(`${provider}-store.json`))
-    ? JSON.parse(readFileSync(r(`${provider}-store.json`), 'utf-8')) : {};
+    ? JSON.parse(readFileSync(r(`${provider}-store.json`), 'utf-8'))
+    : {};
   const fullSku = `${catalog.skuPrefix}-${entry.sku}`;
   const syncIds = store.products?.[fullSku] || {};
   if (!Object.keys(syncIds).length) throw new Error(`${fullSku} not created on provider yet`);
@@ -49,26 +50,43 @@ export async function syncOne(helpers, apiKey, config, sku, log = console.log) {
       const preview = v.files?.find((f) => f.type === 'preview')?.preview_url || '';
       if (preview) allImages.add(preview);
       const raw = v.name.replace(detail.sync_product.name, '').replace(/^[\s/—-]+/, '');
-      const parts = raw.split('/').map((s) => s.trim()).filter(Boolean);
-      const color = entry.printful.length > 1 ? pfEntry.label : (pfEntry.colors?.[0] || '');
+      const parts = raw
+        .split('/')
+        .map((s) => s.trim())
+        .filter(Boolean);
+      const color = entry.printful.length > 1 ? pfEntry.label : pfEntry.colors?.[0] || '';
       const size = parts.length > 1 ? parts[parts.length - 1] : parts[0] || '';
       allVariants.push({
-        id: String(v.id), label: [color, size].filter(Boolean).join(' / ') || 'Default',
-        sku: `${fullSku}-${v.external_id || v.id}`, price: 0, stock: -1, image: preview,
-        color, size, printfulSyncProductId: syncId,
+        id: String(v.id),
+        label: [color, size].filter(Boolean).join(' / ') || 'Default',
+        sku: `${fullSku}-${v.external_id || v.id}`,
+        price: 0,
+        stock: -1,
+        image: preview,
+        color,
+        size,
+        printfulSyncProductId: syncId,
       });
     }
   }
 
   const retail = entry.retail || entry.printful[0]?.retail || 0;
   const product = {
-    sku: fullSku, name: entry.name, description: entry.description || entry.name,
-    price: Math.round(retail * 100), currency: 'USD', images: [...allImages],
-    category: entry.category || 'other', tags: entry.tags || [],
-    heroStyle: entry.heroStyle || 'default', stock: -1, active: true,
+    sku: fullSku,
+    name: entry.name,
+    description: entry.description || entry.name,
+    price: Math.round(retail * 100),
+    currency: 'USD',
+    images: [...allImages],
+    category: entry.category || 'other',
+    tags: entry.tags || [],
+    heroStyle: entry.heroStyle || 'default',
+    stock: -1,
+    active: true,
     variants: allVariants,
     metadata: { printfulSyncProductIds: Object.values(syncIds), catalogSku: entry.sku },
-    createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   };
 
   helpers.enrichOutOfStock([product], catVariants, catalog);

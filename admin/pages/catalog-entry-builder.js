@@ -6,11 +6,17 @@
 
 const SITE_URL = location.origin.includes('localhost') ? '' : location.origin;
 
+/**
+ *
+ */
 function resolveAssetUrl(localPath, assets) {
   const asset = assets?.find((a) => a.localPath === localPath || a.path === localPath);
   return asset?.publicUrl || localPath;
 }
 
+/**
+ *
+ */
 function labelFromPath(path) {
   return path.replace(/^renders\//, '').replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ')
     .replace(/\b\w/g, (c) => c.toUpperCase());

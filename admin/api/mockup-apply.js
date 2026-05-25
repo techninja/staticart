@@ -14,9 +14,18 @@ const router = Router();
 const ROOT = process.cwd();
 const PRODUCTS_PATH = resolve(ROOT, 'src/data/products.json');
 
+/**
+ *
+ */
 function readProducts() { return JSON.parse(readFileSync(PRODUCTS_PATH, 'utf-8')); }
+/**
+ *
+ */
 function writeProducts(data) { writeFileSync(PRODUCTS_PATH, JSON.stringify(data, null, 2) + '\n'); }
 
+/**
+ *
+ */
 function findImages(spId, hash) {
   const dir = resolve(ROOT, 'src/assets/products', String(spId));
   if (!existsSync(dir)) return [];

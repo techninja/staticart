@@ -3,8 +3,11 @@
  * @module admin/components/mockup-styles-actions
  */
 
-import { subscribe, unsubscribe } from './admin-events.js';
+import { subscribe } from './admin-events.js';
 
+/**
+ *
+ */
 export async function loadData(host) {
   if (!host.catalogid || host.catalogid === 'undefined' || !host.sku) return;
   try {
@@ -27,6 +30,9 @@ export async function loadData(host) {
   } catch (e) { console.error(e); }
 }
 
+/**
+ *
+ */
 export function subscribeStatus(host, invalidate) {
   const handler = (data) => {
     host.tasks = { ...host.tasks, [data.id]: data };
@@ -43,6 +49,9 @@ export function subscribeStatus(host, invalidate) {
   return subscribe('mockup:status', handler);
 }
 
+/**
+ *
+ */
 export function matchImage(config, images, diskimages) {
   const tag = (config.option_groups?.[0] || '').toLowerCase().replace(/[\s']/g, '-');
   const disk = (diskimages || []).find((img) => img.includes(`-${tag}-`));
@@ -50,8 +59,14 @@ export function matchImage(config, images, diskimages) {
   return (images || []).find((img) => img.includes(`-${tag}-`)) || '';
 }
 
+/**
+ *
+ */
 export function taskKey(sku, config) { return `${sku}:${config.name}:`; }
 
+/**
+ *
+ */
 export function matchTaskStatus(tasks, prefix) {
   const matching = Object.entries(tasks || {}).filter(([k]) => k.startsWith(prefix));
   if (!matching.length) return undefined;
@@ -63,21 +78,33 @@ export function matchTaskStatus(tasks, prefix) {
   return undefined;
 }
 
+/**
+ *
+ */
 export function handleSave(host, e) {
   const updated = [...host.configs]; updated[e.detail.index] = e.detail.config;
   host.configs = updated; persistConfigs(host);
 }
 
+/**
+ *
+ */
 export function handleRemove(host, e) {
   const updated = [...host.configs]; updated.splice(e.detail.index, 1);
   host.configs = updated; persistConfigs(host);
 }
 
+/**
+ *
+ */
 export function handleHero(host, e) {
   host.configs = host.configs.map((c, i) => ({ ...c, hero: i === e.detail.index }));
   persistConfigs(host, true);
 }
 
+/**
+ *
+ */
 export function handleAdd(host) {
   const groups = host.available?.optionGroups?.map((g) => g.name) || [];
   const opts = host.available?.options || [];
@@ -86,6 +113,9 @@ export function handleAdd(host) {
   persistConfigs(host);
 }
 
+/**
+ *
+ */
 export async function handleGenerate(host, e) {
   const config = host.configs[e.detail.index];
   if (!config || !host.storeproductid) return;
@@ -103,6 +133,9 @@ export async function handleGenerate(host, e) {
   }
 }
 
+/**
+ *
+ */
 async function persistConfigs(host, notify) {
   await fetch(`/admin/api/catalog/${host.sku}`, {
     method: 'PUT', headers: { 'Content-Type': 'application/json' },

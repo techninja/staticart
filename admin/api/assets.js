@@ -12,6 +12,9 @@ const ROOT = process.cwd();
 const PRINTS_DIR = resolve(ROOT, 'src/assets/prints');
 const IMG_EXTS = new Set(['.png', '.jpg', '.jpeg', '.svg']);
 
+/**
+ *
+ */
 function listImages(dir, base = '') {
   if (!existsSync(dir)) return [];
   const results = [];

@@ -6,6 +6,9 @@
 import { html, define, router } from 'hybrids';
 import OrderDetailView from './order-detail.js';
 
+/**
+ *
+ */
 async function loadOrders(host) {
   try {
     const res = await fetch('/admin/api/orders?limit=50');
@@ -13,22 +16,34 @@ async function loadOrders(host) {
   } catch (e) { console.error(e); }
 }
 
+/**
+ *
+ */
 function formatDate(iso) {
   if (!iso) return '—';
   return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 
+/**
+ *
+ */
 function formatCents(cents, currency) {
   if (!cents) return '—';
   return `$${(cents / 100).toFixed(2)}`;
 }
 
+/**
+ *
+ */
 function statusClass(s) {
   if (s === 'paid') return 'badge ok';
   if (s?.includes('refund')) return 'badge warn';
   return 'badge';
 }
 
+/**
+ *
+ */
 function orderRow(o) {
   const id = (o.PK || '').replace('ORDER#', '');
   const shortId = id.length > 20 ? `…${id.slice(-12)}` : id;

@@ -12,10 +12,16 @@ import { createHash } from 'node:crypto';
 const ROOT = process.cwd();
 const STATE_PATH = resolve(ROOT, '.admin-state.json');
 
+/**
+ *
+ */
 function loadState() {
   return existsSync(STATE_PATH) ? JSON.parse(readFileSync(STATE_PATH, 'utf-8')) : {};
 }
 
+/**
+ *
+ */
 function saveState(state) {
   writeFileSync(STATE_PATH, JSON.stringify(state, null, 2) + '\n');
 }

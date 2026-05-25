@@ -11,6 +11,9 @@ const router = Router();
 const ROOT = process.cwd();
 const r = (/** @type {string} */ p) => resolve(ROOT, p);
 
+/**
+ *
+ */
 function getSiteUrl() {
   return process.env.SITE_URL || process.env.SITE_ORIGIN || '';
 }

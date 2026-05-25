@@ -11,6 +11,9 @@ import { createRequire } from 'node:module';
 const ROOT = process.cwd();
 const require = createRequire(import.meta.url);
 
+/**
+ *
+ */
 function resolveLib(name) {
   try { return require.resolve(`@techninja/staticart/scripts/lib/${name}`); }
   catch { return resolve(ROOT, `scripts/lib/${name}`); }
@@ -19,6 +22,9 @@ function resolveLib(name) {
 /** @type {{ helpers: any, client: any, config: any } | null} */
 let _provider = null;
 
+/**
+ *
+ */
 export async function getProvider() {
   if (_provider) return _provider;
   const config = JSON.parse(readFileSync(resolve(ROOT, 'staticart.config.json'), 'utf-8'));
@@ -34,6 +40,9 @@ export async function getProvider() {
 const TTL = 5 * 60 * 1000;
 const _cache = new Map();
 
+/**
+ *
+ */
 async function cached(key, fetcher) {
   const entry = _cache.get(key);
   if (entry) {
@@ -47,11 +56,17 @@ async function cached(key, fetcher) {
   return data;
 }
 
+/**
+ *
+ */
 export async function getProducts() {
   const { client } = await getProvider();
   return cached('products', () => client.call('GET', '/products'));
 }
 
+/**
+ *
+ */
 export async function getCategories() {
   const { client } = await getProvider();
   return cached('categories', async () => {
@@ -69,6 +84,9 @@ export async function getCategories() {
   });
 }
 
+/**
+ *
+ */
 export async function getStoreProducts() {
   const { client } = await getProvider();
   return cached('store-products', () => client.call('GET', '/store/products'));

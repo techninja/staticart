@@ -48,7 +48,9 @@ async function mountAdmin(server) {
   try {
     const cfg = JSON.parse(readFileSync('staticart.config.json', 'utf-8'));
     if (!cfg.admin?.enabled) return;
-  } catch { return; }
+  } catch {
+    return;
+  }
   const { mountAdmin: mount } = await import('../admin/api/mount.js');
   await mount(app, 'local', server);
 }

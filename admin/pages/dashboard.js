@@ -12,6 +12,9 @@ import ProductDetailView from './product-detail.js';
 import StockManagerView from './stock-manager.js';
 import OrderListView from './order-list.js';
 
+/**
+ *
+ */
 async function loadStats(host) {
   try {
     const [productsRes, stockRes, ordersRes, deployRes] = await Promise.all([
@@ -30,6 +33,9 @@ async function loadStats(host) {
   } catch (e) { console.error('Dashboard load error:', e); }
 }
 
+/**
+ *
+ */
 function deployCard(d) {
   if (!d) return html`<stat-card label="Deploy" value="—"></stat-card>`;
   if (!d.deployed) return html`<stat-card label="Deploy" value="Not live" alert="true"></stat-card>`;
@@ -38,6 +44,9 @@ function deployCard(d) {
   return html`<stat-card label="Deploy" value="${changes} pending" alert="true"></stat-card>`;
 }
 
+/**
+ *
+ */
 function deployDetail(d) {
   if (!d || !d.deployed || d.inSync) return html``;
   return html`

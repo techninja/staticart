@@ -65,7 +65,8 @@ export async function mockups(helpers, apiKey, opts) {
     const catalogId = detail.sync_variants[0]?.product?.product_id;
     const mapping = syncIdMap.get(sp.id);
     const savedStyles = opts?.styles || mapping?.entry?.mockupStyles;
-    const styles = savedStyles || (catalogId ? await helpers.pickMockupStyles(client, catalogId) : []);
+    const styles =
+      savedStyles || (catalogId ? await helpers.pickMockupStyles(client, catalogId) : []);
     if (!styles.length) {
       console.log('    No mockup styles available');
       continue;

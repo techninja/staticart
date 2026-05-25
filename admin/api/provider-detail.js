@@ -11,9 +11,12 @@ import { getProvider, getStoreProducts, getCategories } from './provider-cache.j
 const router = Router();
 const ROOT = process.cwd();
 
+/**
+ *
+ */
 async function buildPlacements(client, productId, productFiles) {
   const fileMap = new Map(productFiles.filter((f) => f.type !== 'mockup').map((f) => [f.id, f]));
-  let tplDims = new Map();
+  const tplDims = new Map();
   try {
     const tpl = await client.call('GET', `/mockup-generator/templates/${productId}`);
     const tplById = new Map(tpl.templates.map((t) => [t.template_id, t]));

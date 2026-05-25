@@ -5,6 +5,9 @@
 
 import { html, define, router } from 'hybrids';
 
+/**
+ *
+ */
 async function loadOrder(host) {
   if (!host.id) return;
   try {
@@ -13,11 +16,17 @@ async function loadOrder(host) {
   } catch (e) { console.error(e); }
 }
 
+/**
+ *
+ */
 function formatDate(iso) {
   if (!iso) return '—';
   return new Date(iso).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
 }
 
+/**
+ *
+ */
 function itemRow(item) {
   return html`<tr>
     <td>${item.sku || '—'}</td>

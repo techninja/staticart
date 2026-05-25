@@ -6,6 +6,9 @@
 import { html, define, dispatch } from 'hybrids';
 import './position-preview.js';
 
+/**
+ *
+ */
 function toggleEdit(host) {
   host.editing = !host.editing;
   if (host.editing) {
@@ -14,9 +17,18 @@ function toggleEdit(host) {
   }
 }
 
+/**
+ *
+ */
 function setGroup(host, e) { host.editgroup = e.target.value; }
+/**
+ *
+ */
 function setOption(host, e) { host.editoption = e.target.value; }
 
+/**
+ *
+ */
 function saveEdit(host) {
   const name = `${host.editgroup} (${host.editoption})`;
   dispatch(host, 'configsave', { bubbles: true, detail: {
@@ -26,18 +38,30 @@ function saveEdit(host) {
   host.editing = false;
 }
 
+/**
+ *
+ */
 function toggleHero(host) {
   dispatch(host, 'confighero', { bubbles: true, detail: { index: host.index } });
 }
 
+/**
+ *
+ */
 function removeConfig(host) {
   dispatch(host, 'configremove', { bubbles: true, detail: { index: host.index } });
 }
 
+/**
+ *
+ */
 function generate(host) {
   dispatch(host, 'configgenerate', { bubbles: true, detail: { index: host.index } });
 }
 
+/**
+ *
+ */
 function statusOverlay(s) {
   if (!s) return html``;
   if (s.status === 'queued') return html`<div class="mcc-overlay">Queued #${(s.position || 0) + 1}</div>`;

@@ -10,17 +10,26 @@ import { resolve } from 'node:path';
 const router = Router();
 const ROOT = process.cwd();
 
+/**
+ *
+ */
 function catalogPath() {
   const cfg = JSON.parse(readFileSync(resolve(ROOT, 'staticart.config.json'), 'utf-8'));
   const provider = cfg.fulfillment?.provider || 'printful';
   return resolve(ROOT, `src/data/${provider}-catalog.json`);
 }
 
+/**
+ *
+ */
 function readCatalog() {
   const p = catalogPath();
   return existsSync(p) ? JSON.parse(readFileSync(p, 'utf-8')) : { skuPrefix: 'SM', products: [] };
 }
 
+/**
+ *
+ */
 function writeCatalog(data) {
   writeFileSync(catalogPath(), JSON.stringify(data, null, 2) + '\n');
 }

@@ -7,6 +7,9 @@
 
 import { html, define, dispatch } from 'hybrids';
 
+/**
+ *
+ */
 function togglePlacement(host, e) {
   const id = e.target.value;
   const current = [...host.placements];
@@ -20,12 +23,18 @@ function togglePlacement(host, e) {
   dispatch(host, 'placementschange', { detail: current, bubbles: true });
 }
 
+/**
+ *
+ */
 function setMode(host, e) {
   const id = e.target.dataset.id;
   host.placements = host.placements.map((p) => (p.id === id ? { ...p, mode: e.target.value, url: '' } : p));
   dispatch(host, 'placementschange', { detail: host.placements, bubbles: true });
 }
 
+/**
+ *
+ */
 function setAsset(host, e) {
   const id = e.target.dataset.id;
   const asset = host.assets.find((a) => a.localPath === e.target.value);
@@ -34,12 +43,18 @@ function setAsset(host, e) {
   dispatch(host, 'placementschange', { detail: host.placements, bubbles: true });
 }
 
+/**
+ *
+ */
 function setCustomUrl(host, e) {
   const id = e.target.dataset.id;
   host.placements = host.placements.map((p) => (p.id === id ? { ...p, url: e.target.value, deployed: true } : p));
   dispatch(host, 'placementschange', { detail: host.placements, bubbles: true });
 }
 
+/**
+ *
+ */
 function placementConfig(p, assets) {
   const notDeployed = p.mode === 'asset' && p.deployed === false;
   return html`<div class="placement-config"><div class="form-row">
@@ -58,8 +73,14 @@ function placementConfig(p, assets) {
   </div>`;
 }
 
+/**
+ *
+ */
 function isLabelPlacement(id) { return /label/i.test(id); }
 
+/**
+ *
+ */
 function allOverView(inspect, selectedpatterns, assets) {
   const available = (inspect.placements || []).filter((p) => p.type !== 'mockup' && p.id !== 'preview');
   const renders = assets.filter((a) => selectedpatterns.includes(a.path));
@@ -96,6 +117,9 @@ function allOverView(inspect, selectedpatterns, assets) {
   `;
 }
 
+/**
+ *
+ */
 function logoView(inspect, assets, placements) {
   const available = (inspect.placements || []).filter((p) => p.type !== 'mockup');
   return html`

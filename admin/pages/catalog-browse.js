@@ -1,6 +1,9 @@
 import { html, define, router } from 'hybrids';
 import CatalogAddView from './catalog-add.js';
 
+/**
+ *
+ */
 async function loadCategories(host) {
   try {
     const res = await fetch('/admin/api/provider/categories');
@@ -8,6 +11,9 @@ async function loadCategories(host) {
   } catch (e) { console.error('Categories error:', e); }
 }
 
+/**
+ *
+ */
 function handleSearch(host) {
   if (!host.query && !host.activeCategory) return;
   host.searching = true;
@@ -22,10 +28,22 @@ function handleSearch(host) {
     .catch(() => { host.searching = false; });
 }
 
+/**
+ *
+ */
 function handleSubmit(host, e) { e.preventDefault(); handleSearch(host); }
+/**
+ *
+ */
 function handleCategory(host, e) { e.preventDefault(); host.activeCategory = parseInt(e.currentTarget.dataset.id); host.detail = undefined; handleSearch(host); }
+/**
+ *
+ */
 function clearCategory(host) { host.activeCategory = 0; host.detail = undefined; handleSearch(host); }
 
+/**
+ *
+ */
 async function handleInspect(host, e) {
   host.inspecting = true;
   host.detail = undefined;
@@ -36,6 +54,9 @@ async function handleInspect(host, e) {
   host.inspecting = false;
 }
 
+/**
+ *
+ */
 function resultCard(r) {
   return html`
     <div class="browse-item" data-id="${r.id}" onclick="${handleInspect}">
@@ -53,6 +74,9 @@ function resultCard(r) {
   `.key(r.id);
 }
 
+/**
+ *
+ */
 function placementCard(p) {
   const dim = p.width ? `${p.width}×${p.height}` : 'unknown';
   const price = p.additionalPrice ? `+$${p.additionalPrice}` : 'included';
@@ -68,8 +92,14 @@ function placementCard(p) {
   </div>`;
 }
 
+/**
+ *
+ */
 function goToAdd(host) { router.resolve(host, router.url(CatalogAddView, { id: host.detail.product.id })); }
 
+/**
+ *
+ */
 function detailView(d) {
   const p = d.pricing;
   return html`
