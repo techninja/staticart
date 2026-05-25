@@ -6,6 +6,16 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.4.16] - 2026-05-25
+
+- :facepalm: Disable spec check till I can finish the admin feature
+- Audit fix
+- Upgrade for Clearstack routes and OG meta support
+- Initial local only admin work for managing products
+- Can cache busting for now
+- Upgrade Clearstack for routing issue
+
+
 ## [0.4.15] - 2026-05-02
 
 - Spec refactor
