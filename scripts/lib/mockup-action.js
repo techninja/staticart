@@ -21,7 +21,7 @@ const r = (/** @type {string} */ p) => resolve(ROOT, p);
  * Generate mockups for all store products, download images, update products.json.
  * @param {any} helpers
  * @param {string} apiKey
- * @param {{ force?: boolean, fresh?: boolean, filter?: string }} [opts]
+ * @param {{ force?: boolean, fresh?: boolean, filter?: string, styles?: any[] }} [opts]
  */
 export async function mockups(helpers, apiKey, opts) {
   if (opts?.fresh) clearMockups();
@@ -63,12 +63,13 @@ export async function mockups(helpers, apiKey, opts) {
     console.log(`\n  📸 ${sp.name}`);
     const detail = await client.call('GET', `/store/products/${sp.id}`);
     const catalogId = detail.sync_variants[0]?.product?.product_id;
-    const styles = catalogId ? await helpers.pickMockupStyles(client, catalogId) : [];
+    const mapping = syncIdMap.get(sp.id);
+    const savedStyles = opts?.styles || mapping?.entry?.mockupStyles;
+    const styles = savedStyles || (catalogId ? await helpers.pickMockupStyles(client, catalogId) : []);
     if (!styles.length) {
       console.log('    No mockup styles available');
       continue;
     }
-    const mapping = syncIdMap.get(sp.id);
     const heroStyle = mapping?.entry?.heroStyle || 'default';
     const variantMockups = await generateMockups(
       client,

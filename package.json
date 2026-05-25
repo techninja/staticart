@@ -12,6 +12,7 @@
     "templates/",
     "scripts/",
     "api/",
+    "admin/",
     "docs/staticart/",
     "src/"
   ],
@@ -37,6 +38,7 @@
     "postinstall": "node scripts/setup.js",
     "products": "node --env-file=.env --env-file=.env.local scripts/products.js",
     "spec": "clearstack",
+    "texture": "node scripts/build-texture.js",
     "release": "node scripts/release.js"
   },
   "keywords": [],

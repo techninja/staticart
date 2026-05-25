@@ -5,6 +5,7 @@
  */
 
 import express from 'express';
+import { readFileSync } from 'node:fs';
 
 /** @type {any} */
 const app = express();
@@ -38,6 +39,18 @@ function lambdaRoute(handler, getPathParams, getQueryParams) {
       res.status(500).json({ error: 'Internal server error' });
     }
   };
+}
+
+/**
+ * Mount admin routes if admin.enabled in staticart.config.json.
+ */
+async function mountAdmin() {
+  try {
+    const cfg = JSON.parse(readFileSync('staticart.config.json', 'utf-8'));
+    if (!cfg.admin?.enabled) return;
+  } catch { return; }
+  const { mountAdmin: mount } = await import('../node_modules/@techninja/staticart/admin/api/mount.js');
+  await mount(app);
 }
 
 /**
@@ -92,7 +105,7 @@ app.use('/staticart.config.json', express.static('staticart.config.json'));
 app.use(express.static('src'));
 
 app.use((req, res, next) => {
-  if (req.method === 'GET' && !req.path.includes('.') && !req.path.startsWith('/api/')) {
+  if (req.method === 'GET' && !req.path.includes('.') && !req.path.startsWith('/api/') && !req.path.startsWith('/admin')) {
     return res.sendFile('index.html', { root: 'src' });
   }
   next();
@@ -100,6 +113,7 @@ app.use((req, res, next) => {
 
 /** @param {number} [port] */
 export async function start(port = 3000) {
+  await mountAdmin();
   await mountApi();
   const server = app.listen(port, () => console.log(`http://localhost:${port}`));
   return server;
