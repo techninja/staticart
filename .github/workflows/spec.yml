@@ -28,8 +28,6 @@ jobs:
       - name: Install Playwright Chromium
         run: npx playwright install chromium --with-deps
         timeout-minutes: 5
-        env:
-          DEBIAN_FRONTEND: noninteractive
 
       - name: Spec compliance
         run: npm run spec -- check all
