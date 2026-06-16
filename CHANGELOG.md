@@ -6,6 +6,13 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.4.17] - 2026-06-16
+
+- Prep for next release
+- Example site for build deps and examples
+- Walk tree for deps matching on CI builds from sub-stacks
+
+
 ## [0.4.16] - 2026-05-25
 
 - :facepalm: Disable spec check till I can finish the admin feature
