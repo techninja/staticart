@@ -52,6 +52,8 @@ const Product = {
   price: 0,
   currency: 'USD',
   images: [String],
+  carouselImages: ({ sku }) => cache?.find((p) => p.sku === sku)?.carouselImages || [],
+  heroImage: '',
   category: /** @type {string|string[]} */ (''),
   tags: [String],
   stock: 0,

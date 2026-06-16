@@ -6,6 +6,13 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.4.19] - 2026-06-16
+
+- Product hero revamp for scrolling and customization
+- Carousel configuration
+- Variant images all styles
+
+
 ## [0.4.18] - 2026-06-16
 
 - Double stack trouble for vendor deps
