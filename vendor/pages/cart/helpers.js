@@ -30,10 +30,13 @@ export function buildLineItems(products, items) {
       const v = item.variantId ? (p?.variants || []).find((v) => v.id === item.variantId) : null;
       return {
         sku: item.sku,
+        variantId: item.variantId || '',
         name: p?.name || item.sku,
         price: v && v.price > 0 ? v.price : p?.price || 0,
         currency: p?.currency || 'USD',
         quantity: item.quantity,
+        printfulSyncProductId:
+          v?.printfulSyncProductId || p?.metadata?.printfulSyncProductIds?.[0] || '',
       };
     });
 }

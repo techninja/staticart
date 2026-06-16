@@ -42,10 +42,17 @@ export default define({
   product: {
     ...store(Product, { id: 'sku' }),
     observe(host) {
-      if (host.selectedColor || !store.ready(host.product)) return;
+      if (host.selectedVariant || !store.ready(host.product)) return;
       const variants = /** @type {any[]} */ (host.product.variants);
+      if (!variants.length) return;
       const first = variants.find((v) => v.color && v.stock !== 0);
-      if (first) selectColor(host, first.color);
+      if (first) {
+        selectColor(host, first.color);
+        return;
+      }
+      // No color dimension — auto-select first available variant
+      const available = variants.find((v) => v.stock !== 0) || variants[0];
+      if (available) host.selectedVariant = available.id;
     },
   },
   config: {

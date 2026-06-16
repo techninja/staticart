@@ -6,6 +6,13 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.4.20] - 2026-06-16
+
+- Try to fix CI spec check timeout
+- Spec cleanup, changelog
+- Include variant IDs, product details
+
+
 ## [0.4.19] - 2026-06-16
 
 - Product hero revamp for scrolling and customization
