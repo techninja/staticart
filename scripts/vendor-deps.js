@@ -9,17 +9,29 @@
 import { cpSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const VENDOR_DIR = resolve(ROOT, 'src/vendor');
+const require = createRequire(import.meta.url);
 
-/** @type {{ name: string, src: string }[]} */
-const DEPS = [{ name: 'hybrids', src: 'node_modules/hybrids/src' }];
+/** Resolve a dependency's source directory, handling npm hoisting. */
+function resolveDep(name, subpath) {
+  try {
+    const pkgJson = require.resolve(`${name}/package.json`);
+    return resolve(dirname(pkgJson), subpath);
+  } catch {
+    return resolve(ROOT, 'node_modules', name, subpath);
+  }
+}
+
+/** @type {{ name: string, subpath: string }[]} */
+const DEPS = [{ name: 'hybrids', subpath: 'src' }];
 
 mkdirSync(VENDOR_DIR, { recursive: true });
 
 for (const dep of DEPS) {
-  const src = resolve(ROOT, dep.src);
+  const src = resolveDep(dep.name, dep.subpath);
   const dest = resolve(VENDOR_DIR, dep.name);
   cpSync(src, dest, { recursive: true });
   console.log(`✓ Vendored: ${dep.name} → src/vendor/${dep.name}/`);
