@@ -10,6 +10,9 @@ import Product from '#store/Product.js';
 import { formatPrice } from '#utils/formatPrice.js';
 import { productUrl } from '#utils/routes.js';
 
+/**
+ *
+ */
 function getItems(products, category, filterTag) {
   let items = products.filter((p) => p.active !== false && p.images?.length);
   if (category) items = items.filter((p) => Array.isArray(p.category) ? p.category.includes(category) : p.category === category);
@@ -17,6 +20,9 @@ function getItems(products, category, filterTag) {
   return items;
 }
 
+/**
+ *
+ */
 function buildSlides(products, category, filterTag) {
   const items = getItems(products, category, filterTag);
   const slides = [];
@@ -35,6 +41,9 @@ function buildSlides(products, category, filterTag) {
 }
 
 let scrollTimer = null;
+/**
+ *
+ */
 function onScroll(host) {
   const track = host.querySelector('.product-hero__track');
   if (!track) return;
@@ -45,6 +54,9 @@ function onScroll(host) {
   if (idx !== host.activeIndex) { host.activeIndex = idx; host.paused = true; }
 }
 
+/**
+ *
+ */
 function onWheel(host, e) {
   const track = host.querySelector('.product-hero__track');
   if (!track || !e.deltaY) return;
@@ -52,11 +64,17 @@ function onWheel(host, e) {
   track.scrollBy({ left: e.deltaY > 0 ? track.offsetWidth : -track.offsetWidth, behavior: 'smooth' });
 }
 
+/**
+ *
+ */
 function scrollTo(host, idx) {
   const track = host.querySelector('.product-hero__track');
   if (track) track.scrollTo({ left: idx * track.offsetWidth, behavior: 'smooth' });
 }
 
+/**
+ *
+ */
 function dotClick(host, e) {
   const idx = parseInt(e.currentTarget.dataset.idx);
   host.activeIndex = idx;

@@ -35,7 +35,8 @@ export function buildLineItems(products, items) {
         price: v && v.price > 0 ? v.price : p?.price || 0,
         currency: p?.currency || 'USD',
         quantity: item.quantity,
-        printfulSyncProductId: v?.printfulSyncProductId || p?.metadata?.printfulSyncProductIds?.[0] || '',
+        printfulSyncProductId:
+          v?.printfulSyncProductId || p?.metadata?.printfulSyncProductIds?.[0] || '',
       };
     });
 }

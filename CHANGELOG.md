@@ -12,18 +12,15 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Carousel configuration
 - Variant images all styles
 
-
 ## [0.4.18] - 2026-06-16
 
 - Double stack trouble for vendor deps
-
 
 ## [0.4.17] - 2026-06-16
 
 - Prep for next release
 - Example site for build deps and examples
 - Walk tree for deps matching on CI builds from sub-stacks
-
 
 ## [0.4.16] - 2026-05-25
 
