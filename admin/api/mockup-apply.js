@@ -68,18 +68,22 @@ router.post('/mockups/apply/:sku', (req, res) => {
     product.images = [...new Set(allImages)];
     if (allImages[0]) product.heroImage = allImages[0];
 
-    // Update variant images — each variant gets images from its store product
+    // Update variant images — each variant gets ALL images from its store product
     for (const variant of (product.variants || [])) {
       const spId = variant.printfulSyncProductId;
       if (!spId) continue;
       const label = Object.entries(colorMap).find(([, id]) => id === spId)?.[0];
       const pfEntry = catEntry.printful?.find((p) => p.label === label) || catEntry.printful?.[0];
       const heroHash = configHash(pfEntry, { option_groups: heroStyle.option_groups, options: heroStyle.options });
-      const imgs = findImages(spId, heroHash);
-      if (imgs.length) {
-        variant.image = imgs[0];
-        variant.images = imgs;
+      const heroImgs = findImages(spId, heroHash);
+      const otherImgs = [];
+      for (const style of (catEntry.mockupStyles || [])) {
+        if (style.hero) continue;
+        const h = configHash(pfEntry, { option_groups: style.option_groups, options: style.options });
+        otherImgs.push(...findImages(spId, h));
       }
+      const all = [...heroImgs, ...otherImgs];
+      if (all.length) { variant.image = all[0]; variant.images = all; }
     }
 
     writeProducts(products);
