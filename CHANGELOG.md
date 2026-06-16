@@ -6,6 +6,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.4.18] - 2026-06-16
+
+- Double stack trouble for vendor deps
+
+
 ## [0.4.17] - 2026-06-16
 
 - Prep for next release
