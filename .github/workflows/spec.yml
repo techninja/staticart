@@ -25,13 +25,11 @@ jobs:
       - name: Install API dependencies
         run: cd api && npm ci
 
-      - name: Install Playwright system deps
-        run: sudo npx playwright install-deps chromium
-        timeout-minutes: 3
-
       - name: Install Playwright Chromium
-        run: npx playwright install chromium
-        timeout-minutes: 3
+        run: npx playwright install chromium --with-deps
+        timeout-minutes: 5
+        env:
+          DEBIAN_FRONTEND: noninteractive
 
       - name: Spec compliance
         run: npm run spec -- check all
