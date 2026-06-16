@@ -15,7 +15,6 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Can cache busting for now
 - Upgrade Clearstack for routing issue
 
-
 ## [0.4.15] - 2026-05-02
 
 - Spec refactor
