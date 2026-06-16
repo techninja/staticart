@@ -1,6 +1,7 @@
 {
   "store": {
     "name": "My Store",
+    "url": "https://example.com",
     "locale": "en-US",
     "currency": "USD"
   },
