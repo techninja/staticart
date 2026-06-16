@@ -6,23 +6,22 @@
  * Applies local patches after copy.
  */
 
-import { cpSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createRequire } from 'node:module';
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const VENDOR_DIR = resolve(ROOT, 'src/vendor');
-const require = createRequire(import.meta.url);
 
-/** Resolve a dependency's source directory, handling npm hoisting. */
+/** Walk up from ROOT to find a hoisted node_modules dep. */
 function resolveDep(name, subpath) {
-  try {
-    const pkgJson = require.resolve(`${name}/package.json`);
-    return resolve(dirname(pkgJson), subpath);
-  } catch {
-    return resolve(ROOT, 'node_modules', name, subpath);
+  let dir = ROOT;
+  while (dir !== dirname(dir)) {
+    const candidate = resolve(dir, 'node_modules', name, subpath);
+    if (existsSync(candidate)) return candidate;
+    dir = dirname(dir);
   }
+  throw new Error(`Cannot find ${name}/${subpath} — is ${name} installed?`);
 }
 
 /** @type {{ name: string, subpath: string }[]} */
